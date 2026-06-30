@@ -1,10 +1,13 @@
 package yesman.epicfight.client.input;
 
 import com.mojang.blaze3d.platform.InputConstants;
+
+import net.minecraft.client.Minecraft;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Options;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
-import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import yesman.epicfight.generated.LangKeys;
@@ -12,12 +15,12 @@ import yesman.epicfight.main.EpicFightMod;
 
 @Mod.EventBusSubscriber(modid = EpicFightMod.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class EpicFightKeyMappings {
+    private static boolean fabricKeysRegistered;
 
     // GUI key-mappings
     public static final KeyMapping WEAPON_INNATE_SKILL_TOOLTIP =
             new KeyMapping(
                     LangKeys.KEY_SHOW_TOOLTIP,
-                    KeyConflictContext.GUI,
                     InputConstants.Type.KEYSYM,
                     InputConstants.KEY_LSHIFT,
                     EpicFightInputCategories.GUI
@@ -26,7 +29,6 @@ public class EpicFightKeyMappings {
     public static final KeyMapping SKILL_EDIT =
             new KeyMapping(
                     LangKeys.KEY_SKILL_GUI,
-                    KeyConflictContext.IN_GAME,
                     InputConstants.Type.KEYSYM,
                     InputConstants.KEY_K,
                     EpicFightInputCategories.GUI
@@ -35,7 +37,6 @@ public class EpicFightKeyMappings {
     public static final KeyMapping OPEN_CONFIG_SCREEN =
             new KeyMapping(
                     LangKeys.KEY_CONFIG,
-                    KeyConflictContext.IN_GAME,
                     InputConstants.Type.KEYSYM,
                     -1,
                     EpicFightInputCategories.GUI
@@ -52,38 +53,34 @@ public class EpicFightKeyMappings {
     public static final KeyMapping GUARD =
             new CombatKeyMapping(
                     LangKeys.KEY_GUARD,
-                    InputConstants.Type.MOUSE,
-                    InputConstants.MOUSE_BUTTON_RIGHT,
+                    InputConstants.UNKNOWN.getValue(),
                     EpicFightInputCategories.COMBAT
             );
 
     public static final KeyMapping ATTACK =
             new CombatKeyMapping(
                     LangKeys.KEY_ATTACK,
-                    InputConstants.Type.MOUSE,
-                    InputConstants.MOUSE_BUTTON_LEFT,
+                    InputConstants.UNKNOWN.getValue(),
                     EpicFightInputCategories.COMBAT
             );
 
     public static final KeyMapping WEAPON_INNATE_SKILL =
             new CombatKeyMapping(
                     LangKeys.KEY_WEAPON_INNATE_SKILL,
-                    InputConstants.Type.MOUSE,
-                    InputConstants.MOUSE_BUTTON_LEFT,
+                    InputConstants.UNKNOWN.getValue(),
                     EpicFightInputCategories.COMBAT
             );
 
     public static final KeyMapping MOVER_SKILL =
             new CombatKeyMapping(
                     LangKeys.KEY_MOVER_SKILL,
-                    InputConstants.KEY_SPACE,
+                    InputConstants.UNKNOWN.getValue(),
                     EpicFightInputCategories.COMBAT
             );
 
     public static final KeyMapping SWITCH_MODE =
             new KeyMapping(
                     LangKeys.KEY_SWITCH_MODE,
-                    KeyConflictContext.IN_GAME,
                     InputConstants.Type.KEYSYM,
                     InputConstants.KEY_R,
                     EpicFightInputCategories.COMBAT
@@ -92,7 +89,6 @@ public class EpicFightKeyMappings {
     public static final KeyMapping LOCK_ON =
             new KeyMapping(
                     LangKeys.KEY_LOCK_ON,
-                    KeyConflictContext.IN_GAME,
                     InputConstants.Type.KEYSYM,
                     InputConstants.KEY_G,
                     EpicFightInputCategories.CAMERA
@@ -101,7 +97,6 @@ public class EpicFightKeyMappings {
     public static final KeyMapping LOCK_ON_SHIFT_LEFT =
             new KeyMapping(
                     LangKeys.KEY_LOCK_ON_SHIFT_LEFT,
-                    KeyConflictContext.IN_GAME,
                     InputConstants.Type.KEYSYM,
                     InputConstants.KEY_LEFT,
                     EpicFightInputCategories.CAMERA
@@ -110,7 +105,6 @@ public class EpicFightKeyMappings {
     public static final KeyMapping LOCK_ON_SHIFT_RIGHT =
             new KeyMapping(
                     LangKeys.KEY_LOCK_ON_SHIFT_RIGHT,
-                    KeyConflictContext.IN_GAME,
                     InputConstants.Type.KEYSYM,
                     InputConstants.KEY_RIGHT,
                     EpicFightInputCategories.CAMERA
@@ -119,7 +113,6 @@ public class EpicFightKeyMappings {
     public static final KeyMapping LOCK_ON_SHIFT_FREELY =
             new KeyMapping(
                     LangKeys.KEY_LOCK_ON_SHIFT_FREELY,
-                    KeyConflictContext.IN_GAME,
                     InputConstants.Type.MOUSE,
                     InputConstants.MOUSE_BUTTON_MIDDLE,
                     EpicFightInputCategories.CAMERA
@@ -129,7 +122,6 @@ public class EpicFightKeyMappings {
     public static final KeyMapping SWITCH_VANILLA_MODEL_DEBUGGING =
             new KeyMapping(
                     LangKeys.KEY_SWITCH_VANILLA_MODEL_DEBUG,
-                    KeyConflictContext.IN_GAME,
                     InputConstants.Type.KEYSYM,
                     -1,
                     EpicFightInputCategories.SYSTEM
@@ -151,5 +143,56 @@ public class EpicFightKeyMappings {
         event.register(LOCK_ON_SHIFT_FREELY);
         event.register(OPEN_CONFIG_SCREEN);
         event.register(SWITCH_VANILLA_MODEL_DEBUGGING);
+    }
+
+    public static void registerFabricKeys() {
+        if (fabricKeysRegistered) {
+            return;
+        }
+
+        fabricKeysRegistered = true;
+        KeyBindingHelper.registerKeyBinding(WEAPON_INNATE_SKILL_TOOLTIP);
+        KeyBindingHelper.registerKeyBinding(SWITCH_MODE);
+        KeyBindingHelper.registerKeyBinding(DODGE);
+        KeyBindingHelper.registerKeyBinding(GUARD);
+        KeyBindingHelper.registerKeyBinding(ATTACK);
+        KeyBindingHelper.registerKeyBinding(WEAPON_INNATE_SKILL);
+        KeyBindingHelper.registerKeyBinding(MOVER_SKILL);
+        KeyBindingHelper.registerKeyBinding(SKILL_EDIT);
+        KeyBindingHelper.registerKeyBinding(LOCK_ON);
+        KeyBindingHelper.registerKeyBinding(LOCK_ON_SHIFT_LEFT);
+        KeyBindingHelper.registerKeyBinding(LOCK_ON_SHIFT_RIGHT);
+        KeyBindingHelper.registerKeyBinding(LOCK_ON_SHIFT_FREELY);
+        KeyBindingHelper.registerKeyBinding(OPEN_CONFIG_SCREEN);
+        KeyBindingHelper.registerKeyBinding(SWITCH_VANILLA_MODEL_DEBUGGING);
+    }
+
+    public static void sanitizeVanillaFallbackKeyConflicts() {
+        Minecraft minecraft = Minecraft.getInstance();
+
+        if (minecraft == null || minecraft.options == null) {
+            return;
+        }
+
+        Options options = minecraft.options;
+        boolean changed = false;
+        changed |= clearIfSameAsVanilla(ATTACK, options.keyAttack);
+        changed |= clearIfSameAsVanilla(WEAPON_INNATE_SKILL, options.keyAttack);
+        changed |= clearIfSameAsVanilla(GUARD, options.keyUse);
+        changed |= clearIfSameAsVanilla(MOVER_SKILL, options.keyJump);
+
+        if (changed) {
+            KeyMapping.resetMapping();
+            options.save();
+        }
+    }
+
+    private static boolean clearIfSameAsVanilla(KeyMapping combatKey, KeyMapping vanillaKey) {
+        if (combatKey.getKey().getValue() == InputConstants.UNKNOWN.getValue() || !combatKey.getKey().equals(vanillaKey.getKey())) {
+            return false;
+        }
+
+        combatKey.setKey(InputConstants.UNKNOWN);
+        return true;
     }
 }

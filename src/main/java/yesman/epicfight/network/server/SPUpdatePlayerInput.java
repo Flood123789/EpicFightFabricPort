@@ -10,9 +10,9 @@ import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 
 public class SPUpdatePlayerInput {
-	private int entityId;
-	private float forward;
-	private float strafe;
+	int entityId;
+	float forward;
+	float strafe;
 
 	public SPUpdatePlayerInput() {
 	}
@@ -34,17 +34,7 @@ public class SPUpdatePlayerInput {
 	}
 	
 	public static void handle(SPUpdatePlayerInput msg, Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> {
-			Minecraft mc = Minecraft.getInstance();
-			Entity entity = mc.player.level().getEntity(msg.entityId);
-			
-			entity.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).ifPresent((entitypatch) -> {
-				if (entitypatch instanceof PlayerPatch<?> plyaerpatch) {
-					plyaerpatch.dx = msg.strafe;
-					plyaerpatch.dz = msg.forward;
-				}
-			});
-		});
+		ctx.get().enqueueWork(() -> ClientboundPacketBridge.handle(msg));
 		ctx.get().setPacketHandled(true);
 	}
 }

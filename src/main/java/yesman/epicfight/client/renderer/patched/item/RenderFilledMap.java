@@ -16,7 +16,7 @@ import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public class RenderFilledMap extends RenderItemBase {
-	private static final RenderType MAP_BACKGROUND = RenderType.text(ResourceLocation.parse("textures/map/map_background.png"));
+	private static final RenderType MAP_BACKGROUND = RenderType.text(new ResourceLocation("textures/map/map_background.png"));
 	
 	public RenderFilledMap(JsonElement jsonElement) {
 		super(jsonElement);

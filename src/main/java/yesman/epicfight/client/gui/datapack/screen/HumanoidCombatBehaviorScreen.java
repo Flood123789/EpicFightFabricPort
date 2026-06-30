@@ -48,8 +48,8 @@ public class HumanoidCombatBehaviorScreen extends Screen {
 		super(Component.translatable("datapack_edit.mob_patch.humanoid_combat_behavior"));
 		
 		this.parentScreen = parentScreen;
-		this.minecraft = parentScreen.getMinecraft();
-		this.font = parentScreen.getMinecraft().font;
+		this.minecraft = net.minecraft.client.Minecraft.getInstance();
+		this.font = net.minecraft.client.Minecraft.getInstance().font;
 		
 		this.rootTag = rootTag;
 		this.inputComponentsList = new InputComponentList<>(this, 0, 0, 0, 0, 26) {
@@ -73,7 +73,7 @@ public class HumanoidCombatBehaviorScreen extends Screen {
 		};
 		this.inputComponentsList.setLeftPos(150);
 		
-		this.weaponGrid = Grid.builder(this, parentScreen.getMinecraft())
+		this.weaponGrid = Grid.builder(this, net.minecraft.client.Minecraft.getInstance())
 								.xy1(12, 50)
 								.xy2(130, 50)
 								.horizontalSizing(HorizontalSizing.LEFT_WIDTH)
@@ -108,7 +108,7 @@ public class HumanoidCombatBehaviorScreen extends Screen {
 								})
 								.build();
 		
-		this.weaponCategoriesGrid = Grid.builder(this, parentScreen.getMinecraft())
+		this.weaponCategoriesGrid = Grid.builder(this, net.minecraft.client.Minecraft.getInstance())
 									.xy1(4, 40)
 									.xy2(12, 120)
 									.horizontalSizing(HorizontalSizing.LEFT_RIGHT)

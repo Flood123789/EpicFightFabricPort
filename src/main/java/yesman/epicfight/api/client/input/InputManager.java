@@ -262,6 +262,11 @@ public final class InputManager {
     private static boolean isPhysicalKeyDown(@NotNull KeyMapping keyMapping) {
         final InputConstants.Key key = keyMapping.getKey();
         final int keyValue = key.getValue();
+
+        if (keyValue == InputConstants.UNKNOWN.getValue()) {
+            return false;
+        }
+
         final long windowPointer = Minecraft.getInstance().getWindow().getWindow();
 
         if (key.getType() == InputConstants.Type.KEYSYM) {

@@ -35,9 +35,9 @@ public class SPModifyPlayerData {
 		return new SPModifyPlayerData(PacketType.SET_GRAPPLE_TARGET, entityId).addData("grapplingTarget", grapplingTarget == null ? -1 : grapplingTarget.getId());
 	}
 	
-	private final PacketType packetType;
-	private final int entityId;
-	private final Map<String, Object> data;
+	final PacketType packetType;
+	final int entityId;
+	final Map<String, Object> data;
 	
 	private SPModifyPlayerData(PacketType packetType, int entityId) {
 		this.packetType = packetType;
@@ -65,38 +65,7 @@ public class SPModifyPlayerData {
 	}
 	
 	public static void handle(SPModifyPlayerData msg, Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> {
-			Minecraft mc = Minecraft.getInstance();
-			Entity entity = mc.player.level().getEntity(msg.entityId);
-			
-			if (entity != null) {
-				if (entity.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null) instanceof PlayerPatch<?> playerpatch) {
-					switch (msg.packetType) {
-					case SET_MODEL_YROT:
-						playerpatch.setModelYRot((float)msg.data.get("yaw"), false);
-						break;
-					case YROT_TURN_OFF:
-						playerpatch.disableModelYRot(false);
-					case MODE:
-						playerpatch.toMode((PlayerPatch.PlayerMode)msg.data.get("mode"), false);
-						break;
-					case LAST_ATTACK_RESULT:
-						playerpatch.setLastAttackSuccess((boolean)msg.data.get("lastAttackSuccess"));
-						break;
-					case SET_GRAPPLE_TARGET:
-						Entity grapplingTarget = mc.player.level().getEntity((int)msg.data.get("grapplingTarget"));
-						
-						if (grapplingTarget instanceof LivingEntity) {
-							playerpatch.setGrapplingTarget((LivingEntity)grapplingTarget);
-						} else {
-							playerpatch.setGrapplingTarget(null);
-						}
-						
-						break;
-					}
-				}
-			}
-		});
+		ctx.get().enqueueWork(() -> ClientboundPacketBridge.handle(msg));
 		
 		ctx.get().setPacketHandled(true);
 	}

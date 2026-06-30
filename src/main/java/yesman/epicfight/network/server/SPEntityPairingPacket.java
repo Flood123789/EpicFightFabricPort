@@ -12,9 +12,9 @@ import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 
 public class SPEntityPairingPacket {
-	private final int entityId;
-	private final EntityPairingPacketType type;
-	private final FriendlyByteBuf buffer;
+	final int entityId;
+	final EntityPairingPacketType type;
+	final FriendlyByteBuf buffer;
 	
 	public SPEntityPairingPacket() {
 		this.entityId = 0;
@@ -56,18 +56,7 @@ public class SPEntityPairingPacket {
 	}
 	
 	public static void handle(SPEntityPairingPacket msg, Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> {
-			Minecraft mc = Minecraft.getInstance();
-			Entity entity = mc.player.level().getEntity(msg.entityId);
-			
-			if (entity != null) {
-				EntityPatch<?> entitypatch = entity.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null);
-				
-				if (entitypatch != null) {
-					entitypatch.fireEntityPairingEvent(msg);
-				}
-			}
-		});
+		ctx.get().enqueueWork(() -> ClientboundPacketBridge.handle(msg));
 		
 		ctx.get().setPacketHandled(true);
 	}

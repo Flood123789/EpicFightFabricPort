@@ -51,13 +51,12 @@ import yesman.epicfight.api.physics.ik.InverseKinematicsSimulatable;
 import yesman.epicfight.api.physics.ik.InverseKinematicsSimulator;
 import yesman.epicfight.api.physics.ik.InverseKinematicsSimulator.BakedInverseKinematicsDefinition;
 import yesman.epicfight.api.physics.ik.InverseKinematicsSimulator.InverseKinematicsObject;
+import yesman.epicfight.api.utils.ClientOnlyUtils;
 import yesman.epicfight.api.utils.datastruct.TypeFlexibleHashMap;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
-import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.renderer.EpicFightRenderTypes;
 import yesman.epicfight.client.renderer.RenderingTool;
-import yesman.epicfight.client.renderer.patched.item.RenderItemBase;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.main.EpicFightSharedConstants;
@@ -110,7 +109,7 @@ public class StaticAnimation extends DynamicAnimation implements InverseKinemati
 	public StaticAnimation(float transitionTime, boolean isRepeat, AnimationAccessor<? extends StaticAnimation> accessor, AssetAccessor<? extends Armature> armature) {
 		super(transitionTime, isRepeat);
 		
-		this.resourceLocation = ResourceLocation.fromNamespaceAndPath(accessor.registryName().getNamespace(), "animmodels/animations/" + accessor.registryName().getPath() + ".json");
+		this.resourceLocation = new ResourceLocation(accessor.registryName().getNamespace(), "animmodels/animations/" + accessor.registryName().getPath() + ".json");
 		
 		this.armature = armature;
 		this.accessor = accessor;
@@ -121,8 +120,8 @@ public class StaticAnimation extends DynamicAnimation implements InverseKinemati
 	public StaticAnimation(float transitionTime, boolean isRepeat, String path, AssetAccessor<? extends Armature> armature) {
 		super(transitionTime, isRepeat);
 		
-		ResourceLocation registryName = ResourceLocation.parse(path);
-		this.resourceLocation = ResourceLocation.fromNamespaceAndPath(registryName.getNamespace(), "animmodels/animations/" + registryName.getPath() + ".json");
+		ResourceLocation registryName = new ResourceLocation(path);
+		this.resourceLocation = new ResourceLocation(registryName.getNamespace(), "animmodels/animations/" + registryName.getPath() + ".json");
 		this.armature = armature;
 		this.filehash = StringUtil.EMPTY_STRING;
 	}
@@ -266,13 +265,7 @@ public class StaticAnimation extends DynamicAnimation implements InverseKinemati
 					double jointId = Double.longBitsToDouble((long)this.armature.get().searchJointByName(trailInfo.joint()).getId());
 					double index = Double.longBitsToDouble((long)idx++);
 					
-					if (trailInfo.hand() != null) {
-						RenderItemBase renderitembase = ClientEngine.getInstance().renderEngine.getItemRenderer(entitypatch.getAdvancedHoldingItemStack(trailInfo.hand()));
-						
-						if (renderitembase != null && renderitembase.trailInfo() != null) {
-							trailInfo = renderitembase.trailInfo().overwrite(trailInfo);
-						}
-					}
+					trailInfo = ClientOnlyUtils.overwriteTrailInfoFromItemRenderer(trailInfo, entitypatch);
 					
 					if (!trailInfo.playable()) {
 						continue;
@@ -416,7 +409,7 @@ public class StaticAnimation extends DynamicAnimation implements InverseKinemati
 	
 	@SuppressWarnings("unchecked")
 	public <A extends StaticAnimation> A setResourceLocation(String namespace, String path) {
-		this.resourceLocation = ResourceLocation.fromNamespaceAndPath(namespace, "animmodels/animations/" + path + ".json");
+		this.resourceLocation = new ResourceLocation(namespace, "animmodels/animations/" + path + ".json");
 		return (A)this;
 	}
 	

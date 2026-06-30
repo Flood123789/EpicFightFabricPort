@@ -29,16 +29,7 @@ public class SPSyncAnimationPosition extends SyncAnimationPositionPacket {
 	}
 	
 	public static void handle(SPSyncAnimationPosition msg, Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> {
-			Entity entity = Minecraft.getInstance().level.getEntity(msg.entityId);
-			
-			if (entity != null && entity instanceof LivingEntity livingentity) {
-				livingentity.lerpX = msg.position.x;
-				livingentity.lerpY = msg.position.y;
-				livingentity.lerpZ = msg.position.z;
-				livingentity.lerpSteps = msg.lerpSteps;
-			}
-		});
+		ctx.get().enqueueWork(() -> ClientboundPacketBridge.handle(msg));
 		ctx.get().setPacketHandled(true);
 	}
 }

@@ -16,6 +16,18 @@ public class SPAnimatorControl extends AnimatorControlPacket {
 	protected int entityId;
 	protected Layer layer = Layer.ANIMATION;
 	protected Priority priority = Priority.ANIMATION;
+
+	public int getEntityId() {
+		return this.entityId;
+	}
+
+	public Layer getLayer() {
+		return this.layer;
+	}
+
+	public Priority getPriority() {
+		return this.priority;
+	}
 	
 	public SPAnimatorControl(AnimatorControlPacket.Action action, AssetAccessor<? extends StaticAnimation> animation, float transitionTimeModifier, LivingEntityPatch<?> entitypatch) {
 		this(action, animation.get().getId(), entitypatch.getOriginal().getId(), transitionTimeModifier, false);
@@ -47,13 +59,7 @@ public class SPAnimatorControl extends AnimatorControlPacket {
 	}
 	
 	public <T extends SPAnimatorControl> void onArrive() {
-		EpicFightCapabilities.getUnparameterizedEntityPatch(Minecraft.getInstance().level.getEntity(this.entityId), LivingEntityPatch.class).ifPresent(entitypatch -> {
-			if (this.action == Action.PLAY_CLIENT && this.layer != Layer.ANIMATION && this.priority != Priority.ANIMATION) {
-				entitypatch.getClientAnimator().playAnimationAt(AnimationManager.byId(this.animationId), this.transitionTimeModifier, this.layer, this.priority);
-			} else {
-				this.process(entitypatch);
-			}
-		});
+		ClientboundPacketBridge.handle(this);
 	}
 	
 	public static SPAnimatorControl fromBytes(FriendlyByteBuf buf) {
@@ -71,9 +77,7 @@ public class SPAnimatorControl extends AnimatorControlPacket {
 	}
 	
 	public static void handle(SPAnimatorControl msg, Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> {
-			msg.onArrive();
-		});
+		ctx.get().enqueueWork(() -> ClientboundPacketBridge.handle(msg));
 		
 		ctx.get().setPacketHandled(true);
 	}

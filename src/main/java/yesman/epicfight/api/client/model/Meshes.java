@@ -111,7 +111,7 @@ public class Meshes implements PreparableReloadListener {
 	}
 	
 	public static ResourceLocation wrapLocation(ResourceLocation rl) {
-		return rl.getPath().matches("animmodels/.*\\.json") ? rl : ResourceLocation.fromNamespaceAndPath(rl.getNamespace(), "animmodels/" + rl.getPath() + ".json");
+		return rl.getPath().matches("animmodels/.*\\.json") ? rl : new ResourceLocation(rl.getNamespace(), "animmodels/" + rl.getPath() + ".json");
 	}
 	
 	@Override
@@ -128,7 +128,7 @@ public class Meshes implements PreparableReloadListener {
 	
 	public static record MeshAccessor<M extends Mesh> (ResourceLocation registryName, Function<JsonAssetLoader, M> jsonLoader, boolean inRegistry) implements AssetAccessor<M>, SoftBodyTranslatable {
 		public static <M extends Mesh> MeshAccessor<M> create(String namespaceId, String path, Function<JsonAssetLoader, M> jsonLoader) {
-			return create(ResourceLocation.fromNamespaceAndPath(namespaceId, path), jsonLoader, true);
+			return create(new ResourceLocation(namespaceId, path), jsonLoader, true);
 		}
 		
 		private static <M extends Mesh> MeshAccessor<M> create(ResourceLocation id, Function<JsonAssetLoader, M> jsonLoader, boolean inRegistry) {

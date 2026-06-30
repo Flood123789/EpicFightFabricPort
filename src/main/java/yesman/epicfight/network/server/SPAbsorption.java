@@ -10,8 +10,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.network.NetworkEvent;
 
 public class SPAbsorption {
-	private int entityId;
-	private float amount;
+	int entityId;
+	float amount;
 	
 	public SPAbsorption() {
 		this.entityId = -1;
@@ -32,14 +32,7 @@ public class SPAbsorption {
 	}
 	
 	public static void handle(SPAbsorption msg, Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> {
-			Minecraft mc = Minecraft.getInstance();
-			Entity entity = mc.level.getEntity(msg.entityId);
-			
-			if (entity instanceof LivingEntity livingentity && !(entity instanceof Player)) {
-				livingentity.setAbsorptionAmount(msg.amount);
-			}
-		});
+		ctx.get().enqueueWork(() -> ClientboundPacketBridge.handle(msg));
 		ctx.get().setPacketHandled(true);
 	}
 }

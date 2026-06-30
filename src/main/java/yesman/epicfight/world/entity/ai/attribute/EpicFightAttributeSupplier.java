@@ -24,6 +24,8 @@ public class EpicFightAttributeSupplier extends AttributeSupplier {
 				.add(EpicFightAttributes.OFFHAND_IMPACT.get())
 				.add(EpicFightAttributes.OFFHAND_MAX_STRIKES.get())
 				.add(EpicFightAttributes.OFFHAND_ATTACK_SPEED.get())
+				.add(EpicFightAttributes.MAX_STAMINA.get())
+				.add(EpicFightAttributes.STAMINA_REGEN.get())
 			.build();
 		
 		Map<Attribute, AttributeInstance> newMap = new HashMap<>(supplier.instances);

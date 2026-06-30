@@ -21,6 +21,7 @@ import yesman.epicfight.network.server.*;
 
 public class EpicFightNetworkManager {
 	private static final String PROTOCOL_VERSION = "1";
+	private static boolean packetsRegistered;
 	public static final SimpleChannel INSTANCE =
 		NetworkRegistry.newSimpleChannel(
                 EpicFightMod.identifier("network_manager"),
@@ -73,7 +74,12 @@ public class EpicFightNetworkManager {
 		}
 	}
 	
-	public static void registerPackets() {
+	public static synchronized void registerPackets() {
+		if (packetsRegistered) {
+			return;
+		}
+		
+		packetsRegistered = true;
 		int id = 0;
 		
 		INSTANCE.registerMessage(id++, CPSkillRequest.class, CPSkillRequest::toBytes, CPSkillRequest::fromBytes, CPSkillRequest::handle);

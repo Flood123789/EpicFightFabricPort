@@ -30,9 +30,7 @@ public record SPFracture(Vec3 location, double radius, boolean noSound, boolean 
 	}
 	
 	public static void handle(SPFracture msg, Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> {
-			LevelUtil.getInstance().handlePacket(msg);
-		});
+		ctx.get().enqueueWork(() -> ClientboundPacketBridge.handle(msg));
 		
 		ctx.get().setPacketHandled(true);
 	}

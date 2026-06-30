@@ -63,22 +63,7 @@ public class SPDatapackSync {
 	}
 	
 	public static void handle(SPDatapackSync msg, Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> {
-			try {
-				switch (msg.getType()) {
-				case MOB -> MobPatchReloadListener.processServerPacket(msg);
-				case SKILL_PARAMS -> SkillManager.processServerPacket(msg);
-				case WEAPON -> ItemCapabilityReloadListener.processServerPacket(msg);
-				case ARMOR -> ItemCapabilityReloadListener.processServerPacket(msg);
-				case WEAPON_TYPE -> WeaponTypeReloadListener.processServerPacket(msg);
-				case ITEM_KEYWORD -> ItemKeywordReloadListener.handleClientBoundSyncPacket(msg);
-				case MANDATORY_RESOURCE_PACK_ANIMATION, RESOURCE_PACK_ANIMATION -> AnimationManager.getInstance().processServerPacket(msg, msg.getType() == Type.MANDATORY_RESOURCE_PACK_ANIMATION);
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				throw new DatapackException(e.getMessage());
-			}
-		});
+		ctx.get().enqueueWork(() -> ClientboundPacketBridge.handle(msg));
 		
 		ctx.get().setPacketHandled(true);
 	}

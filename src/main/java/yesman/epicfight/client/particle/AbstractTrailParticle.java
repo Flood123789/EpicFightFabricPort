@@ -158,7 +158,6 @@ public abstract class AbstractTrailParticle<T extends EntityPatch<?>> extends Te
 		}
 	}
 	
-	@Override
 	public boolean shouldCull() {
         return false;
     }

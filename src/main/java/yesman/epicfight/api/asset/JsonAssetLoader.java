@@ -4,6 +4,8 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +26,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
 
+import net.fabricmc.loader.api.FabricLoader;
 import io.netty.util.internal.StringUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
@@ -32,7 +35,6 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import yesman.epicfight.api.animation.AnimationClip;
 import yesman.epicfight.api.animation.Joint;
@@ -101,13 +103,7 @@ public class JsonAssetLoader {
 				this.rootJson = Streams.parse(jsonReader).getAsJsonObject();
 			} catch (NoSuchElementException e) {
 				// In this case, reads the animation data from mod.jar (Especially in a server)
-				Class<?> modClass = ModList.get().getModObjectById(resourceLocation.getNamespace()).orElseThrow(() -> new AssetLoadingException("No modid " + resourceLocation)).getClass();
-				InputStream inputStream = modClass.getResourceAsStream("/assets/" + resourceLocation.getNamespace() + "/" + resourceLocation.getPath());
-				
-				if (inputStream == null) {
-					modClass = ModList.get().getModObjectById(EpicFightMod.MODID).get().getClass();
-					inputStream = modClass.getResourceAsStream("/assets/" + resourceLocation.getNamespace() + "/" + resourceLocation.getPath());
-				}
+				InputStream inputStream = openBundledAsset(resourceLocation);
 				
 				//Still null, throws exception.
 				if (inputStream == null) {
@@ -134,6 +130,30 @@ public class JsonAssetLoader {
 		}
 		
 		this.filehash = ParseUtil.getBytesSHA256Hash(this.rootJson.toString().getBytes());
+	}
+	
+	@Nullable
+	private static InputStream openBundledAsset(ResourceLocation resourceLocation) throws IOException {
+		String assetPath = "assets/" + resourceLocation.getNamespace() + "/" + resourceLocation.getPath();
+		InputStream inputStream = JsonAssetLoader.class.getClassLoader().getResourceAsStream(assetPath);
+		
+		if (inputStream != null) {
+			return inputStream;
+		}
+		
+		Path namespaceAsset = FabricLoader.getInstance().getModContainer(resourceLocation.getNamespace())
+			.flatMap(container -> container.findPath(assetPath))
+			.orElse(null);
+		
+		if (namespaceAsset != null) {
+			return Files.newInputStream(namespaceAsset);
+		}
+		
+		Path epicFightAsset = FabricLoader.getInstance().getModContainer(EpicFightMod.MODID)
+			.flatMap(container -> container.findPath(assetPath))
+			.orElse(null);
+		
+		return epicFightAsset == null ? null : Files.newInputStream(epicFightAsset);
 	}
 	
 	@OnlyIn(Dist.CLIENT)
@@ -188,7 +208,7 @@ public class JsonAssetLoader {
 	
 	@OnlyIn(Dist.CLIENT)
 	public ResourceLocation getParent() {
-		return this.rootJson.has("parent") ? ResourceLocation.parse(this.rootJson.get("parent").getAsString()) : null;
+		return this.rootJson.has("parent") ? new ResourceLocation(this.rootJson.get("parent").getAsString()) : null;
 	}
 	
 	private static final float DEFAULT_PARTICLE_MASS = 0.16F;

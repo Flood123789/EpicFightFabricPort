@@ -18,7 +18,7 @@ public abstract class InputComponentList<T> extends ContainerObjectSelectionList
 	private InputComponentList<T>.InputComponentEntry focusingEntry;
 	
 	public InputComponentList(Screen owner, int width, int height, int y0, int y1, int itemHeight) {
-		super(owner.getMinecraft(), width, height, y0, y1, itemHeight);
+		super(net.minecraft.client.Minecraft.getInstance(), width, height, y0, y1, itemHeight);
 		
 		this.owner = owner;
 		this.setRenderTopAndBottom(false);

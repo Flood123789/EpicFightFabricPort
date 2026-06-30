@@ -684,6 +684,14 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 		return this.playerMode == PlayerMode.EPICFIGHT;
 	}
 	
+	/**
+	 * @deprecated Use {@link #isEpicFightMode()} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "20.14.17")
+	public boolean isBattleMode() {
+		return this.isEpicFightMode();
+	}
+	
 	public boolean isVanillaMode() {
 		return this.playerMode == PlayerMode.VANILLA;
 	}

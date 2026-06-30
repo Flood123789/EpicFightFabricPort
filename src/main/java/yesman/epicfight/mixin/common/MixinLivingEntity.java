@@ -113,7 +113,7 @@ public abstract class MixinLivingEntity {
 		}
 	}
 	
-	@Inject(at = @At(value = "TAIL"), method = "<init>(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V", cancellable = true)
+	@Inject(at = @At(value = "TAIL"), method = "<init>(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V")
 	private void epicfight$constructor(EntityType<?> entityType, Level level, CallbackInfo info) {
 		LivingEntity self = (LivingEntity)((Object)this);
 		

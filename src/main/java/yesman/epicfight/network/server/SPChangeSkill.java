@@ -29,17 +29,7 @@ public record SPChangeSkill(SkillSlot skillSlot, int entityId, @Nullable Skill s
 	}
 	
 	public static void handle(SPChangeSkill msg, Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> {
-			EpicFightCapabilities.getUnparameterizedEntityPatch(Minecraft.getInstance().level.getEntity(msg.entityId()), PlayerPatch.class).ifPresent(playerpatch -> {
-				playerpatch.getSkill(msg.skillSlot()).setSkill(msg.skill());
-				
-				if (msg.skill() != null && msg.skillSlot().category().learnable()) {
-					playerpatch.getSkillCapability().addLearnedSkill(msg.skill());
-				}
-				
-				playerpatch.getSkill(msg.skillSlot()).setDisabled(false);
-			});
-		});
+		ctx.get().enqueueWork(() -> ClientboundPacketBridge.handle(msg));
 		
 		ctx.get().setPacketHandled(true);
 	}

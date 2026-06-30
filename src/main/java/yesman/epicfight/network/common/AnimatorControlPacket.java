@@ -48,6 +48,22 @@ public class AnimatorControlPacket {
 			e.printStackTrace();
 		}
 	}
+
+	public Action getAction() {
+		return this.action;
+	}
+
+	public int getAnimationId() {
+		return this.animationId;
+	}
+
+	public float getTransitionTimeModifier() {
+		return this.transitionTimeModifier;
+	}
+
+	public boolean isPaused() {
+		return this.pause;
+	}
 	
 	public enum Action {
 		PLAY, PLAY_CLIENT, PLAY_INSTANTLY, RESERVE, STOP, SHOT, SOFT_PAUSE, HARD_PAUSE

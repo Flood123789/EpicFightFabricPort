@@ -6,8 +6,6 @@ import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.api.bind.InputBindingBuilder;
 import dev.isxander.controlify.api.bind.InputBindingSupplier;
 import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
-import dev.isxander.controlify.api.entrypoint.InitContext;
-import dev.isxander.controlify.api.entrypoint.PreInitContext;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.bindings.RadialIcons;
@@ -48,7 +46,7 @@ public class EpicFightControlifyEntrypoint implements ControlifyEntrypoint {
     }
 
     @Override
-    public void onControlifyInit(InitContext context) {
+    public void onControlifyInit(ControlifyApi controlify) {
         // It's best to call this method in onControlifyInit,
         // ensuring that Epic Fight can use Controlify input bindings
         // only after they have been registered.
@@ -56,7 +54,7 @@ public class EpicFightControlifyEntrypoint implements ControlifyEntrypoint {
     }
 
     @Override
-    public void onControlifyPreInit(PreInitContext context) {
+    public void onControlifyPreInit(ControlifyApi controlify) {
         final ControlifyBindApi registrar = ControlifyBindApi.get();
         registerCustomRadialIcons();
         EpicFightControlifyBindContexts.EpicFight.register(registrar);

@@ -170,11 +170,11 @@ public class BattleModeGui {
 			guiGraphics.blit(EntityUI.BATTLE_ICON, pos.x, pos.y, 1, 71, 238, 13, 255, 255);
 			guiGraphics.blit(EntityUI.BATTLE_ICON, pos.x, pos.y, 1, 57, (int)(238 * ratio), 13, 255, 255);
 
-			ResourceLocation rl = ResourceLocation.parse(chargeableSkill.toString());
+			ResourceLocation rl = new ResourceLocation(chargeableSkill.toString());
 			String skillName = Component.translatable(String.format("skill.%s.%s", rl.getNamespace(), rl.getPath())).getString();
 			
 			int stringWidth = this.minecraft.font.width(skillName);
-			guiGraphics.drawString(this.minecraft.font, skillName, (pos.x + 120 - stringWidth * 0.5F), pos.y - 12, 16777215, true);
+			guiGraphics.drawString(this.minecraft.font, skillName, (int)(pos.x + 120 - stringWidth * 0.5F), pos.y - 12, 16777215, true);
 
 			guiGraphics.pose().popPose();
 		}

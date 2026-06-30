@@ -28,7 +28,7 @@ public class Static extends AbstractWidget implements ResizableComponent {
 		super(x1, y1, x2, y2, message);
 		
 		this.owner = owner;
-		this.font = this.owner.getMinecraft().font;
+		this.font = net.minecraft.client.Minecraft.getInstance().font;
 		this.x1 = x1;
 		this.x2 = x2;
 		this.y1 = y1;

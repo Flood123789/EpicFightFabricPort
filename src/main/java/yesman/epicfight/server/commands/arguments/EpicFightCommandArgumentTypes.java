@@ -15,7 +15,7 @@ public class EpicFightCommandArgumentTypes {
 	public static final RegistryObject<ArgumentTypeInfo<AnimationArgument, ?>> ANIMATION = COMMAND_ARGUMENT_TYPES.register("animation", () -> SingletonArgumentInfo.contextFree(AnimationArgument::animation));
 	
 	public static void registerArgumentTypes() {
-		ArgumentTypeInfos.registerByClass(SkillArgument.class, SKILL.get());
-		ArgumentTypeInfos.registerByClass(AnimationArgument.class, ANIMATION.get());
+		ArgumentTypeInfos.BY_CLASS.put(SkillArgument.class, SKILL.get());
+		ArgumentTypeInfos.BY_CLASS.put(AnimationArgument.class, ANIMATION.get());
 	}
 }

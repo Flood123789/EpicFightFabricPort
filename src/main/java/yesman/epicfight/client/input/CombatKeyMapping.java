@@ -5,7 +5,6 @@ import org.jetbrains.annotations.NotNull;
 import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.client.KeyMapping;
-import net.minecraftforge.client.settings.KeyConflictContext;
 import yesman.epicfight.client.ClientEngine;
 
 /// A specialized [KeyMapping] used by Epic Fight to represent combat-related key bindings.
@@ -18,16 +17,6 @@ import yesman.epicfight.client.ClientEngine;
 /// [yesman.epicfight.client.ClientEngine#isEpicFightMode()] instead of depending on
 /// this key mapping's conditional logic.
 ///
-/// This also force setting [KeyConflictContext#IN_GAME],
-/// since a [CombatKeyMapping] is usually used for player moves
-/// (e.g, dodge, guard, mover skill, epic fight attack).
-///
-/// Note: The author of this code is not entirely certain about the exact purpose of
-/// [KeyConflictContext#IN_GAME].
-/// It appears mainly relevant to key modifiers
-/// (e.g., distinguishing Shift + E from E) and does not affect the red conflict highlighting
-/// in the key bindings menu, since vanilla key mappings do not assign any [KeyConflictContext].
-///
 /// This class is primarily used as a fallback or metadata reference for compatibility with
 /// other mods (hopefully!).
 /// Otherwise, it has no meaningful function beyond normal [KeyMapping] behavior.
@@ -39,13 +28,39 @@ public class CombatKeyMapping extends KeyMapping {
         this(description, InputConstants.Type.KEYSYM, code, category);
     }
 
-    /// This key mapping only applies [KeyConflictContext#IN_GAME] since it represents player moves.
     public CombatKeyMapping(String description, InputConstants.Type type, int code, String category) {
-        super(description, KeyConflictContext.IN_GAME, type, code, category);
+        super(description, type, code, category);
     }
 
     @Override
     public boolean isActiveAndMatches(@NotNull InputConstants.Key keyCode) {
-        return super.isActiveAndMatches(keyCode) && ClientEngine.getInstance().isEpicFightMode();
+        return this.isCombatActive() && super.isActiveAndMatches(keyCode);
+    }
+
+    @Override
+    public boolean isDown() {
+        return this.isCombatActive() && super.isDown();
+    }
+
+    @Override
+    public boolean consumeClick() {
+        if (this.isCombatActive()) {
+            return super.consumeClick();
+        }
+
+        while (super.consumeClick()) {
+            // Drain clicks accumulated by duplicate vanilla mouse bindings while battle mode is off.
+        }
+
+        return false;
+    }
+
+    @Override
+    public void setDown(boolean value) {
+        super.setDown(this.isCombatActive() && value);
+    }
+
+    private boolean isCombatActive() {
+        return ClientEngine.getInstance().isEpicFightMode();
     }
 }

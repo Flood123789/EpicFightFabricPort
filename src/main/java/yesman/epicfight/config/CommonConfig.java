@@ -29,6 +29,10 @@ public class CommonConfig {
 			return;
 		}
 		
+		loadValues();
+	}
+	
+	public static void loadValues() {
 		skillBookMobDropChanceModifier = SKILL_BOOK_MOB_DROP_CHANCE_MODIFIER.get();
 		skillBookChestLootModifier = SKILL_BOOK_CHEST_LOOT_MODIFIER.get();
 	}

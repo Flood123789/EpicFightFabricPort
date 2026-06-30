@@ -11,8 +11,8 @@ import yesman.epicfight.world.gamerule.EpicFightGameRules;
 import yesman.epicfight.world.gamerule.EpicFightGameRules.ConfigurableGameRule;
 
 public class SPChangeGamerule<Type, Config extends ForgeConfigSpec.ConfigValue<Type>, RuleValue extends GameRules.Value<RuleValue>> {
-	private final ConfigurableGameRule<Type, Config, RuleValue> gamerule;
-	private final Type value;
+	final ConfigurableGameRule<Type, Config, RuleValue> gamerule;
+	final Type value;
 	
 	public SPChangeGamerule() {
 		this.gamerule = null;
@@ -38,10 +38,7 @@ public class SPChangeGamerule<Type, Config extends ForgeConfigSpec.ConfigValue<T
 	}
 	
 	public static <Type, Config extends ForgeConfigSpec.ConfigValue<Type>, RuleValue extends GameRules.Value<RuleValue>> void handle(SPChangeGamerule<Type, Config, RuleValue> msg, Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> {
-			RuleValue ruleValue = Minecraft.getInstance().level.getGameRules().getRule(msg.gamerule.getRuleKey());
-			msg.gamerule.getRuleType().setRule().accept(ruleValue, msg.value);
-		});
+		ctx.get().enqueueWork(() -> ClientboundPacketBridge.handle(msg));
 		
 		ctx.get().setPacketHandled(true);
 	}

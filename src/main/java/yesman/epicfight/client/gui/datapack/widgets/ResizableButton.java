@@ -6,7 +6,8 @@ import net.minecraft.network.chat.Component;
 
 public class ResizableButton extends Button implements ResizableComponent {
 	public ResizableButton(ResizableButton.Builder builder) {
-		super(builder);
+		super(builder.x, builder.y, builder.width, builder.height, builder.message, builder.onPress, builder.createNarration);
+		this.setTooltip(builder.tooltip);
 		
 		this.x1 = builder.x1;
 		this.x2 = builder.x2;

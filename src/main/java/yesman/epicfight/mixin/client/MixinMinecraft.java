@@ -74,7 +74,8 @@ public abstract class MixinMinecraft {
 
     @Inject(at = @At("HEAD"), method = "startAttack", cancellable = true)
     private void onStartVanillaAttack(CallbackInfoReturnable<Boolean> cir) {
-        if (ControlEngine.shouldDisableVanillaAttack()) {
+        boolean disabled = ControlEngine.shouldDisableVanillaAttack();
+        if (disabled) {
             // Prevents the player from performing vanilla attack actions while in Epic Fight mode.
             cir.cancel();
         }
@@ -82,7 +83,8 @@ public abstract class MixinMinecraft {
 
     @Inject(at = @At("HEAD"), method = "continueAttack", cancellable = true)
     private void onContinueVanillaAttack(boolean leftClick, CallbackInfo ci) {
-        if (ControlEngine.shouldDisableVanillaAttack()) {
+        boolean disabled = ControlEngine.shouldDisableVanillaAttack();
+        if (disabled) {
             // Prevents the player from breaking blocks such as grass while in Epic Fight mode.
             ci.cancel();
         }

@@ -35,16 +35,16 @@ public class AzureLibCompat implements ICompatModule {
 	@OnlyIn(Dist.CLIENT)
 	public void onForgeEventBusClient(IEventBus eventBus) {
 		eventBus.addListener(AzureModelTransformer::getGeoArmorTexturePath);
-		eventBus.addListener(this::geoEntityRenderPreEvent);
-		eventBus.addListener(this::geoEntityRenderPostEvent);
+		GeoRenderEvent.Entity.Pre.EVENT.register(this::geoEntityRenderPreEvent);
+		GeoRenderEvent.Entity.Post.EVENT.register(this::geoEntityRenderPostEvent);
 	}
 	
 	@OnlyIn(Dist.CLIENT)
-	public void geoEntityRenderPreEvent(GeoRenderEvent.Entity.Pre event) {
+	public boolean geoEntityRenderPreEvent(GeoRenderEvent.Entity.Pre event) {
 		Entity entity = event.getEntity();
 		
 		if (entity.level() == null) {
-			return;
+			return true;
 		}
 		
 		if (entity instanceof LivingEntity livingentity) {
@@ -63,7 +63,6 @@ public class AzureLibCompat implements ICompatModule {
 				}
 				
 				if (entitypatch != null && entitypatch.overrideRender()) {
-					event.setCanceled(true);
 					renderEngine.renderEntityArmatureModel(livingentity, entitypatch, event.getRenderer(), event.getBufferSource(), event.getPoseStack(), event.getPackedLight(), event.getPartialTick());
 					
 					if (ClientEngine.getInstance().getPlayerPatch() != null && !renderEngine.minecraft.options.hideGui && !EpicFightGameRules.DISABLE_ENTITY_UI.getRuleValue(livingentity.level())) {
@@ -78,8 +77,14 @@ public class AzureLibCompat implements ICompatModule {
 				if (playerpatch != null) {
 					playerpatch.disableModelYRotInGui(originalYRot);
 				}
+				
+				if (entitypatch != null && entitypatch.overrideRender()) {
+					return false;
+				}
 			}
 		}
+		
+		return true;
 	}
 	
 	@OnlyIn(Dist.CLIENT)

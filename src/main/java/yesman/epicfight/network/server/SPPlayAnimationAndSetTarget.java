@@ -27,15 +27,7 @@ public class SPPlayAnimationAndSetTarget extends SPAnimatorControl {
 	
 	@Override
 	public void onArrive() {
-		super.onArrive();
-		
-		Minecraft mc = Minecraft.getInstance();
-		Entity entity = mc.player.level().getEntity(this.entityId);
-		Entity target = mc.player.level().getEntity(this.targetId);
-
-		if (entity instanceof Mob entityliving && target instanceof LivingEntity) {
-			entityliving.setTarget((LivingEntity)target);
-		}
+		ClientboundPacketBridge.handle(this);
 	}
 	
 	public static SPPlayAnimationAndSetTarget fromBytes(FriendlyByteBuf buf) {
@@ -52,9 +44,7 @@ public class SPPlayAnimationAndSetTarget extends SPAnimatorControl {
 	}
 
 	public static void handle(SPPlayAnimationAndSetTarget msg, Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(()->{
-			msg.onArrive();
-		});
+		ctx.get().enqueueWork(() -> ClientboundPacketBridge.handle(msg));
 		ctx.get().setPacketHandled(true);
 	}
 }

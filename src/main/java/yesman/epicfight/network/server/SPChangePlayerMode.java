@@ -10,8 +10,8 @@ import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 
 public class SPChangePlayerMode {
-	private final int entityId;
-	private final PlayerPatch.PlayerMode mode;
+	final int entityId;
+	final PlayerPatch.PlayerMode mode;
 
 	public SPChangePlayerMode() {
 		this.entityId = 0;
@@ -33,18 +33,7 @@ public class SPChangePlayerMode {
 	}
 	
 	public static void handle(SPChangePlayerMode msg, Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> {
-			Minecraft mc = Minecraft.getInstance();
-			Entity entity = mc.player.level().getEntity(msg.entityId);
-			
-			if (entity != null) {
-				PlayerPatch<?> playerpatch = (PlayerPatch<?>)entity.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null);
-				
-				if (playerpatch != null) {
-					playerpatch.toMode(msg.mode, false);
-				}
-			}
-		});
+		ctx.get().enqueueWork(() -> ClientboundPacketBridge.handle(msg));
 		ctx.get().setPacketHandled(true);
 	}
 }

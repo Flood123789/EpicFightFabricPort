@@ -66,7 +66,7 @@ public interface Mesh {
 			}
 			
 			public RenderProperties build() {
-				return new RenderProperties(this.customTexturePath == null ? null : ResourceLocation.parse(this.customTexturePath), this.customColor, this.isTransparent);
+				return new RenderProperties(this.customTexturePath == null ? null : new ResourceLocation(this.customTexturePath), this.customColor, this.isTransparent);
 			}
 			
 			public static RenderProperties.Builder create() {

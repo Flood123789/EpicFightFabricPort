@@ -1,7 +1,8 @@
 package yesman.epicfight.api.utils;
 
 import java.util.List;
-import java.util.Random;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import javax.annotation.Nullable;
 
@@ -11,9 +12,6 @@ import org.joml.Vector3f;
 
 import com.google.common.collect.Lists;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.particle.TerrainParticle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundSource;
@@ -32,14 +30,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.utils.math.QuaternionUtils;
 import yesman.epicfight.api.utils.math.Vec2i;
-import yesman.epicfight.config.ClientConfig;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.EpicFightSounds;
-import yesman.epicfight.main.EpicFightSharedConstants;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.server.SPFracture;
 import yesman.epicfight.particle.EpicFightParticles;
@@ -149,7 +143,7 @@ public class LevelUtil {
 			}
 			
 			if (level.isClientSide) {
-				if (!ClientConfig.groundSlams) {
+				if (!isGroundSlamsEnabled()) {
                     continue;
                 }
 				
@@ -190,19 +184,8 @@ public class LevelUtil {
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static void createParticle(Level level, BlockPos bp, BlockState bs) {
-		for (int i = 0; i < 4; i += level.getRandom().nextInt(4)) {
-			double x = bp.getX() + (i % 2);
-			double z = bp.getZ() + 1 - (i % 2);
-			
-			TerrainParticle blockParticle = new TerrainParticle((ClientLevel)level, x, bp.getY() + 1, z, 0, 0, 0, bs, bp);
-			blockParticle.setParticleSpeed((Math.random() - 0.5D) * 0.3D, Math.random() * 0.5D, (Math.random() - 0.5D) * 0.3D);
-			blockParticle.setLifetime(10 + new Random().nextInt(60));
-			
-			Minecraft mc = Minecraft.getInstance();
-			mc.particleEngine.add(blockParticle);
-		}
+		invokeClient("createParticle", new Class<?>[] { Level.class, BlockPos.class, BlockState.class }, level, bp, bs);
 	}
 	
 	public static boolean circleSlamFracture(@Nullable LivingEntity caster, Level level, Vec3 center, double radius) {
@@ -288,25 +271,29 @@ public class LevelUtil {
 	
 	@ApiStatus.Internal
 	public void handlePacket(SPFracture packet) {
-		// Do nothing in server side
+		invokeClient("handleFracturePacket", new Class<?>[] { SPFracture.class }, packet);
 	}
 	
-	private static final LevelUtil INSTANCE = EpicFightSharedConstants.isPhysicalClient() ? new ClientLevelUtil() : new LevelUtil();
+	private static final LevelUtil INSTANCE = new LevelUtil();
 	
 	public static LevelUtil getInstance() {
 		return INSTANCE;
 	}
 	
 	private LevelUtil() {}
-	
-	/**
-	 * Used sided handler to resolve invalid dist code hit error only happens in environment side
-	 * 1.21.1 is not affected by this issue since they already have sided packet handlers
-	 */
-	public static class ClientLevelUtil extends LevelUtil {
-		@ApiStatus.Internal @Override
-		public void handlePacket(SPFracture msg) {
-			LevelUtil.circleSlamFracture(null, Minecraft.getInstance().level, msg.location(), msg.radius(), msg.noSound(), msg.noParticle());
+
+	private static boolean isGroundSlamsEnabled() {
+		Object result = invokeClient("groundSlamsEnabled", new Class<?>[0]);
+		return result instanceof Boolean value ? value : true;
+	}
+
+	private static Object invokeClient(String methodName, Class<?>[] parameterTypes, Object... args) {
+		try {
+			Class<?> clientUtil = Class.forName("yesman.epicfight.client.world.ClientLevelUtil");
+			Method method = clientUtil.getMethod(methodName, parameterTypes);
+			return method.invoke(null, args);
+		} catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException exception) {
+			throw new IllegalStateException("Failed to run Epic Fight client level helper " + methodName, exception);
 		}
 	}
 	

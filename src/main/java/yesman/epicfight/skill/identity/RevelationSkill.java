@@ -18,7 +18,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.utils.AttackResult.ResultType;
-import yesman.epicfight.client.ClientEngine;
+import yesman.epicfight.api.utils.ClientOnlyUtils;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.gameasset.Animations;
@@ -114,7 +114,7 @@ public class RevelationSkill extends Skill {
 				if (container.getExecutor().getTarget() != null) {
 					EpicFightCapabilities.getUnparameterizedEntityPatch(container.getExecutor().getTarget(), LivingEntityPatch.class).ifPresent(entitypatch -> {
 						if (this.isActivated(container)) {
-							if (container.sendCastRequest((LocalPlayerPatch)container.getExecutor(), ClientEngine.getInstance().controlEngine).isExecutable()) {
+							if (ClientOnlyUtils.sendSkillCastRequest(container)) {
 								container.setDuration(0);
 								event.setCanceled(true);
 							}
@@ -206,7 +206,7 @@ public class RevelationSkill extends Skill {
 		guiGraphics.blit(this.getSkillTexture(), (int)x, (int)y, 24, 24, 0, 0, 1, 1, 1, 1);
 		int stacks = container.getRemainDuration() > 0 ? 0 : this.maxRevelationStacks.getOrDefault(container.getExecutor().getTarget().getType(), this.defaultRevelationStacks)
 																- container.getDataManager().getDataValue(SkillDataKeys.STACKS.get());
-		guiGraphics.drawString(gui.getFont(), String.format("%d", stacks), x + 18, y + 14, 16777215, true);
+		guiGraphics.drawString(gui.getFont(), String.format("%d", stacks), (int)(x + 18), (int)(y + 14), 16777215, true);
 		poseStack.popPose();
 	}
 }

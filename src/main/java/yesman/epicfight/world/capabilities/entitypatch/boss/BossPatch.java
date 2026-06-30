@@ -8,7 +8,7 @@ import net.minecraft.world.BossEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import yesman.epicfight.client.ClientEngine;
+import yesman.epicfight.api.utils.ClientOnlyUtils;
 import yesman.epicfight.network.EntityPairingPacketTypes;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.server.SPEntityPairingPacket;
@@ -43,10 +43,6 @@ public interface BossPatch<T extends Entity> {
 		boolean addOperation = buffer.readBoolean();
 		UUID eventUUID = buffer.readUUID();
 		
-		if (addOperation) {
-			ClientEngine.getInstance().renderEngine.addBossEventOwner(eventUUID, this);
-		} else {
-			ClientEngine.getInstance().renderEngine.removeBossEventOwner(eventUUID, this);
-		}
+		ClientOnlyUtils.processBossEventOwner(this, eventUUID, addOperation);
 	}
 }

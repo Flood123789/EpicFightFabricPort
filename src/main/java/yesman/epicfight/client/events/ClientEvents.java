@@ -40,7 +40,7 @@ public class ClientEvents {
 	@SubscribeEvent
 	public static void mouseClickEvent(ScreenEvent.MouseButtonPressed.Pre event) {
 		if (event.getScreen() instanceof AbstractContainerScreen) {
-			Slot slot = ((AbstractContainerScreen<?>)event.getScreen()).getSlotUnderMouse();
+			Slot slot = ((AbstractContainerScreen<?>)event.getScreen()).hoveredSlot;
 			
 			if (slot != null) {
 				CapabilityItem cap = EpicFightCapabilities.getItemStackCapability(MINECRAFT.player.containerMenu.getCarried());
@@ -57,7 +57,7 @@ public class ClientEvents {
 	@SubscribeEvent
 	public static void mouseReleaseEvent(ScreenEvent.MouseButtonReleased.Pre event) {
 		if (event.getScreen() instanceof AbstractContainerScreen) {
-			Slot slot = ((AbstractContainerScreen<?>)event.getScreen()).getSlotUnderMouse();
+			Slot slot = ((AbstractContainerScreen<?>)event.getScreen()).hoveredSlot;
 			
 			if (slot != null) {
 				CapabilityItem cap = EpicFightCapabilities.getItemStackCapability(MINECRAFT.player.containerMenu.getCarried());
@@ -80,7 +80,7 @@ public class ClientEvents {
         //  https://github.com/Epic-Fight/epicfight/issues/2135
 		if (event.getKeyCode() == MINECRAFT.options.keySwapOffhand.getKey().getValue()) {
 			if (event.getScreen() instanceof AbstractContainerScreen) {
-				Slot slot = ((AbstractContainerScreen<?>)event.getScreen()).getSlotUnderMouse();
+				Slot slot = ((AbstractContainerScreen<?>)event.getScreen()).hoveredSlot;
 				
 				if (slot != null && slot.hasItem()) {
 					itemCapability = EpicFightCapabilities.getItemStackCapability(slot.getItem());
@@ -92,7 +92,7 @@ public class ClientEvents {
 			}
 		} else if (event.getKeyCode() >= 49 && event.getKeyCode() <= 57) {
 			if (event.getScreen() instanceof AbstractContainerScreen) {
-				Slot slot = ((AbstractContainerScreen<?>)event.getScreen()).getSlotUnderMouse();
+				Slot slot = ((AbstractContainerScreen<?>)event.getScreen()).hoveredSlot;
 				
 				if (slot != null && slot.getNoItemIcon() != null && slot.getNoItemIcon().equals(OFFHAND_TEXTURE)) {
 					itemCapability = EpicFightCapabilities.getItemStackCapability(MINECRAFT.player.getInventory().getItem(event.getKeyCode() - 49));

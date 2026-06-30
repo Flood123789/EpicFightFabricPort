@@ -37,14 +37,11 @@ import net.minecraftforge.registries.RegisterEvent;
 import net.minecraftforge.registries.RegistryBuilder;
 import net.minecraftforge.registries.RegistryManager;
 import yesman.epicfight.api.forgeevent.SkillBuildEvent;
-import yesman.epicfight.client.ClientEngine;
-import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
+import yesman.epicfight.api.utils.ClientOnlyUtils;
 import yesman.epicfight.gameasset.EpicFightSkills;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.network.server.SPDatapackSync;
 import yesman.epicfight.skill.Skill;
-import yesman.epicfight.skill.SkillSlots;
-import yesman.epicfight.world.capabilities.skill.CapabilitySkill;
 
 public class SkillManager extends SimpleJsonResourceReloadListener {
 	public static final ResourceKey<Registry<Skill>> SKILL_REGISTRY_KEY = ResourceKey.createRegistryKey(EpicFightMod.identifier("skill"));
@@ -76,12 +73,28 @@ public class SkillManager extends SimpleJsonResourceReloadListener {
 		}
 	}
 	
+	public static RegistryBuilder<Skill> createFabricRegistryBuilder() {
+		return RegistryBuilder.<Skill>of(EpicFightMod.identifier("skill")).addCallback(SkillRegistryCallbacks.INSTANCE);
+	}
+	
+	public static void registerFabricSkills(IForgeRegistry<Skill> skillRegistry) {
+		final SkillBuildEvent skillBuildEvent = new SkillBuildEvent();
+		EpicFightSkills.buildSkillEvent(skillBuildEvent);
+		namespaces = ImmutableSet.copyOf(skillBuildEvent.getNamespaces());
+		
+		skillBuildEvent.getAllSkills().forEach((skill) -> {
+			if (!skillRegistry.containsKey(skill.getRegistryName())) {
+				skillRegistry.register(skill.getRegistryName(), skill);
+			}
+		});
+	}
+	
 	public static Skill getSkill(String name) {
 		IForgeRegistry<Skill> skillRegistry = getSkillRegistry();
 		ResourceLocation rl;
 		
 		if (name.indexOf(':') >= 0) {
-			rl = ResourceLocation.parse(name);
+			rl = new ResourceLocation(name);
 		} else {
             rl = EpicFightMod.identifier(name);
 		}
@@ -119,29 +132,15 @@ public class SkillManager extends SimpleJsonResourceReloadListener {
 		IForgeRegistry<Skill> skillRegistry = getSkillRegistry();
 		
 		for (CompoundTag tag : packet.getTags()) {
-			if (!skillRegistry.containsKey(ResourceLocation.parse(tag.getString("id")))) {
+			if (!skillRegistry.containsKey(new ResourceLocation(tag.getString("id")))) {
 				EpicFightMod.LOGGER.warn("Failed to syncronize Datapack for skill: " + tag.getString("id"));
 				continue;
 			}
 			
-			skillRegistry.getValue(ResourceLocation.parse(tag.getString("id"))).setParams(tag);
+			skillRegistry.getValue(new ResourceLocation(tag.getString("id"))).setParams(tag);
 		}
 		
-		LocalPlayerPatch localplayerpatch = ClientEngine.getInstance().getPlayerPatch();
-		
-		if (localplayerpatch != null) {
-			CapabilitySkill skillCapability = localplayerpatch.getSkillCapability();
-			
-			skillCapability.listSkillContainers().forEach(skillContainer -> {
-				if (skillContainer.getSkill() != null) {
-					// Reload skill
-					skillContainer.setSkill(getSkill(skillContainer.getSkill().toString()), true);
-				}
-			});
-			
-			skillCapability.getSkillContainerFor(SkillSlots.BASIC_ATTACK).setSkill(EpicFightSkills.BASIC_ATTACK);
-			skillCapability.getSkillContainerFor(SkillSlots.KNOCKDOWN_WAKEUP).setSkill(EpicFightSkills.KNOCKDOWN_WAKEUP);
-		}
+		ClientOnlyUtils.refreshLocalPlayerSkillContainers();
 	}
 	
 	private static Pair<ResourceLocation, CompoundTag> parseParameters(Map.Entry<ResourceLocation, JsonElement> entry) {

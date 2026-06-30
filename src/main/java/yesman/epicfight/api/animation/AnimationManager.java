@@ -29,7 +29,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.FileToIdConverter;
@@ -52,6 +51,7 @@ import yesman.epicfight.api.asset.JsonAssetLoader;
 import yesman.epicfight.api.client.animation.AnimationSubFileReader;
 import yesman.epicfight.api.data.reloader.SkillManager;
 import yesman.epicfight.api.exception.AssetLoadingException;
+import yesman.epicfight.api.utils.ClientOnlyUtils;
 import yesman.epicfight.api.utils.InstantiateInvoker;
 import yesman.epicfight.api.utils.MutableBoolean;
 import yesman.epicfight.gameasset.Animations;
@@ -93,7 +93,7 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 	}
 	
 	public static <T extends StaticAnimation> AnimationAccessor<T> byKey(String registryName) {
-		return byKey(ResourceLocation.parse(registryName));
+		return byKey(new ResourceLocation(registryName));
 	}
 	
 	public static <T extends StaticAnimation> AnimationAccessor<T> byKey(ResourceLocation registryName) {
@@ -254,17 +254,17 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 			splitIdx = 0;
 		}
 		
-		return ResourceLocation.fromNamespaceAndPath(location.getNamespace(), String.format("%s/" + subFileType.getDirectory() + "%s", location.getPath().substring(0, splitIdx), location.getPath().substring(splitIdx)));
+		return new ResourceLocation(location.getNamespace(), String.format("%s/" + subFileType.getDirectory() + "%s", location.getPath().substring(0, splitIdx), location.getPath().substring(splitIdx)));
 	}
 	
 	/// Converts animation id, acquired by [StaticAnimation#getRegistryName], to animation resource path acquired by [StaticAnimation#getLocation]
     public static ResourceLocation idToPath(ResourceLocation rl) {
-        return rl.getPath().matches(DIRECTORY + "/.*\\.json") ? rl : ResourceLocation.fromNamespaceAndPath(rl.getNamespace(), DIRECTORY + "/" + rl.getPath() + ".json");
+        return rl.getPath().matches(DIRECTORY + "/.*\\.json") ? rl : new ResourceLocation(rl.getNamespace(), DIRECTORY + "/" + rl.getPath() + ".json");
     }
 
     /// Converts animation resource path, acquired by [StaticAnimation#getLocation], to animation id acquired by [StaticAnimation#getRegistryName]
     public static ResourceLocation pathToId(ResourceLocation rl) {
-        return ResourceLocation.fromNamespaceAndPath(rl.getNamespace(), rl.getPath().replace(DIRECTORY + "/", "").replace(".json", ""));
+        return new ResourceLocation(rl.getNamespace(), rl.getPath().replace(DIRECTORY + "/", "").replace(".json", ""));
     }
 	
 	public static void setServerResourceManager(ResourceManager pResourceManager) {
@@ -272,7 +272,7 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 	}
 	
 	public static ResourceManager getAnimationResourceManager() {
-		return EpicFightSharedConstants.isPhysicalClient() ? Minecraft.getInstance().getResourceManager() : serverResourceManager;
+		return EpicFightSharedConstants.isPhysicalClient() ? ClientOnlyUtils.getResourceManager(serverResourceManager) : serverResourceManager;
 	}
 	
 	public int getResourcepackAnimationCount() {
@@ -300,7 +300,7 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 		if (mandatoryPack) {
 			for (CompoundTag tag : packet.getTags()) {
 				String invocationCommand = tag.getString("invoke_command");
-				ResourceLocation registryName = ResourceLocation.parse(tag.getString("registry_name"));
+				ResourceLocation registryName = new ResourceLocation(tag.getString("registry_name"));
 				int id = tag.getInt("id");
 						
 				if (this.animationByName.containsKey(registryName)) {
@@ -496,7 +496,7 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 	
 	public static record AnimationBuilder(String namespace, Consumer<AnimationBuilder> task) {
 		public <T extends StaticAnimation> AnimationManager.AnimationAccessor<T> nextAccessor(String id, Function<AnimationManager.AnimationAccessor<T>, T> onLoad) {
-			AnimationAccessor<T> accessor = AnimationAccessorImpl.create(ResourceLocation.fromNamespaceAndPath(this.namespace, id), INSTANCE.animations.size() + 1, true, onLoad);
+			AnimationAccessor<T> accessor = AnimationAccessorImpl.create(new ResourceLocation(this.namespace, id), INSTANCE.animations.size() + 1, true, onLoad);
 			
 			INSTANCE.animationById.put(accessor.id(), accessor);
 			INSTANCE.animationByName.put(accessor.registryName(), accessor);

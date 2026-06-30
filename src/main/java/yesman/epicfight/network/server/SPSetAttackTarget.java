@@ -10,8 +10,8 @@ import net.minecraft.world.entity.Mob;
 import net.minecraftforge.network.NetworkEvent;
 
 public class SPSetAttackTarget {
-	private final int entityId;
-	private int targetEntityId;
+	final int entityId;
+	int targetEntityId;
 	
 	public SPSetAttackTarget() {
 		this.entityId = 0;
@@ -32,19 +32,7 @@ public class SPSetAttackTarget {
 	}
 	
 	public static void handle(SPSetAttackTarget msg, Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(()->{
-			Minecraft minecraft = Minecraft.getInstance();
-			Entity entity = minecraft.level.getEntity(msg.entityId);
-			Entity targetEntity = minecraft.level.getEntity(msg.targetEntityId);
-			
-			if (entity != null && entity instanceof Mob) {
-				if (targetEntity == null || !(targetEntity instanceof LivingEntity)) {
-					((Mob)entity).setTarget(null);
-				} else {
-					((Mob)entity).setTarget((LivingEntity)targetEntity);
-				}
-			}
-		});
+		ctx.get().enqueueWork(() -> ClientboundPacketBridge.handle(msg));
 		
 		ctx.get().setPacketHandled(true);
 	}

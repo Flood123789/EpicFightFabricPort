@@ -57,19 +57,13 @@ import yesman.epicfight.client.renderer.patched.item.EpicFightItemProperties;
 import yesman.epicfight.client.renderer.shader.compute.loader.ComputeShaderProvider;
 import yesman.epicfight.compat.AzureLibArmorCompat;
 import yesman.epicfight.compat.AzureLibCompat;
-import yesman.epicfight.compat.CuriosCompat;
 import yesman.epicfight.compat.FirstPersonCompat;
 import yesman.epicfight.compat.GeckolibCompat;
 import yesman.epicfight.compat.ICompatModule;
 import yesman.epicfight.compat.IRISCompat;
-import yesman.epicfight.compat.IceAndFireCompat;
 import yesman.epicfight.compat.PlayerAnimatorCompat;
-import yesman.epicfight.compat.PlayerReviveCompat;
 import yesman.epicfight.compat.SkinLayer3DCompat;
-import yesman.epicfight.compat.VampirismCompat;
-import yesman.epicfight.compat.WerewolvesCompat;
 import yesman.epicfight.compat.betterthirdperson.BetterThirdPersonCompat;
-import yesman.epicfight.compat.fgm.WildfireFGMCompat;
 import yesman.epicfight.config.ClientConfig;
 import yesman.epicfight.config.CommonConfig;
 import yesman.epicfight.config.ServerConfig;
@@ -173,6 +167,7 @@ public class EpicFightMod {
     	context.registerConfig(ModConfig.Type.COMMON, CommonConfig.SPEC);
     	context.registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class, () -> new ConfigScreenHandler.ConfigScreenFactory(IngameConfigurationScreen::new));
 		context.registerExtensionPoint(EpicFightExtensions.class, () -> new EpicFightExtensions(EpicFightCreativeTabs.ITEMS));
+		EpicFightNetworkManager.registerPackets();
     	
 		final IEventBus bus = context.getModEventBus();
 		
@@ -253,22 +248,6 @@ public class EpicFightMod {
 			ICompatModule.loadCompatModule(context, IRISCompat.class);
 		}
 		
-		if (ModList.get().isLoaded("vampirism")) {
-			ICompatModule.loadCompatModule(context, VampirismCompat.class);
-		}
-        
-        if (ModList.get().isLoaded("werewolves")) {
-			ICompatModule.loadCompatModule(context, WerewolvesCompat.class);
-		}
-        
-        if (ModList.get().isLoaded("iceandfire")) {
-			ICompatModule.loadCompatModule(context, IceAndFireCompat.class);
-		}
-        
-        if (ModList.get().isLoaded("curios")) {
-			ICompatModule.loadCompatModule(context, CuriosCompat.class);
-		}
-
 		if (ModList.get().isLoaded("playeranimator")) {
 			ICompatModule.loadCompatModule(context, PlayerAnimatorCompat.class);
 		}
@@ -277,14 +256,6 @@ public class EpicFightMod {
             ICompatModule.loadCompatModule(context, BetterThirdPersonCompat.class);
         }
         
-        if (ModList.get().isLoaded("playerrevive")) {
-        	ICompatModule.loadCompatModule(context, PlayerReviveCompat.class);
-        }
-
-		if (ModList.get().isLoaded("wildfire_gender"))
-		{
-			ICompatModule.loadCompatModule(context, WildfireFGMCompat.class);
-		}
 	}
     
     /**
@@ -418,7 +389,7 @@ public class EpicFightMod {
 	///
 	/// This was called `identifier` and not `resourceLocation` since [Mojang renamed `ResourceLocation` to `Identifier` in 1.21.11](https://neoforged.net/news/21.11release/#renaming-of-resourcelocation-to-identifier).
 	public static @NotNull ResourceLocation identifier(@NotNull String path) {
-		return ResourceLocation.fromNamespaceAndPath(MODID, path);
+		return new ResourceLocation(MODID, path);
 	}
 
 	/// @deprecated Use [#identifier(String)] instead. [Mojang renamed `ResourceLocation` to `Identifier` in 1.21.11](https://neoforged.net/news/21.11release/#renaming-of-resourcelocation-to-identifier).

@@ -49,7 +49,7 @@ public abstract class MixinEntity {
 		}
 	}
 	
-	@Inject(at = @At(value = "TAIL"), method = "onAddedToWorld()V", cancellable = true, remap = false)
+	@Inject(at = @At(value = "TAIL"), method = "onAddedToWorld()V", cancellable = true, remap = false, require = 0)
 	private void epicfight_onAddedToWorld(CallbackInfo callbackInfo) {
 		Entity self = (Entity)((Object)this);
 		EntityPatch<?> entitypatch = EpicFightCapabilities.getEntityPatch(self, EntityPatch.class);

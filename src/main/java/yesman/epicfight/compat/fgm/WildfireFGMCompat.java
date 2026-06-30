@@ -277,7 +277,7 @@ public class WildfireFGMCompat implements ICompatModule {
 
             String s1 = String.format(Locale.ROOT, "%s:textures/models/armor/%s_layer_%d%s.png", domain, texture, slot == EquipmentSlot.LEGS ? 2 : 1, type == null ? "" : String.format(Locale.ROOT, "_%s", type));
             s1 = ForgeHooksClient.getArmorTexture(entity, stack, s1, slot, type);
-            return ResourceLocation.parse(s1);
+            return new ResourceLocation(s1);
         }
 
         private void renderBreast(AbstractClientPlayerPatch<?> entity, ItemStack armorStack, PoseStack poseStack, MultiBufferSource bufferSource, @Nullable RenderType breastRenderType, int light, int overlay, float alpha, boolean left) {

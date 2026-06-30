@@ -22,6 +22,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import yesman.epicfight.api.utils.ParseUtil;
+import yesman.epicfight.client.gui.datapack.ParameterEditor;
 import yesman.epicfight.client.gui.datapack.screen.DatapackEditScreen.ItemCapabilityTab.ItemType;
 import yesman.epicfight.client.gui.datapack.widgets.Grid;
 import yesman.epicfight.client.gui.datapack.widgets.Grid.GridBuilder.RowEditButton;
@@ -29,7 +30,6 @@ import yesman.epicfight.client.gui.datapack.widgets.ResizableComponent.Horizonta
 import yesman.epicfight.client.gui.datapack.widgets.ResizableComponent.VerticalSizing;
 import yesman.epicfight.client.gui.datapack.widgets.ResizableEditBox;
 import yesman.epicfight.client.gui.datapack.widgets.Static;
-import yesman.epicfight.data.conditions.Condition.ParameterEditor;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.Styles;
 import yesman.epicfight.world.capabilities.item.Style;
 
@@ -50,8 +50,8 @@ public class WeaponAttributeScreen extends Screen {
 		this.itemType = itemType;
 		this.parentScreen = parentScreen;
 		this.rootTag = rootTag;
-		this.minecraft = parentScreen.getMinecraft();
-		this.font = parentScreen.getMinecraft().font;
+		this.minecraft = net.minecraft.client.Minecraft.getInstance();
+		this.font = net.minecraft.client.Minecraft.getInstance().font;
 		
 		final ResizableEditBox impactEditBox = new ResizableEditBox(this.font, 0, 0, 0, 0, Component.literal("impact"), null, null);
 		final ResizableEditBox armorNegationEditBox = new ResizableEditBox(this.font, 0, 0, 0, 0, Component.literal("armor_negation"), null, null);
@@ -78,7 +78,7 @@ public class WeaponAttributeScreen extends Screen {
 		this.armorAttributeEditors.put("weight", ParameterEditor.of((value) -> DoubleTag.valueOf(ParseUtil.parseOrGet(value.toString(), Double::parseDouble, 0.0D)), (tag) -> ParseUtil.valueOfOmittingType(tag.getAsString()), weightEditBox));
 		
 		if (itemType == ItemType.WEAPON) {
-			this.stylesGrid = Grid.builder(this, parentScreen.getMinecraft())
+			this.stylesGrid = Grid.builder(this, net.minecraft.client.Minecraft.getInstance())
 									.xy1(20, 60)
 									.xy2(90, 50)
 									.horizontalSizing(HorizontalSizing.LEFT_WIDTH)
@@ -114,7 +114,7 @@ public class WeaponAttributeScreen extends Screen {
 									})
 									.build();
 			
-			this.attributesGrid = Grid.builder(this, parentScreen.getMinecraft())
+			this.attributesGrid = Grid.builder(this, net.minecraft.client.Minecraft.getInstance())
 										.xy1(120, 60)
 										.xy2(20, 50)
 										.horizontalSizing(HorizontalSizing.LEFT_RIGHT)
@@ -178,7 +178,7 @@ public class WeaponAttributeScreen extends Screen {
 		} else if (itemType == ItemType.ARMOR) {
 			this.styles.add(PackEntry.of("armor", CompoundTag::new));
 			
-			this.attributesGrid = Grid.builder(this, parentScreen.getMinecraft())
+			this.attributesGrid = Grid.builder(this, net.minecraft.client.Minecraft.getInstance())
 										.xy1(20, 60)
 										.xy2(20, 50)
 										.horizontalSizing(HorizontalSizing.LEFT_RIGHT)

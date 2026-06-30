@@ -74,7 +74,7 @@ public class ItemCapabilityReloadListener extends SimpleJsonResourceReloadListen
 			
 			if (path.contains("/") && !path.contains("types") && !path.contains("item_keyword")) {
 				String[] str = path.split("/", 2);
-				ResourceLocation registryName = ResourceLocation.fromNamespaceAndPath(rl.getNamespace(), str[1]);
+				ResourceLocation registryName = new ResourceLocation(rl.getNamespace(), str[1]);
 				
 				if (!ForgeRegistries.ITEMS.containsKey(registryName)) {
 					EpicFightMod.LOGGER.warn("Item Capability Exception: No item named " + registryName);
@@ -156,7 +156,7 @@ public class ItemCapabilityReloadListener extends SimpleJsonResourceReloadListen
 			
 			for (Tag jsonElement : jsonArray) {
 				CompoundTag innerTag = ((CompoundTag)jsonElement);
-				Supplier<Condition<ItemStack>> conditionProvider = EpicFightConditions.getConditionOrThrow(ResourceLocation.parse(innerTag.getString("condition")));
+				Supplier<Condition<ItemStack>> conditionProvider = EpicFightConditions.getConditionOrThrow(new ResourceLocation(innerTag.getString("condition")));
 				Condition<ItemStack> condition = conditionProvider.get().read(innerTag.getCompound("predicate"));
 				
 				list.add(Pair.of(condition, deserializeWeapon(item, innerTag)));
@@ -195,7 +195,7 @@ public class ItemCapabilityReloadListener extends SimpleJsonResourceReloadListen
 			
 			if (builder instanceof WeaponCapability.Builder weaponBuilder && tag.contains("custom_tags")) {
                 for (Tag customTag : tag.getList("custom_tags", Tag.TAG_STRING)) {
-                    weaponBuilder.addTag(ResourceLocation.parse(customTag.getAsString()));
+                    weaponBuilder.addTag(new ResourceLocation(customTag.getAsString()));
                 }
             }
 			

@@ -18,13 +18,7 @@ public record SPClearSkills(int entityId) {
 	}
 	
 	public static void handle(SPClearSkills msg, Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> {
-			Entity entity = Minecraft.getInstance().level.getEntity(msg.entityId());
-			
-			EpicFightCapabilities.getPlayerPatchAsOptional(entity).ifPresent(playerpatch -> {
-				playerpatch.getSkillCapability().clearContainersAndLearnedSkills(playerpatch.getOriginal().isLocalPlayer());
-			});
-		});
+		ctx.get().enqueueWork(() -> ClientboundPacketBridge.handle(msg));
 		ctx.get().setPacketHandled(true);
 	}
 }

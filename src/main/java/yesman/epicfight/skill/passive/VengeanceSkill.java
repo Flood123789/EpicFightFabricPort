@@ -1,13 +1,13 @@
 package yesman.epicfight.skill.passive;
 
 import java.util.List;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.UUID;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
@@ -149,9 +149,17 @@ public class VengeanceSkill extends PassiveSkill {
 	@OnlyIn(Dist.CLIENT)
 	public void executeOnClient(SkillContainer container, FriendlyByteBuf args) {
 		container.activate();
-		// Playing sound twice fixes volume issue...
-		Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(EpicFightSounds.VENGEANCE.get(), 1.0F, 1.0F));
-		Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(EpicFightSounds.VENGEANCE.get(), 1.0F, 1.0F));
+		playVengeanceSoundOnClient();
+	}
+
+	private static void playVengeanceSoundOnClient() {
+		try {
+			Class<?> clientSounds = Class.forName("yesman.epicfight.client.skill.ClientSkillSounds");
+			Method method = clientSounds.getMethod("playVengeanceSound");
+			method.invoke(null);
+		} catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException exception) {
+			throw new IllegalStateException("Failed to play Epic Fight client skill sound", exception);
+		}
 	}
 	
 	public static boolean tickExceeded(SkillContainer container) {
@@ -198,10 +206,10 @@ public class VengeanceSkill extends PassiveSkill {
 		
 		if (container.isActivated()) {
 			float f = Math.round(this.damageBonus * 100.0F * container.getDurationRatio(1.0F));
-			guiGraphics.drawString(gui.getFont(), ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(f) + "%", x + 6, y + 8, 16777215, true);
+			guiGraphics.drawString(gui.getFont(), ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(f) + "%", (int)(x + 6), (int)(y + 8), 16777215, true);
 		} else if (canResetTarget(container)) {
 			int seconds = 4 - ((container.getExecutor().getOriginal().tickCount - container.getDataManager().getDataValue(SkillDataKeys.TICK_RECORD.get())) - 80) / 20;
-			guiGraphics.drawString(gui.getFont(), String.valueOf(seconds), x + 6, y + 8, 16777215, true);
+			guiGraphics.drawString(gui.getFont(), String.valueOf(seconds), (int)(x + 6), (int)(y + 8), 16777215, true);
 		}
 		
 		poseStack.popPose();

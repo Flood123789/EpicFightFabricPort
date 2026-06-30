@@ -18,6 +18,8 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import yesman.epicfight.api.utils.ParseUtil;
+import yesman.epicfight.client.gui.datapack.ConditionParameterEditors;
+import yesman.epicfight.client.gui.datapack.ParameterEditor;
 import yesman.epicfight.client.gui.datapack.widgets.Grid;
 import yesman.epicfight.client.gui.datapack.widgets.Grid.GridBuilder.RowEditButton;
 import yesman.epicfight.client.gui.datapack.widgets.ResizableComponent.HorizontalSizing;
@@ -25,7 +27,6 @@ import yesman.epicfight.client.gui.datapack.widgets.ResizableComponent.VerticalS
 import yesman.epicfight.client.gui.datapack.widgets.ResizableEditBox;
 import yesman.epicfight.data.conditions.Condition;
 import yesman.epicfight.data.conditions.Condition.EntityPatchCondition;
-import yesman.epicfight.data.conditions.Condition.ParameterEditor;
 import yesman.epicfight.data.conditions.EpicFightConditions;
 
 public class OffhandValidatorScreen extends Screen {
@@ -38,12 +39,12 @@ public class OffhandValidatorScreen extends Screen {
 	public OffhandValidatorScreen(Screen parentScreen, CompoundTag rootTag) {
 		super(Component.translatable("datapack_edit.weapon_type.offhand_visibility"));
 		
-		this.minecraft = parentScreen.getMinecraft();
-		this.font = parentScreen.getMinecraft().font;
+		this.minecraft = net.minecraft.client.Minecraft.getInstance();
+		this.font = net.minecraft.client.Minecraft.getInstance().font;
 		this.rootTag = rootTag;
 		this.parentScreen = parentScreen;
 		
-		this.conditionGrid = Grid.builder(this, parentScreen.getMinecraft())
+		this.conditionGrid = Grid.builder(this, net.minecraft.client.Minecraft.getInstance())
 									.xy1(15, 45)
 									.xy2(100, 45)
 									.horizontalSizing(HorizontalSizing.LEFT_WIDTH)
@@ -62,7 +63,7 @@ public class OffhandValidatorScreen extends Screen {
 											CompoundTag comp = this.conditionList.get(rowposition);
 											Grid.PackImporter parameters = new Grid.PackImporter();
 											
-											for (ParameterEditor editor : condition.getAcceptingParameters(this)) {
+											for (ParameterEditor editor : ConditionParameterEditors.getAcceptingParameters(condition, this)) {
 												parameters.newRow();
 												parameters.newValue("parameter_key", editor);
 												parameters.newValue("parameter_value", editor.fromTag.apply(comp.get(editor.editWidget.getMessage().getString())));
@@ -84,7 +85,7 @@ public class OffhandValidatorScreen extends Screen {
 															Condition<?> condition = event.postValue.get();
 															Grid.PackImporter parameters = new Grid.PackImporter();
 															
-															for (ParameterEditor editor : condition.getAcceptingParameters(this)) {
+															for (ParameterEditor editor : ConditionParameterEditors.getAcceptingParameters(condition, this)) {
 																parameters.newRow();
 																parameters.newValue("parameter_key", editor);
 																parameters.newValue("parameter_value", editor.fromTag.apply(comp.get(editor.editWidget.getMessage().getString())));
@@ -113,7 +114,7 @@ public class OffhandValidatorScreen extends Screen {
 									})
 									.build();
 		
-		this.parameterGrid = Grid.builder(this, parentScreen.getMinecraft())
+		this.parameterGrid = Grid.builder(this, net.minecraft.client.Minecraft.getInstance())
 									.xy1(125, 45)
 									.xy2(12, 45)
 									.horizontalSizing(HorizontalSizing.LEFT_RIGHT)
@@ -154,7 +155,7 @@ public class OffhandValidatorScreen extends Screen {
 				this.conditionList.add(compTag);
 				
 				packImporter.newRow();
-				packImporter.newValue("condition", EpicFightConditions.getConditionOrNull(ResourceLocation.parse(compTag.getString("predicate"))));
+				packImporter.newValue("condition", EpicFightConditions.getConditionOrNull(new ResourceLocation(compTag.getString("predicate"))));
 			}
 			
 			this.conditionGrid._setValue(packImporter);
@@ -231,7 +232,7 @@ public class OffhandValidatorScreen extends Screen {
 	
 	private void validateTagSave(CompoundTag tag) throws IllegalStateException {
 		try {
-			Supplier<Condition<?>> condition = EpicFightConditions.getConditionOrThrow(ResourceLocation.parse(tag.getString("predicate")));
+			Supplier<Condition<?>> condition = EpicFightConditions.getConditionOrThrow(new ResourceLocation(tag.getString("predicate")));
 			condition.get().read(tag);
 		} catch (Exception e) {
 			throw new IllegalStateException(e.getMessage());

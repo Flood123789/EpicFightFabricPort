@@ -37,18 +37,7 @@ public class SPMoveAndPlayAnimation extends SPPlayAnimationAndSetTarget {
 	
 	@Override
 	public void onArrive() {
-		super.onArrive();
-		Minecraft mc = Minecraft.getInstance();
-		Entity entity = mc.player.level().getEntity(this.entityId);
-		entity.setPos(this.posX, this.posY, this.posZ);
-		entity.setYRot(this.yRot);
-		entity.xo = entity.getX();
-		entity.yo = entity.getY();
-		entity.zo = entity.getZ();
-		entity.xOld = entity.getX();
-		entity.yOld = entity.getY();
-		entity.zOld = entity.getZ();
-		entity.yRotO = this.yRot;
+		ClientboundPacketBridge.handle(this);
 	}
 	
 	public static SPMoveAndPlayAnimation fromBytes(FriendlyByteBuf buf) {
@@ -69,9 +58,7 @@ public class SPMoveAndPlayAnimation extends SPPlayAnimationAndSetTarget {
 	}
 
 	public static void handler(SPMoveAndPlayAnimation msg, Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(()->{
-			msg.onArrive();
-		});
+		ctx.get().enqueueWork(() -> ClientboundPacketBridge.handle(msg));
 		ctx.get().setPacketHandled(true);
 	}
 }

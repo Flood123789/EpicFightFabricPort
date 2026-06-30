@@ -3,6 +3,7 @@
 	"minVersion": "0.8",
 	"compatibilityLevel": "JAVA_17",
 	"package": "yesman.epicfight.mixin",
+	"plugin": "yesman.epicfight.mixin.EpicFightMixinPlugin",
 	"client": [
 		"client.MixinAbstractContainerEventHandler",
 		"client.MixinAgeableListModel",
@@ -15,6 +16,7 @@
 		"client.MixinEntityRenderer",
 		"client.MixinGameRenderer",
 		"client.MixinGui",
+		"client.MixinKeyboardInput",
 		"client.MixinKeyboardHandler",
 		"client.MixinLevelRenderer",
 		"client.MixinLightTexture",
@@ -23,13 +25,12 @@
         "client.MixinOptions",
 		"client.MixinMinecraft",
 		"client.MixinMouseHandler",
+		"client.MixinPlayerRenderer",
 		"client.MixinParticleEngine",
 		"client.MixinThrownTridentRenderer",
-        "client.MixinInventory",
+		"client.MixinInventory",
 		"skinlayers.MixinCustomModelPart",
-		"skinlayers.MixinCustomizableCubeWrapper$SkinLayer3DMixinCustomModelCube",
-		"teamlapen.MixinVampirePlayerHeadLayer",
-		"teamlapen.MixinHumanWerewolfLayer"
+		"skinlayers.MixinCustomizableCubeWrapper$SkinLayer3DMixinCustomModelCube"
 	],
 	"mixins": [
 		"common.MixinCrossbowAttack",

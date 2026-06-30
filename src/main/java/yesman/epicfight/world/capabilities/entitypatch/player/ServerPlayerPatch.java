@@ -47,11 +47,14 @@ import yesman.epicfight.world.entity.eventlistener.TakeDamageEvent;
 public class ServerPlayerPatch extends PlayerPatch<ServerPlayer> {
 	private LivingEntity attackTarget;
 	private boolean updatedMotionCurrentTick;
+	private ItemStack lastKnownMainHandItem = ItemStack.EMPTY;
+	private ItemStack lastKnownOffHandItem = ItemStack.EMPTY;
 	
 	@Override
 	public void onJoinWorld(ServerPlayer player, EntityJoinLevelEvent event) {
 		super.onJoinWorld(player, event);
 		EpicFightNetworkManager.sendToPlayer(new SPInitSkills(this.getSkillCapability()), player);
+		this.refreshHeldItemState(player.getMainHandItem(), player.getOffhandItem(), true);
 		
 		this.eventListeners.addEventListener(EventType.DEAL_DAMAGE_EVENT_DAMAGE, PLAYER_EVENT_UUID, (playerevent) -> {
 			if (playerevent.getDamageSource().isBasicAttack()) {
@@ -91,6 +94,7 @@ public class ServerPlayerPatch extends PlayerPatch<ServerPlayer> {
 	public void tick(LivingEvent.LivingTickEvent event) {
 		super.tick(event);
 		this.updatedMotionCurrentTick = false;
+		this.refreshHeldItemState(this.original.getMainHandItem(), this.original.getOffhandItem(), false);
 	}
 	
 	@Override
@@ -99,6 +103,8 @@ public class ServerPlayerPatch extends PlayerPatch<ServerPlayer> {
 	
 	@Override
 	public void updateHeldItem(CapabilityItem fromCap, CapabilityItem toCap, ItemStack from, ItemStack to, InteractionHand hand) {
+		this.rememberHeldItem(hand, to);
+		
 		if (this.isHoldingAny()) {
 			this.getSkillContainerFor(this.holdingSkill.asSkill()).ifPresent((container) -> {
 				container.getSkill().cancelOnServer(container, null);
@@ -147,6 +153,28 @@ public class ServerPlayerPatch extends PlayerPatch<ServerPlayer> {
 	
 	public void modifyLivingMotionByCurrentItem() {
 		this.modifyLivingMotionByCurrentItem(false);
+	}
+
+	private void refreshHeldItemState(ItemStack mainHandItem, ItemStack offHandItem, boolean force) {
+		if (force || !ItemStack.isSameItemSameTags(this.lastKnownMainHandItem, mainHandItem)) {
+			CapabilityItem fromCap = EpicFightCapabilities.getItemStackCapability(this.lastKnownMainHandItem);
+			CapabilityItem toCap = EpicFightCapabilities.getItemStackCapability(mainHandItem);
+			this.updateHeldItem(fromCap, toCap, this.lastKnownMainHandItem, mainHandItem, InteractionHand.MAIN_HAND);
+		}
+		
+		if (force || !ItemStack.isSameItemSameTags(this.lastKnownOffHandItem, offHandItem)) {
+			CapabilityItem fromCap = EpicFightCapabilities.getItemStackCapability(this.lastKnownOffHandItem);
+			CapabilityItem toCap = EpicFightCapabilities.getItemStackCapability(offHandItem);
+			this.updateHeldItem(fromCap, toCap, this.lastKnownOffHandItem, offHandItem, InteractionHand.OFF_HAND);
+		}
+	}
+	
+	private void rememberHeldItem(InteractionHand hand, ItemStack itemStack) {
+		if (hand == InteractionHand.MAIN_HAND) {
+			this.lastKnownMainHandItem = itemStack.copy();
+		} else {
+			this.lastKnownOffHandItem = itemStack.copy();
+		}
 	}
 	
 	/**

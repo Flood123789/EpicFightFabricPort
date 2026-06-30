@@ -22,7 +22,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.level.block.state.BlockState;
@@ -33,7 +32,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.InputEvent.InteractionKeyMappingTriggered;
 import net.minecraftforge.client.event.MovementInputUpdateEvent;
-import net.minecraftforge.entity.PartEntity;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -97,6 +95,8 @@ public class ControlEngine {
     @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
 	private KeyMapping reservedKey;
+    @Nullable
+    private InputAction reservedAction;
 	private SkillSlot reservedOrHoldingSkillSlot;
     /**
      * <b>DEPRECATED:</b> Consider using {@link ControlEngine#isCurrentHoldingAction} or 
@@ -110,6 +110,8 @@ public class ControlEngine {
     @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
     private KeyMapping currentHoldingKey;
+    @Nullable
+    private InputAction currentHoldingAction;
 	public Options options;
 	
 	public ControlEngine() {
@@ -152,6 +154,22 @@ public class ControlEngine {
 
         InputManager.triggerOnPress(EpicFightInputAction.SWITCH_VANILLA_MODEL_DEBUGGING, this::switchVanillaModelDebugging);
 
+        InputManager.triggerOnPress(EpicFightInputAction.SWITCH_MODE, this::switchMode);
+
+        InputManager.triggerOnPress(EpicFightInputAction.LOCK_ON, this::toggleLockOnState);
+
+        InputManager.triggerOnPress(EpicFightInputAction.LOCK_ON_SHIFT_LEFT, this::searchNewTargetFromLeft);
+
+        InputManager.triggerOnPress(EpicFightInputAction.LOCK_ON_SHIFT_RIGHT, this::searchNewTargetFromRight);
+
+        if (Minecraft.getInstance().isPaused()) {
+            return;
+        }
+
+        if (!this.playerPatch.isEpicFightMode()) {
+            return;
+        }
+
         // The "runKeyboardMouseEvent" is used as a workaround to this issue:
         // * https://github.com/Epic-Fight/epicfight/issues/1771
         // * https://github.com/Creators-of-Create/Create/issues/6901
@@ -178,20 +196,7 @@ public class ControlEngine {
                 () -> InputUtils.runKeyboardMouseEvent(EpicFightInputAction.MOBILITY, this::maybePerformMoverSkill)
         );
 
-        InputManager.triggerOnPress(EpicFightInputAction.SWITCH_MODE, this::switchMode);
-
-        InputManager.triggerOnPress(EpicFightInputAction.LOCK_ON, this::toggleLockOnState);
-
-        InputManager.triggerOnPress(EpicFightInputAction.LOCK_ON_SHIFT_LEFT, this::searchNewTargetFromLeft);
-
-        InputManager.triggerOnPress(EpicFightInputAction.LOCK_ON_SHIFT_RIGHT, this::searchNewTargetFromRight);
-
         if (shouldDisableSwapHandItems()) consumeSwapOffhandKeyClicks();
-		
-		// Pause here if player is not in battle mode
-		if (!this.playerPatch.isEpicFightMode() || Minecraft.getInstance().isPaused()) {
-			return;
-		}
 		
 		if (this.player.tickCount - this.lastHotbarLockedTime > 20 && this.hotbarLocked) {
 			this.unlockHotkeys();
@@ -263,7 +268,7 @@ public class ControlEngine {
 			}
 		}
 		
-		if (this.currentHoldingKey != null) {
+		if (this.currentHoldingKey != null || this.currentHoldingAction != null) {
 			SkillContainer container = this.playerPatch.getSkill(this.reservedOrHoldingSkillSlot);
 			
 			if (!container.isEmpty()) {
@@ -296,7 +301,7 @@ public class ControlEngine {
 			}
 		}
 		
-		if (this.reservedKey != null) {
+		if (this.reservedKey != null || this.reservedAction != null) {
 			if (this.reserveCounter > 0) {
 				SkillContainer skill = this.playerPatch.getSkill(this.reservedOrHoldingSkillSlot);
 				this.reserveCounter--;
@@ -411,7 +416,7 @@ public class ControlEngine {
             SkillContainer skill = this.playerPatch.getSkill(skillCategory);
 
             if (!skill.isEmpty() && skill.sendCastRequest(this.playerPatch, this).shouldReserveKey()) {
-                this.reserveKey(SkillSlots.DODGE, EpicFightInputAction.DODGE);
+                this.reserveKey(skillCategory, EpicFightInputAction.DODGE);
             }
         }
     }
@@ -540,6 +545,14 @@ public class ControlEngine {
 		if (this.tickSinceLastJump > 0) this.tickSinceLastJump--;
 	}
 
+	public void handleMovementInput(Input input) {
+		if (this.playerPatch == null) {
+			return;
+		}
+
+		this.inputTick(input);
+	}
+
     /**
      * <b>DEPRECATED:</b> This method is retained for backward compatibility and will 
      * be removed in a future release. Do not use it for new code.
@@ -547,32 +560,40 @@ public class ControlEngine {
      * {@link #reserveKey(SkillSlot, InputAction)}, which works directly
      * with {@link EpicFightInputAction}.</p>
      */
-    @SuppressWarnings("DeprecatedIsStillUsed")
+	@SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated(forRemoval = true)
 	private void reserveKey(SkillSlot slot, KeyMapping keyMapping) {
 		this.reservedKey = keyMapping;
+        this.reservedAction = this.resolveActionForSkillSlot(slot, keyMapping);
 		this.reservedOrHoldingSkillSlot = slot;
 		this.reserveCounter = 8;
 	}
 
     private void reserveKey(SkillSlot slot, InputAction action) {
-        reserveKey(slot, action.keyMapping());
+        this.reservedKey = action.keyMapping();
+        this.reservedAction = action;
+        this.reservedOrHoldingSkillSlot = slot;
+        this.reserveCounter = 8;
     }
 	
 	public void releaseAllServedKeys() {
 		this.holdingFinished = true;
 		this.currentHoldingKey = null;
+        this.currentHoldingAction = null;
 		this.reservedOrHoldingSkillSlot = null;
 		this.reserveCounter = -1;
 		this.reservedKey = null;
+        this.reservedAction = null;
 	}
 	
 	public void setHoldingKey(SkillSlot chargingSkillSlot, KeyMapping keyMapping) {
 		this.holdingFinished = false;
 		this.currentHoldingKey = keyMapping;
+        this.currentHoldingAction = this.resolveActionForSkillSlot(chargingSkillSlot, keyMapping);
 		this.reservedOrHoldingSkillSlot = chargingSkillSlot;
 		this.reserveCounter = -1;
 		this.reservedKey = null;
+        this.reservedAction = null;
 	}
 
 	public void lockHotkeys() {
@@ -587,6 +608,14 @@ public class ControlEngine {
 	
 	public void addPacketToSend(Object packet) {
 		this.packets.add(packet);
+	}
+	
+	public void flushQueuedPackets() {
+		for (Object packet : this.packets) {
+			EpicFightNetworkManager.sendToServer(packet);
+		}
+		
+		this.packets.clear();
 	}
 
     /**
@@ -865,6 +894,37 @@ public class ControlEngine {
         return InputAction.fromKeyMapping(keyMapping);
     }
 
+    private @Nullable InputAction resolveActionForSkillSlot(@Nullable SkillSlot slot, @Nullable KeyMapping keyMapping) {
+        if (slot != null && slot == this.reservedOrHoldingSkillSlot && this.reservedAction != null) {
+            return this.reservedAction;
+        }
+
+        InputAction slotAction = defaultActionForSkillSlot(slot);
+        if (slotAction != null) {
+            return slotAction;
+        }
+
+        return keyMapping == null ? null : mapKeyMappingToAction(keyMapping);
+    }
+
+    private static @Nullable InputAction defaultActionForSkillSlot(@Nullable SkillSlot slot) {
+        if (slot == SkillSlots.BASIC_ATTACK) {
+            return EpicFightInputAction.ATTACK;
+        } else if (slot == SkillSlots.DODGE) {
+            return EpicFightInputAction.DODGE;
+        } else if (slot == SkillSlots.KNOCKDOWN_WAKEUP) {
+            return MinecraftInputAction.SNEAK;
+        } else if (slot == SkillSlots.MOVER) {
+            return EpicFightInputAction.MOBILITY;
+        } else if (slot == SkillSlots.GUARD) {
+            return EpicFightInputAction.GUARD;
+        } else if (slot == SkillSlots.WEAPON_INNATE) {
+            return EpicFightInputAction.WEAPON_INNATE_SKILL;
+        }
+
+        return null;
+    }
+
     /**
      * Checks if the specified input action is currently being held.
      *
@@ -873,6 +933,10 @@ public class ControlEngine {
      * @see ControlEngine#mapKeyMappingToAction
      */
     private boolean isCurrentHoldingAction(@NotNull InputAction other) {
+        if (this.currentHoldingAction != null) {
+            return other == this.currentHoldingAction;
+        }
+
         if (currentHoldingKey == null) {
             return false;
         }
@@ -887,6 +951,10 @@ public class ControlEngine {
     }
     
     private boolean isCurrentHoldingActionActive() {
+        if (this.currentHoldingAction != null) {
+            return InputManager.isActionActive(this.currentHoldingAction);
+        }
+
         if (currentHoldingKey == null) {
             return false;
         }
@@ -979,11 +1047,7 @@ public class ControlEngine {
 			}
 			
 			if (event.phase == TickEvent.Phase.END) {
-				for (Object packet : controlEngine.packets) {
-					EpicFightNetworkManager.sendToServer(packet);
-				}
-				
-				controlEngine.packets.clear();
+				controlEngine.flushQueuedPackets();
 			}
 		}
 		
@@ -991,12 +1055,22 @@ public class ControlEngine {
 		public static void interactionEvent(InteractionKeyMappingTriggered event) {
 			if (controlEngine.minecraft.player == null || controlEngine.minecraft.hitResult == null) return;
             final InputAction triggeredAction = mapKeyMappingToAction(event.getKeyMapping());
+
+			LocalPlayerPatch playerpatch = EpicFightCapabilities.getEntityPatch(controlEngine.minecraft.player, LocalPlayerPatch.class);
             
             if (triggeredAction == null) {
                 // The key mapping corresponds to a fixed vanilla action (attack, pick block, or use item).
                 // These are predictable, so it's safe to map the key mapping to an input action.
                 return;
             }
+
+			if (playerpatch == null) {
+				return;
+			}
+
+			if (!playerpatch.isEpicFightMode()) {
+				return;
+			}
             
 			if (
                 triggeredAction == MinecraftInputAction.ATTACK_DESTROY &&
@@ -1009,24 +1083,6 @@ public class ControlEngine {
 				
 				// Cancel digging when the player swings combat preferred items
 				if (!controlEngine.player.getMainHandItem().getItem().canAttackBlock(bs, controlEngine.player.level(), bp, controlEngine.player) || controlEngine.player.getMainHandItem().getDestroySpeed(bs) <= 1.0F) {
-					event.setSwingHand(false);
-					event.setCanceled(true);
-				}
-			}
-			
-			LocalPlayerPatch playerpatch = EpicFightCapabilities.getEntityPatch(controlEngine.minecraft.player, LocalPlayerPatch.class);
-			
-			if (playerpatch == null) {
-				return;
-			}
-			
-			if (playerpatch.isVanillaMode() && triggeredAction == MinecraftInputAction.ATTACK_DESTROY) {
-				// Blocks vanilla attacks against living entities
-				if (
-					!EpicFightGameRules.ALLOW_VANILLA_MELEE.getRuleValue(playerpatch.getOriginal().level()) &&
-					controlEngine.minecraft.hitResult instanceof EntityHitResult entityHitResult &&
-					(entityHitResult.getEntity() instanceof LivingEntity || entityHitResult.getEntity() instanceof PartEntity)
-				) {
 					event.setSwingHand(false);
 					event.setCanceled(true);
 				}
@@ -1077,12 +1133,13 @@ public class ControlEngine {
 								event.setCanceled(true);
 							} else if (interactionResult == InteractionResult.PASS && ClientConfig.keyConflictResolveScope.cancelItemUse()) {
 								event.setSwingHand(false);
-								event.setCanceled(true);
-							}
-						}
-					}
+					event.setCanceled(true);
 				}
 			}
+			
+		}
+	}
+}
 		}
 	}
 }

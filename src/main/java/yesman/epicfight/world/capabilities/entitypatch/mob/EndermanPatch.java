@@ -3,10 +3,8 @@ package yesman.epicfight.world.capabilities.entitypatch.mob;
 import java.util.EnumSet;
 import java.util.UUID;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntityType;
@@ -34,6 +32,7 @@ import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.client.animation.ClientAnimator;
 import yesman.epicfight.api.utils.AttackResult;
+import yesman.epicfight.api.utils.ClientOnlyUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.gameasset.Animations;
@@ -251,13 +250,7 @@ public class EndermanPatch extends MobPatch<EnderMan> {
 		this.original.playSound(SoundEvents.ENDERMAN_TELEPORT, 1.0F, 1.0F);
 		
 		if (this.isLogicalClient()) {
-			for (int i = 0; i < 100; i++) {
-				RandomSource rand = original.getRandom();
-				Vec3f vec = new Vec3f(rand.nextInt(), rand.nextInt(), rand.nextInt());
-				vec.normalize().scale(0.5F);
-				Minecraft minecraft = Minecraft.getInstance();
-				minecraft.particleEngine.createParticle(EpicFightParticles.ENDERMAN_DEATH_EMIT.get(), this.original.getX(), this.original.getY() + this.original.getDimensions(net.minecraft.world.entity.Pose.STANDING).height / 2, this.original.getZ(), vec.x, vec.y, vec.z);
-			}
+			ClientOnlyUtils.spawnEndermanDeathParticles(this.original);
 		}
 		
 		super.aboutToDeath();

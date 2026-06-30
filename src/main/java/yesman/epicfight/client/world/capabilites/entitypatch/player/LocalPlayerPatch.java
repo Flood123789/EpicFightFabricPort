@@ -431,14 +431,6 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 	@Override
 	public void updateHeldItem(CapabilityItem mainHandCap, CapabilityItem offHandCap) {
 		super.updateHeldItem(mainHandCap, offHandCap);
-		
-		if (!ClientConfig.preferenceWork.checkHitResult()) {
-			if (ClientConfig.combatPreferredItems.contains(this.original.getMainHandItem().getItem())) {
-				this.toEpicFightMode(true); 
-			} else if (ClientConfig.miningPreferredItems.contains(this.original.getMainHandItem().getItem())) {
-				this.toVanillaMode(true);
-			}
-		}
 	}
 	
 	/**

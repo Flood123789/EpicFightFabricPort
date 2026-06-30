@@ -101,6 +101,7 @@ import yesman.epicfight.api.data.reloader.SkillManager;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.InstantiateInvoker;
 import yesman.epicfight.api.utils.ParseUtil;
+import yesman.epicfight.client.gui.datapack.ParameterEditor;
 import yesman.epicfight.client.gui.datapack.widgets.CheckBox;
 import yesman.epicfight.client.gui.datapack.widgets.ColorPreviewWidget;
 import yesman.epicfight.client.gui.datapack.widgets.ComboBox;
@@ -113,7 +114,6 @@ import yesman.epicfight.client.gui.datapack.widgets.ResizableComponent.Horizonta
 import yesman.epicfight.client.gui.datapack.widgets.ResizableEditBox;
 import yesman.epicfight.client.gui.datapack.widgets.Static;
 import yesman.epicfight.client.gui.datapack.widgets.SubScreenOpenButton;
-import yesman.epicfight.data.conditions.Condition.ParameterEditor;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.gameasset.ColliderPreset;
 import yesman.epicfight.main.EpicFightMod;
@@ -146,7 +146,7 @@ public class DatapackEditScreen extends Screen implements ExtraEntryProvider {
 			return workingPackScreen.getExtraOrBuiltInAnimation(path);
 		}
 		
-		return AnimationManager.byKey(ResourceLocation.parse(path));
+		return AnimationManager.byKey(new ResourceLocation(path));
 	}
 	
 	public static AssetAccessor<? extends SkinnedMesh> getMesh(String path) {
@@ -154,7 +154,7 @@ public class DatapackEditScreen extends Screen implements ExtraEntryProvider {
 			return workingPackScreen.getExtraOrBuiltInMesh(path);
 		}
 		
-		return Meshes.get(ResourceLocation.parse(path));
+		return Meshes.get(new ResourceLocation(path));
 	}
 	
 	public static AssetAccessor<? extends Armature> getArmature(String path) {
@@ -162,7 +162,7 @@ public class DatapackEditScreen extends Screen implements ExtraEntryProvider {
 			return workingPackScreen.getExtraOrBuiltInArmature(path);
 		}
 		
-		return Armatures.get(ResourceLocation.parse(path));
+		return Armatures.get(new ResourceLocation(path));
 	}
 	
 	public static Function<Item, CapabilityItem.Builder> getWeaponType(String typeName) {
@@ -175,7 +175,7 @@ public class DatapackEditScreen extends Screen implements ExtraEntryProvider {
 	
 	@SuppressWarnings("unchecked")
 	public <T extends StaticAnimation> AnimationAccessor<T> getExtraOrBuiltInAnimation(String path) throws ClassCastException {
-		ResourceLocation rl = ResourceLocation.parse(path);
+		ResourceLocation rl = new ResourceLocation(path);
 		
 		if (userAnimations.containsKey(rl)) {
 			return (AnimationAccessor<T>)userAnimations.get(rl).getValue();
@@ -185,7 +185,7 @@ public class DatapackEditScreen extends Screen implements ExtraEntryProvider {
 	}
 	
 	public AssetAccessor<? extends SkinnedMesh> getExtraOrBuiltInMesh(String path) {
-		ResourceLocation rl = ResourceLocation.parse(path);
+		ResourceLocation rl = new ResourceLocation(path);
 		
 		if (workingPackScreen != null && workingPackScreen.userMeshes.containsKey(rl)) {
 			return workingPackScreen.userMeshes.get(rl);
@@ -195,7 +195,7 @@ public class DatapackEditScreen extends Screen implements ExtraEntryProvider {
 	}
 	
 	public AssetAccessor<? extends Armature> getExtraOrBuiltInArmature(String path) {
-		ResourceLocation rl = ResourceLocation.parse(path);
+		ResourceLocation rl = new ResourceLocation(path);
 		
 		if (workingPackScreen != null && workingPackScreen.userArmatures.containsKey(rl)) {
 			return workingPackScreen.userArmatures.get(rl);
@@ -205,7 +205,7 @@ public class DatapackEditScreen extends Screen implements ExtraEntryProvider {
 	}
 	
 	public Function<Item, CapabilityItem.Builder> getExtraOrBuiltInWeaponType(String typeName) {
-		ResourceLocation typeId = ResourceLocation.parse(typeName);
+		ResourceLocation typeId = new ResourceLocation(typeName);
 		
 		if (userWeaponTypes.containsKey(typeId)) {
 			return userWeaponTypes.get(typeId);
@@ -272,8 +272,8 @@ public class DatapackEditScreen extends Screen implements ExtraEntryProvider {
 		super(Component.translatable(EpicFightMod.format("gui.%s.datapack_edit")));
 		
 		this.parentScreen = parentScreen;
-		this.minecraft = parentScreen.getMinecraft();
-		this.font = parentScreen.getMinecraft().font;
+		this.minecraft = net.minecraft.client.Minecraft.getInstance();
+		this.font = net.minecraft.client.Minecraft.getInstance().font;
 		
 		this.weaponTypeTab = new DatapackEditScreen.WeaponTypeTab();
 		this.itemCapabilityTab = new DatapackEditScreen.ItemCapabilityTab();
@@ -385,7 +385,7 @@ public class DatapackEditScreen extends Screen implements ExtraEntryProvider {
 						for (Path path : filePath) {
 							try {
 								InputStream stream = Files.newInputStream(path);
-								ResourceLocation registryName = ResourceLocation.fromNamespaceAndPath(modid, path.getFileName().toString().replaceAll(".json", ""));
+								ResourceLocation registryName = new ResourceLocation(modid, path.getFileName().toString().replaceAll(".json", ""));
 								
 								if (this.tabManager.getCurrentTab() == this.weaponTypeTab) {
 									this.weaponTypeTab.importJson(registryName, stream);
@@ -436,7 +436,6 @@ public class DatapackEditScreen extends Screen implements ExtraEntryProvider {
 	@Override
 	protected void init() {
 		// Enable stencil buffer to render a grid inside the area
-		Minecraft.getInstance().getMainRenderTarget().enableStencil();
 		
 		this.tabNavigationBar = TabNavigationBar.builder(this.tabManager, this.width).addTabs(this.weaponTypeTab, this.itemCapabilityTab, this.mobCapabilityTab).build();
 		this.tabNavigationBar.selectTab(0, false);
@@ -590,7 +589,7 @@ public class DatapackEditScreen extends Screen implements ExtraEntryProvider {
 					JsonReader jsonReader = new JsonReader(new InputStreamReader(stream.get(), StandardCharsets.UTF_8));
 					jsonReader.setLenient(true);
 					JsonObject jsonObject = Streams.parse(jsonReader).getAsJsonObject();
-					ResourceLocation rl = ResourceLocation.fromNamespaceAndPath(resourceLocation.getNamespace(), resourceLocation.getPath().replaceAll("animmodels/", "").replaceAll(".json", ""));
+					ResourceLocation rl = new ResourceLocation(resourceLocation.getNamespace(), resourceLocation.getPath().replaceAll("animmodels/", "").replaceAll(".json", ""));
 					JsonAssetLoader modelLoader = new JsonAssetLoader(jsonObject, resourceLocation);
 					SkinnedMesh mesh = null;
 					Armature armature = null;
@@ -625,7 +624,7 @@ public class DatapackEditScreen extends Screen implements ExtraEntryProvider {
 					jsonReader.setLenient(true);
 					
 					JsonObject jsonObject = Streams.parse(jsonReader).getAsJsonObject();
-					ResourceLocation rl = ResourceLocation.fromNamespaceAndPath(resourceLocation.getNamespace(), resourceLocation.getPath().replaceAll("animmodels/animations/", "").replaceAll(".json", ""));
+					ResourceLocation rl = new ResourceLocation(resourceLocation.getNamespace(), resourceLocation.getPath().replaceAll("animmodels/animations/", "").replaceAll(".json", ""));
 					ResourceLocation datapath = AnimationManager.getSubAnimationFileLocation(resourceLocation, AnimationSubFileReader.SUBFILE_CLIENT_PROPERTY);
 					IoSupplier<InputStream> streamSupplier = packResources.getResource(PackType.CLIENT_RESOURCES, datapath);
 					JsonElement constructorElement = jsonObject.getAsJsonObject().get("constructor");
@@ -701,7 +700,7 @@ public class DatapackEditScreen extends Screen implements ExtraEntryProvider {
 		
 		for (Map.Entry<ResourceLocation, PackEntry<EditorAnimation, DatapackAnimation<? extends StaticAnimation>>> entry : this.userAnimations.entrySet()) {
 			String exportPath = String.format("assets/%s/animmodels/animations/%s.json", entry.getKey().getNamespace(), entry.getKey().getPath());
-			ResourceLocation clientData = AnimationManager.getSubAnimationFileLocation(ResourceLocation.fromNamespaceAndPath(entry.getKey().getNamespace(), exportPath), AnimationSubFileReader.SUBFILE_CLIENT_PROPERTY);
+			ResourceLocation clientData = AnimationManager.getSubAnimationFileLocation(new ResourceLocation(entry.getKey().getNamespace(), exportPath), AnimationSubFileReader.SUBFILE_CLIENT_PROPERTY);
 			ZipEntry asResource = new ZipEntry(exportPath);
 			ZipEntry asResourceClientData = new ZipEntry(clientData.getPath());
 			ZipEntry asData = new ZipEntry(String.format("data/%s/animmodels/animations/%s.json", entry.getKey().getNamespace(), entry.getKey().getPath()));
@@ -776,14 +775,14 @@ public class DatapackEditScreen extends Screen implements ExtraEntryProvider {
 									.rowpositionChanged(this::packGridRowpositionChanged)
 									.addColumn(Grid.editbox("pack_item")
 													.editWidgetCreated((editbox) -> editbox.setFilter((str) -> ResourceLocation.isValidResourceLocation(str)))
-													.valueChanged((event) -> this.packList.get(event.rowposition).setPackKey(ResourceLocation.parse(event.postValue)))
+													.valueChanged((event) -> this.packList.get(event.rowposition).setPackKey(new ResourceLocation(event.postValue)))
 									.defaultVal(EpicFightMod.prefix("")).editable(registry == null ? true : false).width(180))
 									.pressAdd((grid, button) -> {
 										if (registry != null) {
 											DatapackEditScreen.this.minecraft.setScreen(new SelectFromRegistryScreen<>(DatapackEditScreen.this, registry, (registryName, selItem) -> {
 												grid.setValueChangeEnabled(false);
 												int rowposition = grid.addRowWithDefaultValues("pack_item", registryName);
-												this.packList.add(rowposition, PackEntry.of(ResourceLocation.parse(registryName), CompoundTag::new));
+												this.packList.add(rowposition, PackEntry.of(new ResourceLocation(registryName), CompoundTag::new));
 												grid.setGridFocus(rowposition, "pack_item");
 												grid.setValueChangeEnabled(true);
 											}, (registryName, selItem) -> {}, filter));
@@ -891,9 +890,9 @@ public class DatapackEditScreen extends Screen implements ExtraEntryProvider {
 					
 					this.setDataBindingComponenets(new Object[] {
 						WeaponCategory.ENUM_MANAGER.get(tag.getString("category")),
-						ForgeRegistries.PARTICLE_TYPES.getValue(ResourceLocation.parse(tag.getString("hit_particle"))),
-						ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.parse(tag.getString("hit_sound"))),
-						ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.parse(tag.getString("swing_sound"))),
+						ForgeRegistries.PARTICLE_TYPES.getValue(new ResourceLocation(tag.getString("hit_particle"))),
+						ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation(tag.getString("hit_sound"))),
+						ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation(tag.getString("swing_sound"))),
 						tag.contains("usable_in_offhand") ? tag.getBoolean("usable_in_offhand") : true,
 						null,
 						ParseUtil.nullOrToString(colliderTag.get("number"), Tag::getAsString),
@@ -912,7 +911,7 @@ public class DatapackEditScreen extends Screen implements ExtraEntryProvider {
 			
 			this.inputComponentsList.newRow();
 			this.inputComponentsList.addComponentCurrentRow(new Static(parentScreen, this.inputComponentsList.nextStart(4), 100, 60, 15, HorizontalSizing.LEFT_WIDTH, null, "datapack_edit.weapon_type.category"));
-			this.inputComponentsList.addComponentCurrentRow(new ComboBox<>(parentScreen, parentScreen.getMinecraft().font, this.inputComponentsList.nextStart(5), 124, 100, 15, HorizontalSizing.LEFT_WIDTH, null, 8,
+			this.inputComponentsList.addComponentCurrentRow(new ComboBox<>(parentScreen, net.minecraft.client.Minecraft.getInstance().font, this.inputComponentsList.nextStart(5), 124, 100, 15, HorizontalSizing.LEFT_WIDTH, null, 8,
 																			Component.translatable("datapack_edit.weapon_type.category"), new ArrayList<>(WeaponCategory.ENUM_MANAGER.universalValues()), ParseUtil::snakeToSpacedCamel,
 																			(weaponCategory) -> this.packList.get(this.packListGrid.getRowposition()).getValue().putString("category", ParseUtil.nullParam(weaponCategory).toLowerCase(Locale.ROOT))));
 			
@@ -1209,7 +1208,7 @@ public class DatapackEditScreen extends Screen implements ExtraEntryProvider {
 			packResources.getNamespaces(PackType.SERVER_DATA).stream().distinct().forEach((namespace) -> {
 				packResources.listResources(PackType.SERVER_DATA, namespace, this.directory, (resourceLocation, streamSupplier) -> {
 					try {
-						ResourceLocation rl = ResourceLocation.fromNamespaceAndPath(resourceLocation.getNamespace(), resourceLocation.getPath().replaceAll(this.directory + "/", "").replaceAll(".json", ""));
+						ResourceLocation rl = new ResourceLocation(resourceLocation.getNamespace(), resourceLocation.getPath().replaceAll(this.directory + "/", "").replaceAll(".json", ""));
 						this.importJson(rl, streamSupplier.get());
 					} catch (Exception e) {
 						EpicFightMod.LOGGER.info("Failed to import " + resourceLocation + ": " + e.getMessage());
@@ -1330,7 +1329,7 @@ public class DatapackEditScreen extends Screen implements ExtraEntryProvider {
 						ParseUtil.nullParam(trailTag.get("lifetime")),
 						ParseUtil.nullParam(trailTag.get("interpolations")),
 						ParseUtil.nullParam(trailTag.getString("texture_path")),
-						ForgeRegistries.PARTICLE_TYPES.getValue(ResourceLocation.parse(trailTag.getString("particle_type")))
+						ForgeRegistries.PARTICLE_TYPES.getValue(new ResourceLocation(trailTag.getString("particle_type")))
 					});
 					this.itemTypeCombo._setResponder(this.responder);
 				} else {
@@ -1340,7 +1339,7 @@ public class DatapackEditScreen extends Screen implements ExtraEntryProvider {
 				}
 			};
 			
-			this.itemTypeCombo = new ComboBox<> (parentScreen, parentScreen.getMinecraft().font, 0, 124, 100, 15, HorizontalSizing.LEFT_WIDTH, null, 8, Component.translatable("datapack_edit.item_capability.item_type"),
+			this.itemTypeCombo = new ComboBox<> (parentScreen, net.minecraft.client.Minecraft.getInstance().font, 0, 124, 100, 15, HorizontalSizing.LEFT_WIDTH, null, 8, Component.translatable("datapack_edit.item_capability.item_type"),
 													List.of(ItemType.values()), ParseUtil::snakeToSpacedCamel, this.responder);
 			
 			this.inputComponentsList = new InputComponentList<>(DatapackEditScreen.this, 0, 0, 0, 0, 30) {
@@ -1391,7 +1390,7 @@ public class DatapackEditScreen extends Screen implements ExtraEntryProvider {
 							ParseUtil.nullParam(trailTag.get("lifetime")),
 							ParseUtil.nullParam(trailTag.get("interpolations")),
 							ParseUtil.nullParam(trailTag.getString("texture_path")),
-							ForgeRegistries.PARTICLE_TYPES.getValue(ResourceLocation.parse(trailTag.getString("particle_type")))
+							ForgeRegistries.PARTICLE_TYPES.getValue(new ResourceLocation(trailTag.getString("particle_type")))
 						});
 						ItemCapabilityTab.this.itemTypeCombo._setResponder(ItemCapabilityTab.this.responder);
 					} else {
@@ -1916,7 +1915,7 @@ public class DatapackEditScreen extends Screen implements ExtraEntryProvider {
 				final ResizableEditBox texturePath = new ResizableEditBox(font, 0, 15, 0, 15, Component.translatable("datapack_edit.item_capability.trail.end_pos.z"), HorizontalSizing.LEFT_RIGHT, null);
 				texturePath.setResponder((input) -> {
 					CompoundTag trailTag = ParseUtil.getOrDefaultTag(this.packList.get(this.packListGrid.getRowposition()).getValue(), "trail", new CompoundTag()); 
-					trailTag.putString("texture_path", ResourceLocation.parse(input).toString());
+					trailTag.putString("texture_path", new ResourceLocation(input).toString());
 					
 					TrailInfo trailInfo = TrailInfo.deserialize(trailTag);
 					this.modelPreviewer.setTrailInfo(trailInfo);
@@ -1967,7 +1966,7 @@ public class DatapackEditScreen extends Screen implements ExtraEntryProvider {
 		public void packGridRowpositionChanged(int rowposition, Map<String, Object> values) {
 			CompoundTag tag = this.packList.get(rowposition).getValue();
 			this.inputComponentsList.importTag(tag);
-			ResourceLocation rl = ResourceLocation.parse(ParseUtil.nullParam(values.get("pack_item")));
+			ResourceLocation rl = new ResourceLocation(ParseUtil.nullParam(values.get("pack_item")));
 			
 			if (this.registry.containsKey(rl)) {
 				this.modelPreviewer.setItemToRender(this.registry.getValue(rl));
@@ -2043,13 +2042,13 @@ public class DatapackEditScreen extends Screen implements ExtraEntryProvider {
 					}
 					
 					try {
-						ResourceLocation registryName = ResourceLocation.fromNamespaceAndPath(resourceLocation.getNamespace(), resourceLocation.getPath().replaceAll(String.format("%s/%s/", this.directory, ItemType.WEAPON.directoryName), "")
+						ResourceLocation registryName = new ResourceLocation(resourceLocation.getNamespace(), resourceLocation.getPath().replaceAll(String.format("%s/%s/", this.directory, ItemType.WEAPON.directoryName), "")
 																													.replaceAll(String.format("%s/%s/", this.directory, ItemType.ARMOR.directoryName), "").replaceAll(".json", ""));
 						
 						ItemType itemType = resourceLocation.getPath().contains(ItemType.WEAPON.directoryName) ? ItemType.WEAPON : ItemType.ARMOR;
 						this.importJson(registryName, itemType, streamSupplier.get());
 						
-						ResourceLocation itemSkin = ResourceLocation.fromNamespaceAndPath(registryName.getNamespace(), "item_skins/" + registryName.getPath() + ".json");
+						ResourceLocation itemSkin = new ResourceLocation(registryName.getNamespace(), "item_skins/" + registryName.getPath() + ".json");
 						IoSupplier<InputStream> itemSkinStreamSupplier = packResources.getResource(PackType.CLIENT_RESOURCES, itemSkin);
 						
 						if (itemSkinStreamSupplier != null) {
@@ -2331,12 +2330,12 @@ public class DatapackEditScreen extends Screen implements ExtraEntryProvider {
 				this.packList.get(this.packListGrid.getRowposition()).getValue().putString("armature", pair.getFirst());
 			});
 			
-			final ResizableEditBox impactEditBox = new ResizableEditBox(DatapackEditScreen.this.getMinecraft().font, 0, 0, 0, 0, Component.literal("impact"), null, null);
-			final ResizableEditBox armorNegationEditBox = new ResizableEditBox(DatapackEditScreen.this.getMinecraft().font, 0, 0, 0, 0, Component.literal("armor_negation"), null, null);
-			final ResizableEditBox maxStrikesEditBox = new ResizableEditBox(DatapackEditScreen.this.getMinecraft().font, 0, 0, 0, 0, Component.literal("max_strikes"), null, null);
-			final ResizableEditBox chasingSpeedEditBox = new ResizableEditBox(DatapackEditScreen.this.getMinecraft().font, 0, 0, 0, 0, Component.literal("chasing_speed"), null, null);
-			final ResizableEditBox scaleEditBox = new ResizableEditBox(DatapackEditScreen.this.getMinecraft().font, 0, 0, 0, 0, Component.literal("scale"), null, null);
-			final ResizableEditBox stunArmorBox = new ResizableEditBox(DatapackEditScreen.this.getMinecraft().font, 0, 0, 0, 0, Component.literal("stun_armor"), null, null);
+			final ResizableEditBox impactEditBox = new ResizableEditBox(net.minecraft.client.Minecraft.getInstance().font, 0, 0, 0, 0, Component.literal("impact"), null, null);
+			final ResizableEditBox armorNegationEditBox = new ResizableEditBox(net.minecraft.client.Minecraft.getInstance().font, 0, 0, 0, 0, Component.literal("armor_negation"), null, null);
+			final ResizableEditBox maxStrikesEditBox = new ResizableEditBox(net.minecraft.client.Minecraft.getInstance().font, 0, 0, 0, 0, Component.literal("max_strikes"), null, null);
+			final ResizableEditBox chasingSpeedEditBox = new ResizableEditBox(net.minecraft.client.Minecraft.getInstance().font, 0, 0, 0, 0, Component.literal("chasing_speed"), null, null);
+			final ResizableEditBox scaleEditBox = new ResizableEditBox(net.minecraft.client.Minecraft.getInstance().font, 0, 0, 0, 0, Component.literal("scale"), null, null);
+			final ResizableEditBox stunArmorBox = new ResizableEditBox(net.minecraft.client.Minecraft.getInstance().font, 0, 0, 0, 0, Component.literal("stun_armor"), null, null);
 			
 			impactEditBox.setFilter((context) -> StringUtil.isNullOrEmpty(context) || ParseUtil.isParsableAllowingMinus(context, Double::parseDouble));
 			armorNegationEditBox.setFilter((context) -> StringUtil.isNullOrEmpty(context) || ParseUtil.isParsableAllowingMinus(context, Double::parseDouble));
@@ -2407,21 +2406,21 @@ public class DatapackEditScreen extends Screen implements ExtraEntryProvider {
 				
 				this.inputComponentsList.newRow();
 				this.inputComponentsList.addComponentCurrentRow(new Static(parentScreen, this.inputComponentsList.nextStart(4), 100, 60, 15, HorizontalSizing.LEFT_WIDTH, null, "datapack_edit.mob_patch.faction"));
-				this.inputComponentsList.addComponentCurrentRow(new ComboBox<>(parentScreen, parentScreen.getMinecraft().font, this.inputComponentsList.nextStart(5), 124, 100, 15, HorizontalSizing.LEFT_WIDTH, null, 8,
+				this.inputComponentsList.addComponentCurrentRow(new ComboBox<>(parentScreen, net.minecraft.client.Minecraft.getInstance().font, this.inputComponentsList.nextStart(5), 124, 100, 15, HorizontalSizing.LEFT_WIDTH, null, 8,
 					Component.translatable("datapack_edit.mob_patch.faction"), Faction.ENUM_MANAGER.universalValues(), (faction) -> ParseUtil.snakeToSpacedCamel(faction), (faction) -> {
 						this.packList.get(this.packListGrid.getRowposition()).getValue().putString("faction", ParseUtil.nullOrToString(faction, (value) -> value.toString().toLowerCase(Locale.ROOT)));
 					}));
 				
 				this.inputComponentsList.newRow();
 				this.inputComponentsList.addComponentCurrentRow(new Static(parentScreen, this.inputComponentsList.nextStart(4), 100, 60, 15, HorizontalSizing.LEFT_WIDTH, null, "datapack_edit.mob_patch.swing_sound"));
-				this.inputComponentsList.addComponentCurrentRow(new PopupBox.SoundPopupBox(parentScreen, parentScreen.getMinecraft().font, this.inputComponentsList.nextStart(5), 15, 0, 15, HorizontalSizing.LEFT_RIGHT, null,
+				this.inputComponentsList.addComponentCurrentRow(new PopupBox.SoundPopupBox(parentScreen, net.minecraft.client.Minecraft.getInstance().font, this.inputComponentsList.nextStart(5), 15, 0, 15, HorizontalSizing.LEFT_RIGHT, null,
 					Component.translatable("datapack_edit.mob_patch.swing_sound"), (soundevent) -> {
 						this.packList.get(this.packListGrid.getRowposition()).getValue().putString("swing_sound", ParseUtil.getRegistryName(soundevent.getSecond(), ForgeRegistries.SOUND_EVENTS));
 					}));
 				
 				this.inputComponentsList.newRow();
 				this.inputComponentsList.addComponentCurrentRow(new Static(parentScreen, this.inputComponentsList.nextStart(4), 100, 60, 15, HorizontalSizing.LEFT_WIDTH, null, "datapack_edit.mob_patch.hit_sound"));
-				this.inputComponentsList.addComponentCurrentRow(new PopupBox.SoundPopupBox(parentScreen, parentScreen.getMinecraft().font, this.inputComponentsList.nextStart(5), 15, 0, 15, HorizontalSizing.LEFT_RIGHT, null,
+				this.inputComponentsList.addComponentCurrentRow(new PopupBox.SoundPopupBox(parentScreen, net.minecraft.client.Minecraft.getInstance().font, this.inputComponentsList.nextStart(5), 15, 0, 15, HorizontalSizing.LEFT_RIGHT, null,
 					Component.translatable("datapack_edit.mob_patch.hit_sound"), (soundevent) -> {
 						this.packList.get(this.packListGrid.getRowposition()).getValue().putString("hit_sound", ParseUtil.getRegistryName(soundevent.getSecond(), ForgeRegistries.SOUND_EVENTS));
 					}));
@@ -2437,7 +2436,7 @@ public class DatapackEditScreen extends Screen implements ExtraEntryProvider {
 				this.inputComponentsList.addComponentCurrentRow(new Static(parentScreen, this.inputComponentsList.nextStart(4), 100, 60, 15, HorizontalSizing.LEFT_WIDTH, null, "datapack_edit.mob_patch.attributes"));
 				this.inputComponentsList.newRow();
 				this.inputComponentsList.newRow();
-				this.inputComponentsList.addComponentCurrentRow(Grid.builder(parentScreen, parentScreen.getMinecraft())
+				this.inputComponentsList.addComponentCurrentRow(Grid.builder(parentScreen, net.minecraft.client.Minecraft.getInstance())
 																	.xy1(this.inputComponentsList.nextStart(5), 0)
 																	.xy2(15, 90)
 																	.horizontalSizing(HorizontalSizing.LEFT_RIGHT)
@@ -2585,7 +2584,7 @@ public class DatapackEditScreen extends Screen implements ExtraEntryProvider {
 					this.inputComponentsList.addComponentCurrentRow(new Static(parentScreen, this.inputComponentsList.nextStart(4), 140, 60, 15, HorizontalSizing.LEFT_WIDTH, null, "datapack_edit.mob_patch.humanoid_weapon_motions"));
 					this.inputComponentsList.addComponentCurrentRow(SubScreenOpenButton.builder().subScreen(() -> {
 						if (this.armaturePopupBox._getValue() == null || this.meshPopupBox._getValue() == null) {
-							return new MessageScreen<>("", "Define model and armature first.", DatapackEditScreen.this, (button2) -> DatapackEditScreen.this.getMinecraft().setScreen(DatapackEditScreen.this), 180, 60);
+							return new MessageScreen<>("", "Define model and armature first.", DatapackEditScreen.this, (button2) -> net.minecraft.client.Minecraft.getInstance().setScreen(DatapackEditScreen.this), 180, 60);
 						} else {
 							return new HumanoidWeaponMotionScreen(DatapackEditScreen.this, this.packList.get(this.packListGrid.getRowposition()).getValue(), this.armaturePopupBox._getValue(), this.meshPopupBox._getValue());
 						}
@@ -2596,7 +2595,7 @@ public class DatapackEditScreen extends Screen implements ExtraEntryProvider {
 				this.inputComponentsList.addComponentCurrentRow(new Static(parentScreen, this.inputComponentsList.nextStart(4), 140, 60, 15, HorizontalSizing.LEFT_WIDTH, null, "datapack_edit.mob_patch.combat_behavior"));
 				this.inputComponentsList.addComponentCurrentRow(SubScreenOpenButton.builder().subScreen(() -> {
 					if (this.armaturePopupBox._getValue() == null || this.meshPopupBox._getValue() == null) {
-						return new MessageScreen<>("", "Define model and armature first.", DatapackEditScreen.this, (button2) -> DatapackEditScreen.this.getMinecraft().setScreen(DatapackEditScreen.this), 180, 60);
+						return new MessageScreen<>("", "Define model and armature first.", DatapackEditScreen.this, (button2) -> net.minecraft.client.Minecraft.getInstance().setScreen(DatapackEditScreen.this), 180, 60);
 					} else if (isHumanoid) {
 						return new HumanoidCombatBehaviorScreen(DatapackEditScreen.this, this.packList.get(this.packListGrid.getRowposition()).getValue(), this.armaturePopupBox._getValue(), this.meshPopupBox._getValue());
 					} else {
@@ -2648,12 +2647,12 @@ public class DatapackEditScreen extends Screen implements ExtraEntryProvider {
 				EntityType.byString(tag.getString("preset")).orElse(null),
 				DatapackEditScreen.getMesh(tag.getString("model")),
 				DatapackEditScreen.getArmature(tag.getString("armature")),
-				StringUtil.isNullOrEmpty(tag.getString("renderer")) ? null : ResourceLocation.parse(tag.getString("renderer")),
+				StringUtil.isNullOrEmpty(tag.getString("renderer")) ? null : new ResourceLocation(tag.getString("renderer")),
 				tag.getBoolean("isHumanoid"),
 				ParseUtil.nullOrApply(tag.get("faction"), (jsonElement) -> Faction.ENUM_MANAGER.getOrThrow(jsonElement.getAsString())),
-				ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.parse(tag.getString("swing_sound"))),
-				ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.parse(tag.getString("hit_sound"))),
-				ForgeRegistries.PARTICLE_TYPES.getValue(ResourceLocation.parse(tag.getString("hit_particle"))),
+				ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation(tag.getString("swing_sound"))),
+				ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation(tag.getString("hit_sound"))),
+				ForgeRegistries.PARTICLE_TYPES.getValue(new ResourceLocation(tag.getString("hit_particle"))),
 				attributePackImporter,
 				livingmotionPackImporter,
 				stunPackImporter
@@ -2691,7 +2690,7 @@ public class DatapackEditScreen extends Screen implements ExtraEntryProvider {
 		public void importEntries(PackResources packResources) {
 			packResources.getNamespaces(PackType.SERVER_DATA).stream().distinct().forEach((namespace) -> {
 				packResources.listResources(PackType.SERVER_DATA, namespace, this.directory, (resourceLocation, streamSupplier) -> {
-					ResourceLocation rl = ResourceLocation.fromNamespaceAndPath(resourceLocation.getNamespace(), resourceLocation.getPath().replaceAll(String.format("%s/", this.directory), "").replaceAll(".json", ""));
+					ResourceLocation rl = new ResourceLocation(resourceLocation.getNamespace(), resourceLocation.getPath().replaceAll(String.format("%s/", this.directory), "").replaceAll(".json", ""));
 					
 					try {
 						this.importJson(rl, streamSupplier.get());

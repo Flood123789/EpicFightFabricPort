@@ -1,5 +1,7 @@
 package yesman.epicfight.client.world.capabilites.entitypatch.player;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import org.joml.Vector4f;
@@ -28,6 +30,8 @@ import yesman.epicfight.api.animation.Pose;
 import yesman.epicfight.api.animation.property.AnimationProperty.StaticAnimationProperty;
 import yesman.epicfight.api.animation.types.ActionAnimation;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
+import yesman.epicfight.api.animation.types.StaticAnimation;
+import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.animation.ClientAnimator;
 import yesman.epicfight.api.client.animation.Layer;
 import yesman.epicfight.api.client.forgeevent.RenderEpicFightPlayerEvent;
@@ -218,6 +222,7 @@ public class AbstractClientPlayerPatch<T extends AbstractClientPlayer> extends P
 	
 	public void updateHeldItem(CapabilityItem mainHandCap, CapabilityItem offHandCap) {
 		this.cancelItemUse();
+		this.modifyLivingMotionByCurrentItem(mainHandCap, offHandCap);
 		
 		this.getClientAnimator().iterAllLayers((layer) -> {
 			if (layer.isOff()) {
@@ -229,6 +234,18 @@ public class AbstractClientPlayerPatch<T extends AbstractClientPlayer> extends P
 				event.execute(this, layer.animationPlayer.getRealAnimation(), layer.animationPlayer.getPrevElapsedTime(), layer.animationPlayer.getElapsedTime());
 			});
 		});
+	}
+
+	private void modifyLivingMotionByCurrentItem(CapabilityItem mainHandCap, CapabilityItem offHandCap) {
+		Map<LivingMotion, AssetAccessor<? extends StaticAnimation>> livingMotionModifiers = new HashMap<>(mainHandCap.getLivingMotionModifier(this, InteractionHand.MAIN_HAND));
+		livingMotionModifiers.putAll(offHandCap.getLivingMotionModifier(this, InteractionHand.OFF_HAND));
+		
+		ClientAnimator animator = this.getClientAnimator();
+		animator.resetLivingAnimations();
+		animator.offAllLayers();
+		animator.resetMotion(false);
+		animator.resetCompositeMotion();
+		livingMotionModifiers.forEach(animator::addLivingAnimation);
 	}
 	
 	@Override
@@ -278,6 +295,10 @@ public class AbstractClientPlayerPatch<T extends AbstractClientPlayer> extends P
 	
 	@Override
 	public boolean overrideRender() {
+		if (!this.isEpicFightMode()) {
+			return false;
+		}
+		
 		RenderEpicFightPlayerEvent renderepicfightplayerevent = new RenderEpicFightPlayerEvent(this, !ClientConfig.enableOriginalModel || this.isEpicFightMode());
 		MinecraftForge.EVENT_BUS.post(renderepicfightplayerevent);
 		return renderepicfightplayerevent.getShouldRender();

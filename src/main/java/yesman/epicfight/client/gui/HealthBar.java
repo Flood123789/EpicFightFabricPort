@@ -97,7 +97,7 @@ public class HealthBar extends EntityUI {
 					if (effect instanceof VisibleMobEffect visibleMobEffect) {
 						rl = visibleMobEffect.getIcon(effectInstance);
 					} else {
-						rl = ResourceLocation.fromNamespaceAndPath(ForgeRegistries.MOB_EFFECTS.getKey(effect).getNamespace(), "textures/mob_effect/" + ForgeRegistries.MOB_EFFECTS.getKey(effect).getPath() + ".png");
+						rl = new ResourceLocation(ForgeRegistries.MOB_EFFECTS.getKey(effect).getNamespace(), "textures/mob_effect/" + ForgeRegistries.MOB_EFFECTS.getKey(effect).getPath() + ".png");
 					}
 					
 					float x = startX + 0.3F * j;

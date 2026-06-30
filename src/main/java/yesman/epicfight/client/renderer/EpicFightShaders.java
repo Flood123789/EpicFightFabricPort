@@ -7,7 +7,6 @@ import javax.annotation.Nullable;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 
 import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterShadersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -26,7 +25,7 @@ public class EpicFightShaders {
 	
 	@SubscribeEvent
 	public static void registerShadersEvent(RegisterShadersEvent event) throws IOException {
-		event.registerShader(new ShaderInstance(event.getResourceProvider(), EpicFightMod.identifier("solid_model"), DefaultVertexFormat.POSITION_COLOR_NORMAL), reloadedShader -> {
+		event.registerShader(new ShaderInstance(event.getResourceProvider(), EpicFightMod.prefix("solid_model"), DefaultVertexFormat.POSITION_COLOR_NORMAL), reloadedShader -> {
 			positionColorNormalShader = reloadedShader;
 		});
 	}

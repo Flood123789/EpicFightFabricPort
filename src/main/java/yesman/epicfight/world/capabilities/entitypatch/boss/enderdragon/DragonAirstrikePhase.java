@@ -1,6 +1,5 @@
 package yesman.epicfight.world.capabilities.entitypatch.boss.enderdragon;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -12,6 +11,7 @@ import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.boss.enderdragon.phases.DragonPhaseInstance;
 import net.minecraft.world.entity.boss.enderdragon.phases.EnderDragonPhase;
 import net.minecraft.world.phys.Vec3;
+import yesman.epicfight.api.utils.ClientOnlyUtils;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
@@ -40,7 +40,7 @@ public class DragonAirstrikePhase extends PatchedDragonPhase {
 		this.dragonpatch.setAttakTargetSync(null);
 		
 		if (this.dragonpatch.isLogicalClient()) {
-			Minecraft.getInstance().getSoundManager().stop(EpicFightSounds.ENDER_DRAGON_BREATH.get().getLocation(), SoundSource.HOSTILE);
+			ClientOnlyUtils.stopSound(EpicFightSounds.ENDER_DRAGON_BREATH.get().getLocation(), SoundSource.HOSTILE);
 			this.dragon.level().playLocalSound(this.dragon.getX(), this.dragon.getY(), this.dragon.getZ(), EpicFightSounds.ENDER_DRAGON_BREATH_FINALE.get(), this.dragon.getSoundSource(), 5.0F, 1.0F, false);
 		}
 	}

@@ -168,7 +168,7 @@ public abstract class PopupBox<T> extends AbstractWidget implements DataBindingC
 		@Override
 		public void onClick(double x, double y) {
 			if (this.clickedPopupButton(x, y)) {
-				this.owner.getMinecraft().setScreen(new SelectFromRegistryScreen<>(this.owner, this.registry, (name, item) -> this._setValue(item), (name, item) -> this._setValue(item), this.onPressRow, this.getFilter()));
+				net.minecraft.client.Minecraft.getInstance().setScreen(new SelectFromRegistryScreen<>(this.owner, this.registry, (name, item) -> this._setValue(item), (name, item) -> this._setValue(item), this.onPressRow, this.getFilter()));
 			}
 		}
 	}
@@ -198,9 +198,9 @@ public abstract class PopupBox<T> extends AbstractWidget implements DataBindingC
 		public void onClick(double x, double y) {
 			if (this.clickedPopupButton(x, y)) {
 				if (this.armature == null || this.armature.get() == null || this.mesh == null || this.mesh.get() == null) {
-					this.owner.getMinecraft().setScreen(new MessageScreen<>("", "Define model and armature first.", this.owner, (button2) -> this.owner.getMinecraft().setScreen(this.owner), 180, 60));
+					net.minecraft.client.Minecraft.getInstance().setScreen(new MessageScreen<>("", "Define model and armature first.", this.owner, (button2) -> net.minecraft.client.Minecraft.getInstance().setScreen(this.owner), 180, 60));
 				} else {
-					this.owner.getMinecraft().setScreen(new SelectAnimationScreen(this.owner, this::_setValue, this::_setValue, this.getFilter(), this.armature, this.mesh));
+					net.minecraft.client.Minecraft.getInstance().setScreen(new SelectAnimationScreen(this.owner, this::_setValue, this::_setValue, this.getFilter(), this.armature, this.mesh));
 				}
 			}
 		}
@@ -214,7 +214,7 @@ public abstract class PopupBox<T> extends AbstractWidget implements DataBindingC
 		@Override
 		public void onClick(double x, double y) {
 			if (this.clickedPopupButton(x, y)) {
-				this.owner.getMinecraft().setScreen(new SelectFromRegistryScreen<>(this.owner, ParseUtil.mapEntryToPair(ColliderPreset.entries()), "Collider", (name, item) -> this._setValue(item), (name, item) -> this._setValue(item), (c) -> {}, this.getFilter()));
+				net.minecraft.client.Minecraft.getInstance().setScreen(new SelectFromRegistryScreen<>(this.owner, ParseUtil.mapEntryToPair(ColliderPreset.entries()), "Collider", (name, item) -> this._setValue(item), (name, item) -> this._setValue(item), (c) -> {}, this.getFilter()));
 			}
 		}
 	}
@@ -238,7 +238,7 @@ public abstract class PopupBox<T> extends AbstractWidget implements DataBindingC
 				weaponTypeEntry.addAll(WeaponTypeReloadListener.entries());
 				weaponTypeEntry.addAll(DatapackEditScreen.getSerializableWeaponTypes());
 				
-				this.owner.getMinecraft().setScreen(new SelectFromRegistryScreen<>(this.owner, ParseUtil.mapEntryToPair(weaponTypeEntry), "Weapon Type", (name, item) -> {
+				net.minecraft.client.Minecraft.getInstance().setScreen(new SelectFromRegistryScreen<>(this.owner, ParseUtil.mapEntryToPair(weaponTypeEntry), "Weapon Type", (name, item) -> {
 					var responder = this.responder;
 					
 					this._setResponder(null);
@@ -269,7 +269,7 @@ public abstract class PopupBox<T> extends AbstractWidget implements DataBindingC
 		@Override
 		public void onClick(double x, double y) {
 			if (this.clickedPopupButton(x, y)) {
-				this.owner.getMinecraft().setScreen(new SelectFromRegistryScreen<>(this.owner, ParseUtil.mapEntryToPair(JointMaskReloadListener.entries()), "Joint Mask", (name, item) -> this._setValue(item), (name, item) -> this._setValue(item), (c) -> {}, this.getFilter()));
+				net.minecraft.client.Minecraft.getInstance().setScreen(new SelectFromRegistryScreen<>(this.owner, ParseUtil.mapEntryToPair(JointMaskReloadListener.entries()), "Joint Mask", (name, item) -> this._setValue(item), (name, item) -> this._setValue(item), (c) -> {}, this.getFilter()));
 			}
 		}
 	}
@@ -284,7 +284,7 @@ public abstract class PopupBox<T> extends AbstractWidget implements DataBindingC
 			if (this.clickedPopupButton(x, y)) {
 				Set<Pair<ResourceLocation, EntityType<?>>> set = Sets.newHashSet();
 				EntityPatchProvider.getPatchedEntities().forEach((entityType) -> set.add(Pair.of(EntityType.getKey(entityType), entityType)));
-				this.owner.getMinecraft().setScreen(new SelectFromRegistryScreen<>(this.owner, set, "Preset", (name, item) -> this._setValue(item), (name, item) -> this._setValue(item), (c) -> {}, this.getFilter()));
+				net.minecraft.client.Minecraft.getInstance().setScreen(new SelectFromRegistryScreen<>(this.owner, set, "Preset", (name, item) -> this._setValue(item), (name, item) -> this._setValue(item), (c) -> {}, this.getFilter()));
 			}
 		}
 	}
@@ -297,7 +297,7 @@ public abstract class PopupBox<T> extends AbstractWidget implements DataBindingC
 		@Override
 		public void onClick(double x, double y) {
 			if (this.clickedPopupButton(x, y)) {
-				this.owner.getMinecraft().setScreen(new SelectModelScreen(this.owner, (name, item) -> {
+				net.minecraft.client.Minecraft.getInstance().setScreen(new SelectModelScreen(this.owner, (name, item) -> {
 					this._setValue(item);
 					this.setDisplayText(name);
 				}, (name, item) -> {
@@ -320,7 +320,7 @@ public abstract class PopupBox<T> extends AbstractWidget implements DataBindingC
 				Set<Pair<ResourceLocation, AssetAccessor<Armature>>> entries = Armatures.entry();
 				DatapackEditScreen.getCurrentScreen().getUserArmatures().entrySet().forEach((entry) -> entries.add(Pair.of(entry.getKey(), (AssetAccessor<Armature>)entry.getValue())));
 				
-				this.owner.getMinecraft().setScreen(new SelectFromRegistryScreen<> (this.owner, entries, "Armature", (name, item) -> {
+				net.minecraft.client.Minecraft.getInstance().setScreen(new SelectFromRegistryScreen<> (this.owner, entries, "Armature", (name, item) -> {
 					this._setValue(item);
 					this.setDisplayText(name);
 				}, (name, item) -> {
@@ -342,7 +342,7 @@ public abstract class PopupBox<T> extends AbstractWidget implements DataBindingC
 				Set<Pair<ResourceLocation, ResourceLocation>> set = Sets.newHashSet();
 				ClientEngine.getInstance().renderEngine.getRendererEntries().forEach((rl) -> set.add(Pair.of(rl, rl)));
 				
-				this.owner.getMinecraft().setScreen(new SelectFromRegistryScreen<>(this.owner, set, "Renderer", (name, item) -> this._setValue(item), (name, item) -> this._setValue(item), (c) -> {}, this.getFilter()));
+				net.minecraft.client.Minecraft.getInstance().setScreen(new SelectFromRegistryScreen<>(this.owner, set, "Renderer", (name, item) -> this._setValue(item), (name, item) -> this._setValue(item), (c) -> {}, this.getFilter()));
 			}
 		}
 	}

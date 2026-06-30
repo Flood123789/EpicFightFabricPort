@@ -16,6 +16,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -192,6 +193,31 @@ public class SkillEditScreen extends Screen {
 				lineHeight += 10;
 			}
 		}
+
+		this.renderHoveredSkillTooltip(guiGraphics, mouseX, mouseY);
+	}
+
+	private void renderHoveredSkillTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+		int maxShowingButtons = Math.min(this.equipSkillButtons.size(), MAX_SKILL_OPTIONS_ROWS);
+		
+		for (int i = this.start; i < maxShowingButtons + this.start; ++i) {
+			EquipSkillButton button = this.equipSkillButtons.get(i);
+			
+			if (button.clickedNoCountActive(mouseX, mouseY)) {
+				guiGraphics.renderTooltip(this.font, this.getSkillTooltipLines(button.skill), mouseX, mouseY);
+				return;
+			}
+		}
+	}
+
+	private List<FormattedCharSequence> getSkillTooltipLines(Skill skill) {
+		List<FormattedCharSequence> lines = new ArrayList<> ();
+		lines.add(Component.translatable(skill.getTranslationKey()).withStyle(ChatFormatting.GOLD).getVisualOrderText());
+		lines.addAll(this.font.split(
+			Component.translatable(skill.getTranslationKey() + ".tooltip", skill.getTooltipArgsOfScreen(new ArrayList<> ()).toArray(new Object[0])).withStyle(ChatFormatting.GRAY),
+			220
+		));
+		return lines;
 	}
 	
 	@Override
@@ -206,7 +232,7 @@ public class SkillEditScreen extends Screen {
 	
 	private boolean isButtonVisible(Button button) {
 		int buttonOrder = this.equipSkillButtons.indexOf(button);
-		return buttonOrder >= this.start && buttonOrder <= this.start + MAX_SKILL_OPTIONS_ROWS;
+		return buttonOrder >= this.start && buttonOrder < this.start + MAX_SKILL_OPTIONS_ROWS;
 	}
 	
 	@Override

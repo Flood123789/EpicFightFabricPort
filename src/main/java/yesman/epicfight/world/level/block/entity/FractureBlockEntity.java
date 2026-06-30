@@ -1,20 +1,15 @@
 package yesman.epicfight.world.level.block.entity;
 
-import java.util.Random;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.TerrainParticle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.world.level.block.FractureBlockState;
 
 public class FractureBlockEntity extends BlockEntity {
@@ -24,6 +19,7 @@ public class FractureBlockEntity extends BlockEntity {
 	private double bouncing;
 	private int maxLifeTime;
 	private int lifeTime = 0;
+	private static Method clientParticleSpawner;
 	
 	public FractureBlockEntity(BlockPos blockPos, BlockState originalBlockState) {
 		super(EpicFightBlockEntities.FRACTURE.get(), blockPos, originalBlockState);
@@ -63,21 +59,28 @@ public class FractureBlockEntity extends BlockEntity {
 		return this.lifeTime;
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static void lifeTimeTick(Level level, BlockPos blockPos, BlockState blockState, FractureBlockEntity fractureBlockEntity) {
-		if (fractureBlockEntity.originalBlockState.shouldSpawnParticlesOnBreak() && fractureBlockEntity.maxLifeTime - fractureBlockEntity.lifeTime < 10) {
-			Particle blockParticle = new TerrainParticle((ClientLevel)level, blockPos.getX(), blockPos.getY(), blockPos.getZ(), 0, 0, 0, fractureBlockEntity.originalBlockState, blockPos);
-			blockParticle.setParticleSpeed((Math.random() - 0.5D) * 0.3D, Math.random() * 0.5D, (Math.random() - 0.5D) * 0.3D);
-			blockParticle.setLifetime(10 + new Random().nextInt(60));
-			
-			Minecraft mc = Minecraft.getInstance();
-			mc.particleEngine.add(blockParticle);
+		if (level.isClientSide && fractureBlockEntity.originalBlockState.shouldSpawnParticlesOnBreak() && fractureBlockEntity.maxLifeTime - fractureBlockEntity.lifeTime < 10) {
+			spawnBreakParticle(level, blockPos, fractureBlockEntity);
 		}
 		
 		if (fractureBlockEntity.lifeTime++ > fractureBlockEntity.maxLifeTime) {
 			level.removeBlockEntity(blockPos);
 			FractureBlockState.remove(blockPos);
 			level.setBlock(blockPos, fractureBlockEntity.getOriginalBlockState(), 0);
+		}
+	}
+
+	private static void spawnBreakParticle(Level level, BlockPos blockPos, FractureBlockEntity fractureBlockEntity) {
+		try {
+			if (clientParticleSpawner == null) {
+				clientParticleSpawner = Class.forName("yesman.epicfight.client.world.level.block.entity.FractureBlockEntityClient")
+					.getMethod("spawnBreakParticle", Level.class, BlockPos.class, FractureBlockEntity.class);
+			}
+
+			clientParticleSpawner.invoke(null, level, blockPos, fractureBlockEntity);
+		} catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+			throw new IllegalStateException("Failed to spawn fracture block particles", e);
 		}
 	}
 }

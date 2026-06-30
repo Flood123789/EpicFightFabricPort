@@ -15,7 +15,7 @@ import yesman.epicfight.client.mesh.HumanoidMesh;
 import yesman.epicfight.world.capabilities.entitypatch.mob.DrownedPatch;
 
 public class OuterLayerRenderer extends ModelRenderLayer<Drowned, DrownedPatch, DrownedModel<Drowned>, DrownedOuterLayer<Drowned>, HumanoidMesh> {
-	public static final ResourceLocation DROWNED_OUTER_LAYER = ResourceLocation.withDefaultNamespace("textures/entity/zombie/drowned_outer_layer.png");
+	public static final ResourceLocation DROWNED_OUTER_LAYER = new ResourceLocation("minecraft", "textures/entity/zombie/drowned_outer_layer.png");
 	
 	public OuterLayerRenderer() {
 		super(Meshes.BIPED_OUTLAYER);

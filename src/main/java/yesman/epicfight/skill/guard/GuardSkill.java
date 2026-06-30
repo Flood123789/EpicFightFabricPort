@@ -423,7 +423,7 @@ public class GuardSkill extends Skill implements HoldableSkill {
 		poseStack.pushPose();
 		poseStack.translate(0, (float)gui.getSlidingProgression(), 0);
 		guiGraphics.blit(EpicFightSkills.GUARD.getSkillTexture(), (int)x, (int)y, 24, 24, 0, 0, 1, 1, 1, 1);
-		guiGraphics.drawString(gui.getFont(), String.format("x%.1f", container.getDataManager().getDataValue(SkillDataKeys.PENALTY.get())), x, y + 6, 16777215, true);
+		guiGraphics.drawString(gui.getFont(), String.format("x%.1f", container.getDataManager().getDataValue(SkillDataKeys.PENALTY.get())), (int)x, (int)y + 6, 16777215, true);
 		poseStack.popPose();
 	}
 	

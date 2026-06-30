@@ -111,7 +111,7 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
 	}
 	
 	public static Function<Item, CapabilityItem.Builder> getOrThrow(String typeName) {
-		ResourceLocation rl = ResourceLocation.parse(typeName);
+		ResourceLocation rl = new ResourceLocation(typeName);
 		
 		if (!PRESETS.containsKey(rl)) {
 			throw new IllegalArgumentException("Can't find weapon type: " + rl);
@@ -121,7 +121,7 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
 	}
 	
 	public static Function<Item, CapabilityItem.Builder> get(String typeName) {
-		return get(ResourceLocation.parse(typeName));
+		return get(new ResourceLocation(typeName));
 	}
 	
 	public static Function<Item, CapabilityItem.Builder> get(ResourceLocation typeName) {
@@ -155,7 +155,7 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
 		builder.canBePlacedOffhand(tag.contains("usable_in_offhand") ? tag.getBoolean("usable_in_offhand") : true);
 		
 		if (tag.contains("hit_particle")) {
-			ParticleType<?> particleType = ForgeRegistries.PARTICLE_TYPES.getValue(ResourceLocation.parse(tag.getString("hit_particle")));
+			ParticleType<?> particleType = ForgeRegistries.PARTICLE_TYPES.getValue(new ResourceLocation(tag.getString("hit_particle")));
 			
 			if (particleType == null) {
 				EpicFightMod.LOGGER.warn("Can't find a particle type " + tag.getString("hit_particle") + " in " + rl);
@@ -167,7 +167,7 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
 		}
 		
 		if (tag.contains("swing_sound")) {
-			SoundEvent sound = ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.parse(tag.getString("swing_sound")));
+			SoundEvent sound = ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation(tag.getString("swing_sound")));
 			
 			if (sound == null) {
 				EpicFightMod.LOGGER.warn("Can't find a swing sound " + tag.getString("swing_sound") + " in " + rl);
@@ -177,7 +177,7 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
 		}
 		
 		if (tag.contains("hit_sound")) {
-			SoundEvent sound = ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.parse(tag.getString("hit_sound")));
+			SoundEvent sound = ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation(tag.getString("hit_sound")));
 			
 			if (sound == null) {
 				EpicFightMod.LOGGER.warn("Can't find a hit sound " + tag.getString("hit_sound") + " in " + rl);
@@ -245,7 +245,7 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
 			
 			for (Tag offhandTag : caseCompTag.getList("conditions", Tag.TAG_COMPOUND)) {
 				CompoundTag offhandCompound = (CompoundTag)offhandTag;
-				Supplier<EntityPatchCondition> conditionProvider = EpicFightConditions.getConditionOrThrow(ResourceLocation.parse(offhandCompound.getString("predicate")));
+				Supplier<EntityPatchCondition> conditionProvider = EpicFightConditions.getConditionOrThrow(new ResourceLocation(offhandCompound.getString("predicate")));
 				EntityPatchCondition condition = conditionProvider.get();
 				condition.read(offhandCompound);
 				conditionList.add(condition);
@@ -278,7 +278,7 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
 			
 			for (Tag offhandTag : offhandValidatorList) {
 				CompoundTag offhandCompound = (CompoundTag)offhandTag;
-				Supplier<EntityPatchCondition> conditionProvider = EpicFightConditions.getConditionOrThrow(ResourceLocation.parse(offhandCompound.getString("predicate")));
+				Supplier<EntityPatchCondition> conditionProvider = EpicFightConditions.getConditionOrThrow(new ResourceLocation(offhandCompound.getString("predicate")));
 				EntityPatchCondition condition = conditionProvider.get();
 				condition.read(offhandCompound);
 				conditionList.add(condition);
@@ -297,7 +297,7 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
 		
 		if (tag.contains("custom_tags")) {
             for (Tag customTag : tag.getList("custom_tags", Tag.TAG_STRING)) {
-                builder.addTag(ResourceLocation.parse(customTag.getAsString()));
+                builder.addTag(new ResourceLocation(customTag.getAsString()));
             }
         }
 		
@@ -336,7 +336,7 @@ public class WeaponTypeReloadListener extends SimpleJsonResourceReloadListener {
 
 
 			for (CompoundTag tag : packet.getTags()) {
-				ResourceLocation rl = ResourceLocation.parse(tag.getString("registry_name"));
+				ResourceLocation rl = new ResourceLocation(tag.getString("registry_name"));
 
 				try
 				{

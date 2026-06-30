@@ -24,9 +24,7 @@ public record SPPlayUISound(SoundEvent sound, float pitch, float volume) {
 	}
 	
 	public static void handle(SPPlayUISound msg, Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> {
-			ClientEngine.getInstance().playUISound(msg);
-		});
+		ctx.get().enqueueWork(() -> ClientboundPacketBridge.handle(msg));
 		ctx.get().setPacketHandled(true);
 	}
 }

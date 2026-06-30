@@ -389,7 +389,7 @@ public final class EpicFightCameraAPI {
 				!entity.is(this.focusingEntity) &&
 				MathUtils.canBeSeen(entity, this.minecraft.player, lockOnRange) &&
 				(
-					this.minecraft.getEntityRenderDispatcher().shouldRender(entity, this.minecraft.levelRenderer.getFrustum(), cameraLocation.x(), cameraLocation.y(), cameraLocation.z()) || // Excludes entities out of the view frustum
+					this.minecraft.getEntityRenderDispatcher().shouldRender(entity, this.minecraft.levelRenderer.cullingFrustum, cameraLocation.x(), cameraLocation.y(), cameraLocation.z()) || // Excludes entities out of the view frustum
 					entity.hasIndirectPassenger(this.minecraft.player)	// Excludes riding entities
 				) &&
 				entity.distanceToSqr(this.minecraft.player) < lockOnRange * lockOnRange
@@ -514,6 +514,12 @@ public final class EpicFightCameraAPI {
 	public boolean shouldHighlightTarget(@NotNull Entity entity) {
 		// Checks the giant rule for target entity outline: config option, in-game state, and focusing entity
 		if (!ClientConfig.enableTargetEntityGuide || this.minecraft.player == null || !entity.is(this.focusingEntity)) return false;
+		
+		LocalPlayerPatch playerpatch = EpicFightCapabilities.getEntityPatch(this.minecraft.player, LocalPlayerPatch.class);
+		
+		if (playerpatch == null || !playerpatch.isEpicFightMode()) {
+			return false;
+		}
 		
 		// When the outline is disabled by {@link EntityPatch#isOutlineVisible}
 		if (!EpicFightCapabilities.getUnparameterizedEntityPatch(entity, EntityPatch.class).map(entitypatch -> entitypatch.isOutlineVisible(this.minecraft.player)).orElse(false)) {

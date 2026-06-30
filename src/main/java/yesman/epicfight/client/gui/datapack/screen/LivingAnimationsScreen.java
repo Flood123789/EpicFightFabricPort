@@ -51,13 +51,13 @@ public class LivingAnimationsScreen extends Screen {
 		super(Component.translatable("datapack_edit.weapon_type.living_animations"));
 		
 		this.parentScreen = parentScreen;
-		this.minecraft = parentScreen.getMinecraft();
+		this.minecraft = net.minecraft.client.Minecraft.getInstance();
 		this.rootTag = rootTag;
-		this.font = parentScreen.getMinecraft().font;
+		this.font = net.minecraft.client.Minecraft.getInstance().font;
 		
 		this.modelPreviewer = new ModelPreviewer(106, 200, 60, 49, HorizontalSizing.LEFT_RIGHT, VerticalSizing.TOP_BOTTOM, Armatures.BIPED, Meshes.BIPED);
 		
-		this.stylesGrid = Grid.builder(this, parentScreen.getMinecraft())
+		this.stylesGrid = Grid.builder(this, net.minecraft.client.Minecraft.getInstance())
 								.xy1(12, 60)
 								.xy2(85, 50)
 								.horizontalSizing(HorizontalSizing.LEFT_WIDTH)
@@ -92,7 +92,7 @@ public class LivingAnimationsScreen extends Screen {
 								})
 								.build();
 		
-		this.animationsGrid = Grid.builder(this, parentScreen.getMinecraft())
+		this.animationsGrid = Grid.builder(this, net.minecraft.client.Minecraft.getInstance())
 									.xy1(177, 60)
 									.xy2(14, 49)
 									.horizontalSizing(HorizontalSizing.WIDTH_RIGHT)

@@ -4,6 +4,10 @@ import net.minecraft.client.KeyMapping;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.IdentityHashMap;
+import java.util.Map;
+
 import yesman.epicfight.api.client.input.action.EpicFightInputAction;
 import yesman.epicfight.api.client.input.action.InputAction;
 import yesman.epicfight.api.client.input.controller.ControllerBinding;
@@ -25,6 +29,8 @@ import yesman.epicfight.api.client.input.InputManager;
 /// such as [InputManager] unless direct access is truly required.
 @ApiStatus.Internal
 public final class DiscreteInputActionTrigger {
+    private static final Map<InputAction, Boolean> PREVIOUS_ACTIVE = new IdentityHashMap<>();
+
     private DiscreteInputActionTrigger() {
     }
 
@@ -47,7 +53,7 @@ public final class DiscreteInputActionTrigger {
         final IEpicFightControllerMod controllerMod = getControllerModApi();
         final KeyMapping keyMapping = action.keyMapping();
         if (controllerMod == null) {
-            handleKeyboardAndMouse(keyMapping, handler);
+            handleKeyboardAndMouse(action, keyMapping, handler);
             return;
         }
 
@@ -57,24 +63,34 @@ public final class DiscreteInputActionTrigger {
                             controllerBinding -> {
                                 final boolean handled = handleController(controllerBinding, handler);
                                 if (!handled) {
-                                    handleKeyboardAndMouse(keyMapping, handler);
+                                    handleKeyboardAndMouse(action, keyMapping, handler);
                                 }
                             },
-                            () -> handleKeyboardAndMouse(keyMapping, handler)
+                            () -> handleKeyboardAndMouse(action, keyMapping, handler)
                     );
             case CONTROLLER -> action.controllerBinding()
                     .ifPresentOrElse(
                             controllerBinding -> handleController(controllerBinding, handler),
-                            () -> handleKeyboardAndMouse(keyMapping, handler)
+                            () -> handleKeyboardAndMouse(action, keyMapping, handler)
                     );
-            case KEYBOARD_MOUSE -> handleKeyboardAndMouse(keyMapping, handler);
+            case KEYBOARD_MOUSE -> handleKeyboardAndMouse(action, keyMapping, handler);
         }
     }
 
-    private static void handleKeyboardAndMouse(@NotNull KeyMapping keyMapping, @NotNull DiscreteActionHandler handler) {
+    private static void handleKeyboardAndMouse(@NotNull InputAction action, @NotNull KeyMapping keyMapping, @NotNull DiscreteActionHandler handler) {
+        boolean handled = false;
         while (keyMapping.consumeClick()) {
+            handled = true;
             handler.onAction(createContext(false));
         }
+
+        final boolean active = InputManager.isActionActive(action);
+        final boolean previous = PREVIOUS_ACTIVE.getOrDefault(action, false);
+        if (!handled && active && !previous) {
+            handler.onAction(createContext(false));
+        }
+
+        PREVIOUS_ACTIVE.put(action, active);
     }
 
     private static boolean handleController(@NotNull ControllerBinding controllerBinding, @NotNull DiscreteActionHandler handler) {

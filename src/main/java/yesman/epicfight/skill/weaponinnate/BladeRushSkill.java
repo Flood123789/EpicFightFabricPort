@@ -8,7 +8,6 @@ import java.util.UUID;
 import com.google.common.collect.Maps;
 
 import io.netty.buffer.Unpooled;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -21,6 +20,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.SynchedAnimationVariableKeys;
 import yesman.epicfight.api.animation.types.StaticAnimation;
+import yesman.epicfight.api.utils.ClientOnlyUtils;
 import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.gameasset.Animations;
@@ -168,9 +168,9 @@ public class BladeRushSkill extends WeaponInnateSkill {
 		
 		if (this.equals(skill) && !this.checkExecuteCondition(container)) {
 			if (container.getExecutor().getTarget() == null || !container.getExecutor().getTarget().isAlive()) {
-				Minecraft.getInstance().gui.setOverlayMessage(Component.translatable(EpicFightMod.format("gui.%s.warn.no_target")), false);
+				ClientOnlyUtils.setOverlayMessage(Component.translatable(EpicFightMod.format("gui.%s.warn.no_target")));
 			} else {
-				Minecraft.getInstance().gui.setOverlayMessage(Component.translatable(EpicFightMod.format("gui.%s.warn.target_too_far")), false);
+				ClientOnlyUtils.setOverlayMessage(Component.translatable(EpicFightMod.format("gui.%s.warn.target_too_far")));
 			}
 		}
 	}

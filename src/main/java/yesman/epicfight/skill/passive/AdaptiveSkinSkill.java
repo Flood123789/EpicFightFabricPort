@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.joml.Vector4f;
 
 import com.google.common.collect.ImmutableMap;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.gui.GuiGraphics;
@@ -220,18 +221,20 @@ public class AdaptiveSkinSkill extends PassiveSkill {
 		poseStack.translate(0, (float)gui.getSlidingProgression(), 0);
 		
 		Vec3f color = this.protectableDamageTypeTags.get(container.getDataManager().getDataValue(SkillDataKeys.RESISTING_DAMAGE_TYPE.get()));
-		guiGraphics.innerBlit(this.getSkillTexture(), (int)x, (int)x + 24, (int)y, (int)y + 24, 0, 0.0F, 1.0F, 0.0F, 1.0F, color.x, color.y, color.z, 1.0F);
+		RenderSystem.setShaderColor(color.x, color.y, color.z, 1.0F);
+		guiGraphics.blit(this.getSkillTexture(), (int)x, (int)y, 24, 24, 0, 0, 1, 1, 1, 1);
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		int stacks = container.getDataManager().getDataValue(SkillDataKeys.STACKS.get());
 		
 		if (stacks > 1) {
-			guiGraphics.drawString(gui.getFont(), String.valueOf(stacks), x + 18, y + 16, 16777215, true);
+			guiGraphics.drawString(gui.getFont(), String.valueOf(stacks), (int)(x + 18), (int)(y + 16), 16777215, true);
 		}
 		
 		int lastHitTick = container.getDataManager().getDataValueOptional(SkillDataKeys.TICK_RECORD.get()).orElse(0);
 		
 		if (container.getExecutor().getOriginal().tickCount - lastHitTick > 200) {
 			int remainseconds = 1 + (100 - (container.getExecutor().getOriginal().tickCount - lastHitTick - 200)) / 20;
-			guiGraphics.drawString(gui.getFont(), String.valueOf(remainseconds), x + 8, y + 8, 16777215, true);
+			guiGraphics.drawString(gui.getFont(), String.valueOf(remainseconds), (int)(x + 8), (int)(y + 8), 16777215, true);
 		}
 		
 		poseStack.popPose();

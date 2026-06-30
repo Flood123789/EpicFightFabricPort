@@ -2,6 +2,9 @@ package yesman.epicfight.api.client.input.action;
 
 import net.minecraft.client.KeyMapping;
 import org.jetbrains.annotations.NotNull;
+
+import com.mojang.blaze3d.platform.InputConstants;
+
 import yesman.epicfight.api.client.input.controller.ControllerBinding;
 import yesman.epicfight.api.client.input.controller.EpicFightControllerModProvider;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
@@ -49,21 +52,26 @@ public enum EpicFightInputAction implements InputAction {
     @NotNull
     public KeyMapping keyMapping() {
         return switch (this) {
-            case ATTACK -> EpicFightKeyMappings.ATTACK;
-            case MOBILITY -> EpicFightKeyMappings.MOVER_SKILL;
-            case GUARD -> EpicFightKeyMappings.GUARD;
+            case ATTACK -> fallbackToVanilla(EpicFightKeyMappings.ATTACK, MinecraftInputAction.ATTACK_DESTROY);
+            case MOBILITY -> fallbackToVanilla(EpicFightKeyMappings.MOVER_SKILL, MinecraftInputAction.JUMP);
+            case GUARD -> fallbackToVanilla(EpicFightKeyMappings.GUARD, MinecraftInputAction.USE);
             case DODGE -> EpicFightKeyMappings.DODGE;
             case LOCK_ON -> EpicFightKeyMappings.LOCK_ON;
             case LOCK_ON_SHIFT_LEFT -> EpicFightKeyMappings.LOCK_ON_SHIFT_LEFT;
             case LOCK_ON_SHIFT_RIGHT -> EpicFightKeyMappings.LOCK_ON_SHIFT_RIGHT;
             case LOCK_ON_SHIFT_FREELY -> EpicFightKeyMappings.LOCK_ON_SHIFT_FREELY;
             case SWITCH_MODE -> EpicFightKeyMappings.SWITCH_MODE;
-            case WEAPON_INNATE_SKILL -> EpicFightKeyMappings.WEAPON_INNATE_SKILL;
+            case WEAPON_INNATE_SKILL -> fallbackToVanilla(EpicFightKeyMappings.WEAPON_INNATE_SKILL, MinecraftInputAction.ATTACK_DESTROY);
             case WEAPON_INNATE_SKILL_TOOLTIP -> EpicFightKeyMappings.WEAPON_INNATE_SKILL_TOOLTIP;
             case OPEN_SKILL_SCREEN -> EpicFightKeyMappings.SKILL_EDIT;
             case OPEN_CONFIG_SCREEN -> EpicFightKeyMappings.OPEN_CONFIG_SCREEN;
             case SWITCH_VANILLA_MODEL_DEBUGGING -> EpicFightKeyMappings.SWITCH_VANILLA_MODEL_DEBUGGING;
         };
+    }
+
+    private static KeyMapping fallbackToVanilla(KeyMapping combatKey, MinecraftInputAction vanillaAction) {
+        KeyMapping vanillaKey = vanillaAction.keyMapping();
+        return combatKey.getKey().getValue() == InputConstants.UNKNOWN.getValue() || combatKey.getKey().equals(vanillaKey.getKey()) ? vanillaKey : combatKey;
     }
 
     @Override

@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.layers.ArrowLayer;
 import net.minecraft.client.renderer.entity.layers.BeeStingerLayer;
 import net.minecraft.client.renderer.entity.layers.CapeLayer;
+import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.client.renderer.entity.layers.PlayerItemInHandLayer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.world.entity.EntityType;
@@ -25,6 +26,7 @@ public class PPlayerRenderer extends PHumanoidRenderer<AbstractClientPlayer, Abs
 		this.addPatchedLayer(ArrowLayer.class, new PatchedArrowLayer<> (context));
 		this.addPatchedLayer(BeeStingerLayer.class, new PatchedBeeStingerLayer<> ());
 		this.addPatchedLayer(CapeLayer.class, new PatchedCapeLayer());
+		this.addPatchedLayer(ItemInHandLayer.class, new PatchedItemInHandLayer<> ());
 		this.addPatchedLayer(PlayerItemInHandLayer.class, new PatchedItemInHandLayer<> ());
 	}
 	

@@ -3,7 +3,6 @@ package yesman.epicfight.api.animation.types;
 import java.util.List;
 import java.util.Optional;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
@@ -20,6 +19,7 @@ import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.animation.Layer;
 import yesman.epicfight.api.client.animation.property.ClientAnimationProperties;
 import yesman.epicfight.api.model.Armature;
+import yesman.epicfight.api.utils.ClientOnlyUtils;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.QuaternionUtils;
@@ -39,10 +39,10 @@ public class AimAnimation extends StaticAnimation {
 	public AimAnimation(float transitionTime, boolean repeatPlay, AnimationAccessor<? extends AimAnimation> accessor, String path1, String path2, String path3, String path4, AssetAccessor<? extends Armature> armature) {
 		super(transitionTime, repeatPlay, accessor, armature);
 		
-		this.lookForward = new DirectStaticAnimation(transitionTime, repeatPlay, ResourceLocation.fromNamespaceAndPath(accessor.registryName().getNamespace(), path1), armature);
-		this.lookUp = new DirectStaticAnimation(transitionTime, repeatPlay, ResourceLocation.fromNamespaceAndPath(accessor.registryName().getNamespace(), path2), armature);
-		this.lookDown = new DirectStaticAnimation(transitionTime, repeatPlay, ResourceLocation.fromNamespaceAndPath(accessor.registryName().getNamespace(), path3), armature);
-		this.lying = new DirectStaticAnimation(transitionTime, repeatPlay, ResourceLocation.fromNamespaceAndPath(accessor.registryName().getNamespace(), path4), armature);
+		this.lookForward = new DirectStaticAnimation(transitionTime, repeatPlay, new ResourceLocation(accessor.registryName().getNamespace(), path1), armature);
+		this.lookUp = new DirectStaticAnimation(transitionTime, repeatPlay, new ResourceLocation(accessor.registryName().getNamespace(), path2), armature);
+		this.lookDown = new DirectStaticAnimation(transitionTime, repeatPlay, new ResourceLocation(accessor.registryName().getNamespace(), path3), armature);
+		this.lying = new DirectStaticAnimation(transitionTime, repeatPlay, new ResourceLocation(accessor.registryName().getNamespace(), path4), armature);
 		
 		this.addProperty(
 			StaticAnimationProperty.PLAY_SPEED_MODIFIER,
@@ -96,7 +96,7 @@ public class AimAnimation extends StaticAnimation {
 				
 				return pose;
 			} else {
-				float pitch = entitypatch.getOriginal().getViewXRot(Minecraft.getInstance().getFrameTime());
+				float pitch = entitypatch.getOriginal().getViewXRot(ClientOnlyUtils.getFrameTime(1.0F));
 				StaticAnimation interpolateAnimation;
 				interpolateAnimation = (pitch > 0) ? this.lookDown : this.lookUp;
 				Pose pose1 = super.getPoseByTime(entitypatch, time, partialTicks);	

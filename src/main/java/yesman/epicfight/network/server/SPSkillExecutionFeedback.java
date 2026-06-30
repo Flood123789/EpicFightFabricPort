@@ -11,9 +11,9 @@ import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.modules.HoldableSkill;
 
 public class SPSkillExecutionFeedback {
-	private final int skillSlot;
-	private FeedbackType feedbackType;
-	private final FriendlyByteBuf buffer;
+	final int skillSlot;
+	FeedbackType feedbackType;
+	final FriendlyByteBuf buffer;
 	
 	public SPSkillExecutionFeedback() {
 		this(0, FeedbackType.EXECUTED);
@@ -65,30 +65,7 @@ public class SPSkillExecutionFeedback {
 	}
 	
 	public static void handle(SPSkillExecutionFeedback msg, Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> {
-			LocalPlayerPatch playerpatch = ClientEngine.getInstance().getPlayerPatch();
-			
-			if (playerpatch != null) {
-				switch(msg.feedbackType) {
-					case EXECUTED -> {
-						SkillContainer skillContainer = playerpatch.getSkill(msg.skillSlot);
-						skillContainer.getSkill().executeOnClient(skillContainer, msg.getBuffer());
-					}
-					case HOLDING_START -> {
-						SkillContainer container = playerpatch.getSkill(msg.skillSlot);
-						
-						if (container.getSkill() instanceof HoldableSkill holdableSkill) {
-							playerpatch.startSkillHolding(holdableSkill);
-							ClientEngine.getInstance().controlEngine.setHoldingKey(container.getSlot(), holdableSkill.getKeyMapping());
-						}
-					}
-					case EXPIRED -> {
-						SkillContainer skillContainer = playerpatch.getSkill(msg.skillSlot);
-						skillContainer.getSkill().cancelOnClient(skillContainer, msg.getBuffer());
-					}
-				}
-			}
-		});
+		ctx.get().enqueueWork(() -> ClientboundPacketBridge.handle(msg));
 		ctx.get().setPacketHandled(true);
 	}
 	

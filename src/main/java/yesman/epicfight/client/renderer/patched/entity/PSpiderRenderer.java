@@ -14,7 +14,7 @@ import yesman.epicfight.client.renderer.patched.layer.PatchedEyesLayer;
 import yesman.epicfight.world.capabilities.entitypatch.mob.SpiderPatch;
 
 public class PSpiderRenderer extends PatchedLivingEntityRenderer<Spider, SpiderPatch<Spider>, SpiderModel<Spider>, SpiderRenderer<Spider>, SpiderMesh> {
-	private static final ResourceLocation SPIDER_EYE_TEXTURE = ResourceLocation.withDefaultNamespace("textures/entity/spider_eyes.png");
+	private static final ResourceLocation SPIDER_EYE_TEXTURE = new ResourceLocation("minecraft", "textures/entity/spider_eyes.png");
 	
 	public PSpiderRenderer(EntityRendererProvider.Context context, EntityType<?> entityType) {
 		super(context, entityType);

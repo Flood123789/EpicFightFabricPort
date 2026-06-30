@@ -23,13 +23,7 @@ public record SPInitSkills(CompoundTag serializedSkill) {
 	}
 	
 	public static void handle(SPInitSkills msg, Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> {
-			LocalPlayerPatch playerpatch = ClientEngine.getInstance().getPlayerPatch();
-			
-			if (playerpatch != null) {
-				playerpatch.getSkillCapability().deserialize(msg.serializedSkill());
-			}
-		});
+		ctx.get().enqueueWork(() -> ClientboundPacketBridge.handle(msg));
 		ctx.get().setPacketHandled(true);
 	}
 }

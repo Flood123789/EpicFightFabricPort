@@ -42,8 +42,8 @@ public class ImportModelScreen extends Screen {
 		super(Component.literal("register_model_screen"));
 		
 		this.parentScreen = parentScreen;
-		this.minecraft = parentScreen.getMinecraft();
-		this.font = parentScreen.getMinecraft().font;
+		this.minecraft = net.minecraft.client.Minecraft.getInstance();
+		this.font = net.minecraft.client.Minecraft.getInstance().font;
 		
 		Stream<PackEntry<String, AssetAccessor<? extends SkinnedMesh>>> meshesStream = DatapackEditScreen.getCurrentScreen().getUserMeshes().entrySet().stream().map((entry) -> PackEntry.ofValue(entry.getKey().toString(), entry.getValue()));
 		this.userMeshes = new ArrayList<>(meshesStream.toList());
@@ -55,7 +55,7 @@ public class ImportModelScreen extends Screen {
 		ScreenRectangle screenRect = parentScreen.getRectangle();
 		int split = screenRect.width() / 2 - 60;
 		
-		this.meshGrid = Grid.builder(this, parentScreen.getMinecraft())
+		this.meshGrid = Grid.builder(this, net.minecraft.client.Minecraft.getInstance())
 								.xy1(8, screenRect.top() + 14)
 								.xy2(split - 10, screenRect.height() - 21)
 								.rowHeight(26)
@@ -74,7 +74,7 @@ public class ImportModelScreen extends Screen {
 								})
 								.build();
 		
-		this.armatureGrid = Grid.builder(this, parentScreen.getMinecraft())
+		this.armatureGrid = Grid.builder(this, net.minecraft.client.Minecraft.getInstance())
 								.xy1(8, screenRect.top() + 14)
 								.xy2(split - 10, screenRect.height() - 21)
 								.rowHeight(26)
@@ -130,8 +130,8 @@ public class ImportModelScreen extends Screen {
 			userMeshes.clear();
 			userArmatures.clear();
 			
-			this.userMeshes.forEach((packEntry) -> userMeshes.put(ResourceLocation.parse(packEntry.getKey()), packEntry.getValue()));
-			this.userArmatures.forEach((packEntry) -> userArmatures.put(ResourceLocation.parse(packEntry.getKey()), packEntry.getValue()));
+			this.userMeshes.forEach((packEntry) -> userMeshes.put(new ResourceLocation(packEntry.getKey()), packEntry.getValue()));
+			this.userArmatures.forEach((packEntry) -> userArmatures.put(new ResourceLocation(packEntry.getKey()), packEntry.getValue()));
 			
 			this.onClose();
 		}).pos(this.width / 2 - 162, this.height - 26).size(160, 21).build());
@@ -174,7 +174,7 @@ public class ImportModelScreen extends Screen {
 						stream = new FileInputStream(file);
 						
 						String modelPath = modid + ":" + file.getName().replace(".json", "");
-						ResourceLocation modelId = ResourceLocation.parse(modelPath);
+						ResourceLocation modelId = new ResourceLocation(modelPath);
 						JsonAssetLoader jsonLoader = new JsonAssetLoader(stream, modelId);
 						SkinnedMesh mesh = jsonLoader.loadSkinnedMesh(SkinnedMesh::new);
 						Armature armature = jsonLoader.loadArmature(Armature::new);

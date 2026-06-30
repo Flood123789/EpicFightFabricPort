@@ -116,7 +116,7 @@ public class ItemKeywordReloadListener extends SimplePreparableReloadListener<Ma
 			REGEXES.clear();
 			
 			for (CompoundTag tag : packet.getTags()) {
-				ResourceLocation id = ResourceLocation.parse(tag.getString("registry_name"));
+				ResourceLocation id = new ResourceLocation(tag.getString("registry_name"));
 				REGEXES.put(id, ItemRegex.deserialize(tag));
 			}
 		}

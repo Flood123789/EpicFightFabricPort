@@ -33,15 +33,7 @@ public record SPModifySkillData(SkillDataKey<?> dataKey, SkillSlot slot, Object 
 	
 	@SuppressWarnings("deprecation")
 	public static void handle(SPModifySkillData msg, Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> {
-			Minecraft mc = Minecraft.getInstance();
-			Entity entity = mc.level.getEntity(msg.entityId);
-			
-			if (entity.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null) instanceof PlayerPatch<?> playerpatch) {
-				SkillDataManager dataManager = playerpatch.getSkill(msg.slot).getDataManager();
-				dataManager.setDataRawtype(msg.dataKey, msg.value);
-			}
-		});
+		ctx.get().enqueueWork(() -> ClientboundPacketBridge.handle(msg));
 		
 		ctx.get().setPacketHandled(true);
 	}

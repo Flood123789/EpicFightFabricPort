@@ -139,7 +139,7 @@ public class BonebreakerSkill extends PassiveSkill {
 		poseStack.pushPose();
 		poseStack.translate(0, (float)gui.getSlidingProgression(), 0);
 		guiGraphics.blit(this.getSkillTexture(), (int)x, (int)y, 24, 24, 0, 0, 1, 1, 1, 1);
-		guiGraphics.drawString(gui.getFont(), String.valueOf(container.getDataManager().getDataValue(SkillDataKeys.STACKS.get())), x + 10, y + 10, 16777215, true);
+		guiGraphics.drawString(gui.getFont(), String.valueOf(container.getDataManager().getDataValue(SkillDataKeys.STACKS.get())), (int)(x + 10), (int)(y + 10), 16777215, true);
 		poseStack.popPose();
 	}
 	

@@ -14,4 +14,20 @@ public class SyncAnimationPositionPacket {
 		this.position = position;
 		this.lerpSteps = lerpSteps;
 	}
+
+	public int getEntityId() {
+		return this.entityId;
+	}
+
+	public float getElapsedTime() {
+		return this.elapsedTime;
+	}
+
+	public Vec3 getPosition() {
+		return this.position;
+	}
+
+	public int getLerpSteps() {
+		return this.lerpSteps;
+	}
 }

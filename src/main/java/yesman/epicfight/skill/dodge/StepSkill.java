@@ -2,9 +2,13 @@ package yesman.epicfight.skill.dodge;
 
 import java.util.UUID;
 
+import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import yesman.epicfight.api.client.input.InputManager;
+import yesman.epicfight.api.client.input.PlayerInputState;
+import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.network.client.CPSkillRequest;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.entity.eventlistener.ComboCounterHandleEvent;
@@ -29,6 +33,18 @@ public class StepSkill extends DodgeSkill {
 	@Override
 	public void onRemoved(SkillContainer container) {
 		container.getExecutor().getEventListener().removeListener(EventType.COMBO_COUNTER_HANDLE_EVENT, EVENT_UUID);
+	}
+
+	@OnlyIn(Dist.CLIENT)
+	@Override
+	public FriendlyByteBuf gatherArguments(SkillContainer container, ControlEngine controlEngine) {
+		PlayerInputState inputState = InputManager.getInputState(container.getClientExecutor().getOriginal().input);
+		FriendlyByteBuf args = new FriendlyByteBuf(Unpooled.buffer());
+		args.writeInt(inputState.up() ? 1 : 0);
+		args.writeInt(inputState.down() ? -1 : 0);
+		args.writeInt(inputState.left() ? 1 : 0);
+		args.writeInt(inputState.right() ? -1 : 0);
+		return args;
 	}
 	
 	@OnlyIn(Dist.CLIENT)

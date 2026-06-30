@@ -1,8 +1,9 @@
 package yesman.epicfight.events;
 
 import java.util.List;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.api.distmarker.Dist;
@@ -15,7 +16,6 @@ import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.data.reloader.ItemCapabilityReloadListener;
 import yesman.epicfight.api.data.reloader.MobPatchReloadListener;
 import yesman.epicfight.api.data.reloader.SkillManager;
-import yesman.epicfight.client.world.util.FakeLevel;
 import yesman.epicfight.data.loot.EpicFightLootTables;
 import yesman.epicfight.data.loot.SkillBookLootModifier;
 import yesman.epicfight.main.EpicFightMod;
@@ -111,14 +111,22 @@ public class WorldEvents {
 	public static class WorldEventsClient {
 		@SubscribeEvent
 		public static void loadLevel(LevelEvent.Load event) {
-			// Prevent infinite loop
-			if (event.getLevel() instanceof FakeLevel) return;
-			if (event.getLevel() instanceof ClientLevel clientLevel) FakeLevel.getFakeLevel(clientLevel);
+			invokeClientWorldHelper("loadLevel", new Class<?>[] { Object.class }, event.getLevel());
 		}
 		
 		@SubscribeEvent
 		public static void unloadLevel(LevelEvent.Unload event) {
-			FakeLevel.unloadFakeLevel();
+			invokeClientWorldHelper("unloadLevel", new Class<?>[0]);
+		}
+	}
+
+	private static Object invokeClientWorldHelper(String methodName, Class<?>[] parameterTypes, Object... args) {
+		try {
+			Class<?> helper = Class.forName("yesman.epicfight.client.world.ClientWorldEventHelper");
+			Method method = helper.getMethod(methodName, parameterTypes);
+			return method.invoke(null, args);
+		} catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException exception) {
+			throw new IllegalStateException("Failed to run Epic Fight client world helper " + methodName, exception);
 		}
 	}
 }

@@ -95,7 +95,7 @@ public class VanillaFakeBlockRenderer implements FakeBlockRenderer {
 	private void renderPreviewBlocks(PoseStack poseStack, VertexConsumer consumer, BlockAndTintGetter level, List<BakedQuad> quads, float r, float g, float b, float a) {
 		for (BakedQuad bakedquad : quads) {
 			float f = level.getShade(bakedquad.getDirection(), bakedquad.isShade());
-			consumer.putBulkData(poseStack.last(), bakedquad, new float[] {f, f, f, f}, r, g, b, a, new int[] {16777215, 16777215, 16777215, 16777215}, OverlayTexture.NO_OVERLAY, false);
+			consumer.putBulkData(poseStack.last(), bakedquad, new float[] {f, f, f, f}, r, g, b, new int[] {16777215, 16777215, 16777215, 16777215}, OverlayTexture.NO_OVERLAY, false);
 		}
 	}
 }

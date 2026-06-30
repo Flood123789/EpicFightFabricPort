@@ -30,13 +30,7 @@ public record SPSetRemotePlayerSkill(int entityId, SkillSlot slot, @Nullable Ski
 	}
 	
 	public static void handle(SPSetRemotePlayerSkill msg, Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> {
-			Entity entity = Minecraft.getInstance().level.getEntity(msg.entityId());
-			
-			EpicFightCapabilities.getUnparameterizedEntityPatch(entity, AbstractClientPlayerPatch.class).ifPresent(playerpatch -> {
-				playerpatch.getSkill(msg.slot()).setSkillRemote(msg.skill());
-			});
-		});
+		ctx.get().enqueueWork(() -> ClientboundPacketBridge.handle(msg));
 		ctx.get().setPacketHandled(true);
 	}
 }

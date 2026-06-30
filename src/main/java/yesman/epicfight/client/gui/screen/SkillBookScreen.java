@@ -216,23 +216,24 @@ public class SkillBookScreen extends Screen {
 			this.customScale = window.getGuiScale();
 		}
 		
-		learnButton =
-			Button.builder(
-				Component.translatable(EpicFightMod.format("gui.%s") + (isUsing ? ".applied" : meetsCondition ? ".learn" : ".unusable")),
-				button -> {
-					Set<SkillContainer> skillContainers = this.playerpatch.getSkillCapability().getSkillContainersFor(this.skill.getCategory());
-					
-					if (skillContainers.size() == 1) {
-						this.acquireSkillTo(skillContainers.iterator().next());
-					} else {
-						SlotSelectScreen slotSelectScreen = new SlotSelectScreen(skillContainers, this);
-						this.minecraft.setScreen(slotSelectScreen);
-					}
+		learnButton = new LearnButton(
+			this.width / 2 + 54,
+			this.height / 2 + 90,
+			67,
+			21,
+			Component.translatable(EpicFightMod.format("gui.%s") + (isUsing ? ".applied" : meetsCondition ? ".learn" : ".unusable")),
+			button -> {
+				Set<SkillContainer> skillContainers = this.playerpatch.getSkillCapability().getSkillContainersFor(this.skill.getCategory());
+				
+				if (skillContainers.size() == 1) {
+					this.acquireSkillTo(skillContainers.iterator().next());
+				} else {
+					SlotSelectScreen slotSelectScreen = new SlotSelectScreen(skillContainers, this);
+					this.minecraft.setScreen(slotSelectScreen);
 				}
-			)
-			.bounds(this.width / 2 + 54, this.height / 2 + 90, 67, 21)
-			.tooltip(Tooltip.create(tooltip, null))
-			.build(LearnButton::new);
+			},
+			Tooltip.create(tooltip, null)
+		);
 		
 		if (isUsing || !meetsCondition) {
 			learnButton.active = false;
@@ -657,8 +658,9 @@ public class SkillBookScreen extends Screen {
 	}
 	
 	private class LearnButton extends Button {
-		protected LearnButton(Builder builder) {
-			super(builder);
+		protected LearnButton(int x, int y, int width, int height, Component message, OnPress onPress, Tooltip tooltip) {
+			super(x, y, width, height, message, onPress, DEFAULT_NARRATION);
+			this.setTooltip(tooltip);
 		}
 		
 		@Override

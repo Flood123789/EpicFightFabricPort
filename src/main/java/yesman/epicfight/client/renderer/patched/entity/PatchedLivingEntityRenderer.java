@@ -102,15 +102,26 @@ public abstract class PatchedLivingEntityRenderer<E extends LivingEntity, T exte
 					layerClass = layer.getClass().getSuperclass();
 				}
 				
-				if (this.patchedLayers.containsKey(layerClass)) {
+				if (this.findPatchedLayer(layerClass) != null) {
 					continue;
 				}
 				
-				this.addPatchedLayer(layerClass, new RenderOriginalModelLayer<> ("Root", new Vec3f(0.0F, this.getDefaultLayerHeightCorrection(), 0.0F), new Vec3f(0.0F, 0.0F, 0.0F)));
+				this.addFallbackPatchedLayer(layerClass);
 			}
 		}
 		
 		return this;
+	}
+
+	protected PatchedLayer<E, T, M, ? extends RenderLayer<E, M>> findPatchedLayer(Class<?> layerClass) {
+		for (Class<?> current = layerClass; current != null; current = current.getSuperclass()) {
+			PatchedLayer<E, T, M, ? extends RenderLayer<E, M>> patchedLayer = this.patchedLayers.get(current);
+			if (patchedLayer != null) {
+				return patchedLayer;
+			}
+		}
+
+		return null;
 	}
 	
 	@Override
@@ -242,8 +253,14 @@ public abstract class PatchedLivingEntityRenderer<E extends LivingEntity, T exte
 				layerClass = layerClass.getSuperclass();
 			}
 			
-			if (this.patchedLayers.containsKey(layerClass)) {
-				this.patchedLayers.get(layerClass).renderLayer(entity, entitypatch, layer, poseStack, buffer, packedLight, poses, bob, f2, f7, partialTicks);
+			PatchedLayer<E, T, M, ? extends RenderLayer<E, M>> patchedLayer = this.findPatchedLayer(layerClass);
+			
+			if (patchedLayer == null) {
+				patchedLayer = this.addFallbackPatchedLayer(layerClass);
+			}
+			
+			if (patchedLayer != null) {
+				patchedLayer.renderLayer(entity, entitypatch, layer, poseStack, buffer, packedLight, poses, bob, f2, f7, partialTicks);
 			}
 		}
 		
@@ -274,6 +291,11 @@ public abstract class PatchedLivingEntityRenderer<E extends LivingEntity, T exte
 	@Override
 	public void addPatchedLayer(Class<?> originalLayerClass, PatchedLayer<E, T, M, ? extends RenderLayer<E, M>> patchedLayer) {
 		this.patchedLayers.putIfAbsent(originalLayerClass, patchedLayer);
+	}
+	
+	protected PatchedLayer<E, T, M, ? extends RenderLayer<E, M>> addFallbackPatchedLayer(Class<?> originalLayerClass) {
+		this.addPatchedLayer(originalLayerClass, new RenderOriginalModelLayer<> ("Root", new Vec3f(0.0F, this.getDefaultLayerHeightCorrection(), 0.0F), new Vec3f(0.0F, 0.0F, 0.0F)));
+		return this.findPatchedLayer(originalLayerClass);
 	}
 	
 	/**

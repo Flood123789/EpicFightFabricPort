@@ -11,8 +11,8 @@ import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.skill.CapabilitySkill;
 
 public class SPAddLearnedSkill {
-	private String[] skillNames;
-	private final int count;
+	String[] skillNames;
+	final int count;
 	
 	public SPAddLearnedSkill() {
 		this("");
@@ -43,15 +43,7 @@ public class SPAddLearnedSkill {
 	}
 	
 	public static void handle(SPAddLearnedSkill msg, Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> {
-			Minecraft mc = Minecraft.getInstance();
-			PlayerPatch<?> playerpatch = (PlayerPatch<?>)mc.player.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null);
-			CapabilitySkill skillCapability = playerpatch.getSkillCapability();
-			
-			for (String skillName : msg.skillNames) {
-				skillCapability.addLearnedSkill(SkillManager.getSkill(skillName));
-			}
-		});
+		ctx.get().enqueueWork(() -> ClientboundPacketBridge.handle(msg));
 		ctx.get().setPacketHandled(true);
 	}
 }

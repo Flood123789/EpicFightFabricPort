@@ -1,6 +1,5 @@
 package yesman.epicfight.skill.dodge;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Mth;
@@ -10,6 +9,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.api.client.input.MovementDirection;
 import yesman.epicfight.api.client.input.InputManager;
+import yesman.epicfight.api.utils.ClientOnlyUtils;
 import yesman.epicfight.client.input.InputUtils;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.network.client.CPSkillRequest;
@@ -31,7 +31,7 @@ public class KnockdownWakeupSkill extends DodgeSkill {
 
         final MovementDirection movementDirection = MovementDirection.fromInputState(InputManager.getInputState(localPlayer.input));
         final int horizon = movementDirection.horizontal();
-        final float yRot = Minecraft.getInstance().gameRenderer.getMainCamera().getYRot();
+        final float yRot = ClientOnlyUtils.getMainCameraYRot(localPlayer.getYRot());
 		
 		CPSkillRequest packet = new CPSkillRequest(skillContainer.getSlot());
 		packet.getBuffer().writeInt(horizon >= 0 ? 0 : 1);

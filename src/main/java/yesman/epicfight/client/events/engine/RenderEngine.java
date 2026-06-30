@@ -23,6 +23,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.BossHealthOverlay;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -232,11 +233,11 @@ public class RenderEngine {
 		
 		// Build item renderers
 		Map<ResourceLocation, Function<JsonElement, RenderItemBase>> itemRenderers = Maps.newHashMap();
-		itemRenderers.put(ResourceLocation.withDefaultNamespace("base"), RenderItemBase::new);
-		itemRenderers.put(ResourceLocation.withDefaultNamespace("ranged"), RenderTwoHandedRangedWeapon::new);
-		itemRenderers.put(ResourceLocation.withDefaultNamespace("map"), RenderFilledMap::new);
-		itemRenderers.put(ResourceLocation.withDefaultNamespace("shield"), RenderShield::new);
-		itemRenderers.put(ResourceLocation.withDefaultNamespace("trident"), RenderTrident::new);
+		itemRenderers.put(new ResourceLocation("minecraft", "base"), RenderItemBase::new);
+		itemRenderers.put(new ResourceLocation("minecraft", "ranged"), RenderTwoHandedRangedWeapon::new);
+		itemRenderers.put(new ResourceLocation("minecraft", "map"), RenderFilledMap::new);
+		itemRenderers.put(new ResourceLocation("minecraft", "shield"), RenderShield::new);
+		itemRenderers.put(new ResourceLocation("minecraft", "trident"), RenderTrident::new);
 		itemRenderers.put(EpicFightMod.identifier("uchigatana"), RenderKatana::new);
 		
 		ModLoader.get().postEvent(new PatchedRenderersEvent.RegisterItemRenderer(itemRenderers));
@@ -244,7 +245,7 @@ public class RenderEngine {
 		for (Map.Entry<ResourceLocation, JsonElement> entry : objects.entrySet()) {
 			ResourceLocation rl = entry.getKey();
 			String pathString = rl.getPath();
-			ResourceLocation registryName = ResourceLocation.fromNamespaceAndPath(rl.getNamespace(), pathString);
+			ResourceLocation registryName = new ResourceLocation(rl.getNamespace(), pathString);
 			
 			if (!ForgeRegistries.ITEMS.containsKey(registryName)) {
 				EpicFightMod.LOGGER.warn("Failed to load item skin: no item named " + registryName);
@@ -255,7 +256,7 @@ public class RenderEngine {
 			Function<JsonElement, RenderItemBase> rendererProvider;
 			
 			if (entry.getValue().getAsJsonObject().has("renderer")) {
-				ResourceLocation rendererName = ResourceLocation.parse(entry.getValue().getAsJsonObject().get("renderer").getAsString());
+				ResourceLocation rendererName = new ResourceLocation(entry.getValue().getAsJsonObject().get("renderer").getAsString());
 				
 				if (itemRenderers.containsKey(rendererName)) {
 					rendererProvider = itemRenderers.get(rendererName);
@@ -316,12 +317,12 @@ public class RenderEngine {
 			this.entityRendererCache.put(entityType, this.basicHumanoidRenderer);
 		} else if ("epicfight:custom".equals(rendererName)) {
 			if (compound.getBoolean("humanoid")) {
-				this.entityRendererCache.put(entityType, new PCustomHumanoidEntityRenderer<> (Meshes.getOrCreate(ResourceLocation.parse(compound.getString("model")), (jsonAssetLoader) -> jsonAssetLoader.loadSkinnedMesh(HumanoidMesh::new)), context, entityType));
+				this.entityRendererCache.put(entityType, new PCustomHumanoidEntityRenderer<> (Meshes.getOrCreate(new ResourceLocation(compound.getString("model")), (jsonAssetLoader) -> jsonAssetLoader.loadSkinnedMesh(HumanoidMesh::new)), context, entityType));
 			} else {
-				this.entityRendererCache.put(entityType, new PCustomEntityRenderer(Meshes.getOrCreate(ResourceLocation.parse(compound.getString("model")), (jsonAssetLoader) -> jsonAssetLoader.loadSkinnedMesh(HumanoidMesh::new)), context));
+				this.entityRendererCache.put(entityType, new PCustomEntityRenderer(Meshes.getOrCreate(new ResourceLocation(compound.getString("model")), (jsonAssetLoader) -> jsonAssetLoader.loadSkinnedMesh(HumanoidMesh::new)), context));
 			}
 		} else {
-			EntityType<?> presetEntityType = ForgeRegistries.ENTITY_TYPES.getValue(ResourceLocation.parse(rendererName));
+			EntityType<?> presetEntityType = ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(rendererName));
 			
 			if (this.entityRendererProvider.containsKey(presetEntityType)) {
 				PatchedEntityRenderer renderer = this.entityRendererProvider.get(presetEntityType).apply(entityType);
@@ -507,6 +508,97 @@ public class RenderEngine {
 	
 	@Deprecated
 	public void setRangedWeaponThirdPerson(ViewportEvent.ComputeCameraAngles event, CameraType pov, double partialTicks) {}
+
+	public void applyItemTooltip(ItemStack itemStack, List<Component> tooltip) {
+		if (!ClientConfig.showEpicFightAttributesInTooltip || this.minecraft.player == null || this.minecraft.level == null) {
+			return;
+		}
+
+		EpicFightCapabilities.getUnparameterizedEntityPatch(this.minecraft.player, LocalPlayerPatch.class).ifPresent(playerpatch -> {
+			CapabilityItem cap = EpicFightCapabilities.getItemStackCapabilityOr(itemStack, null);
+
+			if (cap != null) {
+				if (InputManager.isActionPhysicallyActive(EpicFightInputAction.WEAPON_INNATE_SKILL_TOOLTIP)) {
+					Skill weaponInnateSkill = cap.getInnateSkill(playerpatch, itemStack);
+
+					if (weaponInnateSkill != null) {
+						tooltip.clear();
+						tooltip.addAll(weaponInnateSkill.getTooltipOnItem(itemStack, cap, playerpatch));
+					}
+				} else {
+					cap.modifyItemTooltip(itemStack, tooltip, playerpatch);
+
+					for (int i = 0; i < tooltip.size(); i++) {
+						Component textComp = tooltip.get(i);
+
+						if (!textComp.getSiblings().isEmpty()) {
+							Component sibling = textComp.getSiblings().get(0);
+
+							if (sibling instanceof MutableComponent mutableComponent && mutableComponent.getContents() instanceof TranslatableContents translatableContent) {
+								if (translatableContent.getArgs().length > 1 && translatableContent.getArgs()[1] instanceof MutableComponent mutableComponent$2) {
+									if (mutableComponent$2.getContents() instanceof TranslatableContents translatableContent$2) {
+										if (translatableContent$2.getKey().equals(Attributes.ATTACK_SPEED.getDescriptionId())) {
+											float weaponSpeed = (float)playerpatch.getWeaponAttribute(Attributes.ATTACK_SPEED, itemStack);
+											tooltip.remove(i);
+											tooltip.add(i, Component.literal(String.format(" %.2f ", playerpatch.getModifiedAttackSpeed(cap, weaponSpeed)))
+													.append(Component.translatable(Attributes.ATTACK_SPEED.getDescriptionId())));
+
+										} else if (translatableContent$2.getKey().equals(Attributes.ATTACK_DAMAGE.getDescriptionId())) {
+											float weaponDamage = (float)playerpatch.getWeaponAttribute(Attributes.ATTACK_DAMAGE, itemStack);
+											float damageBonus = EnchantmentHelper.getDamageBonus(itemStack, MobType.UNDEFINED);
+											String damageFormat = ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(playerpatch.getModifiedBaseDamage(weaponDamage) + damageBonus);
+
+											tooltip.remove(i);
+											tooltip.add(i, Component.literal(String.format(" %s ", damageFormat))
+																	.append(Component.translatable(Attributes.ATTACK_DAMAGE.getDescriptionId()))
+																	.withStyle(ChatFormatting.DARK_GREEN));
+										}
+									}
+								}
+							}
+						}
+					}
+
+					Skill weaponInnateSkill = cap.getInnateSkill(playerpatch, itemStack);
+
+					if (weaponInnateSkill != null) {
+						tooltip.add(Component.translatable("inventory.epicfight.guide_innate_tooltip", EpicFightKeyMappings.WEAPON_INNATE_SKILL_TOOLTIP.getKey().getDisplayName()).withStyle(ChatFormatting.DARK_GRAY));
+					}
+				}
+			}
+		});
+	}
+
+	public void renderFabricHud(GuiGraphics guiGraphics, float partialTick) {
+		Window window = this.minecraft.getWindow();
+		LocalPlayerPatch playerpatch = ClientEngine.getInstance().getPlayerPatch();
+
+		if (playerpatch != null) {
+			int screenWidth = window.getGuiScaledWidth();
+			int screenHeight = window.getGuiScaledHeight();
+
+			playerpatch.getSkillCapability().listSkillContainers().forEach(skillContainer -> {
+				if (skillContainer.getSkill() != null) {
+					skillContainer.getSkill().onScreen(playerpatch, screenWidth, screenHeight);
+				}
+			});
+
+			this.overlayManager.renderTick(screenWidth, screenHeight);
+
+			if (Minecraft.renderNames() && !(Minecraft.getInstance().screen instanceof UISetupScreen)) {
+				this.battleModeUI.renderTick();
+			}
+
+			if (!this.minecraft.options.hideGui) {
+				this.battleModeUI.renderStaminaBar(null, guiGraphics, partialTick, screenWidth, screenHeight);
+				this.battleModeUI.renderNormalSkills(null, guiGraphics, partialTick, screenWidth, screenHeight);
+				this.battleModeUI.renderWeaponInnateSkill(null, guiGraphics, partialTick, screenWidth, screenHeight);
+				this.battleModeUI.renderCharingBar(null, guiGraphics, partialTick, screenWidth, screenHeight);
+			}
+
+			this.versionNotifier.render(guiGraphics, true);
+		}
+	}
 	
 	@Mod.EventBusSubscriber(modid = EpicFightMod.MODID, value = Dist.CLIENT)
 	public static class Events {
@@ -522,11 +614,12 @@ public class RenderEngine {
 			
 			if (renderEngine.hasRendererFor(livingentity)) {
 				LivingEntityPatch<?> entitypatch = EpicFightCapabilities.getEntityPatch(livingentity, LivingEntityPatch.class);
+				boolean shouldOverrideRender = entitypatch != null && entitypatch.overrideRender();
 				float originalYRot = 0.0F;
-
+				
 				// Draw the player in inventory
 				if ((event.getPartialTick() == 0.0F || event.getPartialTick() == 1.0F) && entitypatch instanceof LocalPlayerPatch localplayerpatch) {
-					if (entitypatch.overrideRender()) {
+					if (shouldOverrideRender) {
 						originalYRot = localplayerpatch.getModelYRot();
 						localplayerpatch.setModelYRotInGui(livingentity.getYRot());
 						event.getPoseStack().translate(0, 0.1D, 0);
@@ -544,7 +637,7 @@ public class RenderEngine {
 					return;
 				}
 				
-				if (entitypatch != null && entitypatch.overrideRender()) {
+				if (shouldOverrideRender) {
 					renderEngine.renderEntityArmatureModel(livingentity, entitypatch, event.getRenderer(), event.getMultiBufferSource(), event.getPoseStack(), event.getPackedLight(), event.getPartialTick());
 					
 					if (renderEngine.shouldRenderVanillaModel()) {
@@ -571,66 +664,7 @@ public class RenderEngine {
 		
 		@SubscribeEvent
 		public static void itemTooltip(ItemTooltipEvent event) {
-			if (ClientConfig.showEpicFightAttributesInTooltip && event.getEntity() != null && event.getEntity().level().isClientSide) {
-				EpicFightCapabilities.getUnparameterizedEntityPatch(event.getEntity(), LocalPlayerPatch.class).ifPresent(playerpatch -> {
-					CapabilityItem cap = EpicFightCapabilities.getItemStackCapabilityOr(event.getItemStack(), null);
-					
-					if (cap != null) {
-						if (InputManager.isActionPhysicallyActive(EpicFightInputAction.WEAPON_INNATE_SKILL_TOOLTIP)) {
-							Skill weaponInnateSkill = cap.getInnateSkill(playerpatch, event.getItemStack());
-
-							if (weaponInnateSkill != null) {
-								event.getToolTip().clear();
-								List<Component> skilltooltip = weaponInnateSkill.getTooltipOnItem(event.getItemStack(), cap, playerpatch);
-
-								for (Component s : skilltooltip) {
-									event.getToolTip().add(s);
-								}
-							}
-						} else {
-							List<Component> tooltip = event.getToolTip();
-							cap.modifyItemTooltip(event.getItemStack(), event.getToolTip(), playerpatch);
-							
-							for (int i = 0; i < tooltip.size(); i++) {
-								Component textComp = tooltip.get(i);
-								
-								if (!textComp.getSiblings().isEmpty()) {
-									Component sibling = textComp.getSiblings().get(0);
-									
-									if (sibling instanceof MutableComponent mutableComponent && mutableComponent.getContents() instanceof TranslatableContents translatableContent) {
-										if (translatableContent.getArgs().length > 1 && translatableContent.getArgs()[1] instanceof MutableComponent mutableComponent$2) {
-											if (mutableComponent$2.getContents() instanceof TranslatableContents translatableContent$2) {
-												if (translatableContent$2.getKey().equals(Attributes.ATTACK_SPEED.getDescriptionId())) {
-													float weaponSpeed = (float)playerpatch.getWeaponAttribute(Attributes.ATTACK_SPEED, event.getItemStack());
-													tooltip.remove(i);
-													tooltip.add(i, Component.literal(String.format(" %.2f ", playerpatch.getModifiedAttackSpeed(cap, weaponSpeed)))
-															.append(Component.translatable(Attributes.ATTACK_SPEED.getDescriptionId())));
-													
-												} else if (translatableContent$2.getKey().equals(Attributes.ATTACK_DAMAGE.getDescriptionId())) {
-													float weaponDamage = (float)playerpatch.getWeaponAttribute(Attributes.ATTACK_DAMAGE, event.getItemStack());
-													float damageBonus = EnchantmentHelper.getDamageBonus(event.getItemStack(), MobType.UNDEFINED);
-													String damageFormat = ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(playerpatch.getModifiedBaseDamage(weaponDamage) + damageBonus);
-													
-													tooltip.remove(i);
-													tooltip.add(i, Component.literal(String.format(" %s ", damageFormat))
-																			.append(Component.translatable(Attributes.ATTACK_DAMAGE.getDescriptionId()))
-																			.withStyle(ChatFormatting.DARK_GREEN));
-												}
-											}
-										}
-									}
-								}
-							}
-							
-							Skill weaponInnateSkill = cap.getInnateSkill(playerpatch, event.getItemStack());
-							
-							if (weaponInnateSkill != null) {
-								event.getToolTip().add(Component.translatable("inventory.epicfight.guide_innate_tooltip", EpicFightKeyMappings.WEAPON_INNATE_SKILL_TOOLTIP.getKey().getDisplayName()).withStyle(ChatFormatting.DARK_GRAY));
-							}
-						}
-					}
-				});
-			}
+			renderEngine.applyItemTooltip(event.getItemStack(), event.getToolTip());
 		}
 		
 		private static final Vector3f CAMERA_ROTATION_EULER = new Vector3f();
@@ -743,11 +777,12 @@ public class RenderEngine {
 			
 			if (playerpatch != null) {
 				boolean isBattleMode = playerpatch.isEpicFightMode();
+				boolean useEpicFightModel = false;
 				
 				if (isBattleMode && ClientConfig.enableAnimatedFirstPersonModel) {
 					RenderItemBase mainhandItemSkin = renderEngine.getItemRenderer(playerpatch.getOriginal().getMainHandItem());
 					RenderItemBase offhandItemSkin = renderEngine.getItemRenderer(playerpatch.getOriginal().getOffhandItem());
-					boolean useEpicFightModel = (mainhandItemSkin == null || !mainhandItemSkin.forceVanillaFirstPerson()) && (offhandItemSkin == null || !offhandItemSkin.forceVanillaFirstPerson());
+					useEpicFightModel = (mainhandItemSkin == null || !mainhandItemSkin.forceVanillaFirstPerson()) && (offhandItemSkin == null || !offhandItemSkin.forceVanillaFirstPerson());
 					
 					if (useEpicFightModel) {
 						if (event.getHand() == InteractionHand.MAIN_HAND) {

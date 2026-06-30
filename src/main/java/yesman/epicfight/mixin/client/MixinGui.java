@@ -16,9 +16,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.phys.HitResult;
 import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
-import yesman.epicfight.client.events.engine.RenderEngine;
 import yesman.epicfight.client.gui.EntityUI;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.config.ClientConfig;
@@ -82,7 +80,7 @@ public abstract class MixinGui {
 		if (ClientConfig.mineBlockGuideOption.switchCrosshair()) {
 			EpicFightCapabilities.getUnparameterizedEntityPatch(this.minecraft.player, LocalPlayerPatch.class).ifPresent(playerpatch -> {
 				if (playerpatch.isVanillaMode()) {
-					drawVanillaCrosshair.setValue(RenderEngine.hitResultNotEquals(this.minecraft.hitResult, HitResult.Type.BLOCK));
+					drawVanillaCrosshair.setTrue();
 				} else {
 					drawVanillaCrosshair.setValue(playerpatch.canPlayAttackAnimation());
 				}

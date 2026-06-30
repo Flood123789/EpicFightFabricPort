@@ -49,8 +49,8 @@ public class AttackAnimationPropertyScreen extends Screen {
 		super(Component.translatable("datapack_edit.import_animation.client_data"));
 		
 		this.parentScreen = parentScreen;
-		this.minecraft = parentScreen.getMinecraft();
-		this.font = parentScreen.getMinecraft().font;
+		this.minecraft = net.minecraft.client.Minecraft.getInstance();
+		this.font = net.minecraft.client.Minecraft.getInstance().font;
 		
 		this.animation = animation;
 		this.modelPlayer = modelPlayer;
@@ -73,7 +73,7 @@ public class AttackAnimationPropertyScreen extends Screen {
 		
 		ScreenRectangle screenRect = this.getRectangle();
 		
-		this.trailGrid = Grid.builder(parentScreen, parentScreen.getMinecraft())
+		this.trailGrid = Grid.builder(parentScreen, net.minecraft.client.Minecraft.getInstance())
 								.xy1(15, 48)
 								.xy2(100, 50)
 								.verticalSizing(VerticalSizing.TOP_BOTTOM)

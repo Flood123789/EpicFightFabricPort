@@ -141,7 +141,7 @@ import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 @Mod.EventBusSubscriber(modid = EpicFightMod.MODID, bus = Bus.MOD)
 public class Animations {
 	public static DirectStaticAnimation EMPTY_ANIMATION = new DirectStaticAnimation() {
-		public static final ResourceLocation EMPTY_ANIMATION_REGISTRY_NAME = ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "empty");
+		public static final ResourceLocation EMPTY_ANIMATION_REGISTRY_NAME = new ResourceLocation(EpicFightMod.MODID, "empty");
 		
 		@Override
 		public void loadAnimation() {
@@ -2335,7 +2335,6 @@ public class Animations {
 					LightningBolt lightningbolt = EntityType.LIGHTNING_BOLT.create(level);
 					lightningbolt.setVisualOnly(true);
 					lightningbolt.moveTo(Vec3.atBottomCenterOf(blockpos));
-					lightningbolt.setDamage(0.0F);
 					lightningbolt.setCause(entitypatch instanceof ServerPlayerPatch serverPlayerPatch ? serverPlayerPatch.getOriginal() : null);
 					
 					DamageSource dmgSource = new DamageSource(e.level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(DamageTypes.LIGHTNING_BOLT), entitypatch.getOriginal());

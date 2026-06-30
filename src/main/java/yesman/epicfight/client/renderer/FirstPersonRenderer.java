@@ -20,6 +20,7 @@ import net.minecraft.client.renderer.entity.layers.CapeLayer;
 import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
 import net.minecraft.client.renderer.entity.layers.ElytraLayer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
+import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.client.renderer.entity.layers.PlayerItemInHandLayer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.layers.SpinAttackEffectLayer;
@@ -36,6 +37,7 @@ import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.client.mesh.HumanoidMesh;
 import yesman.epicfight.client.renderer.patched.entity.PatchedLivingEntityRenderer;
 import yesman.epicfight.client.renderer.patched.layer.EmptyLayer;
+import yesman.epicfight.client.renderer.patched.layer.PatchedLayer;
 import yesman.epicfight.client.renderer.patched.layer.PatchedItemInHandLayer;
 import yesman.epicfight.client.renderer.patched.layer.WearableItemLayer;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
@@ -46,6 +48,7 @@ public class FirstPersonRenderer extends PatchedLivingEntityRenderer<LocalPlayer
 		super(context, entityType);
 		
 		this.addPatchedLayer(ElytraLayer.class, new EmptyLayer<>());
+		this.addPatchedLayer(ItemInHandLayer.class, new PatchedItemInHandLayer<>());
 		this.addPatchedLayer(PlayerItemInHandLayer.class, new PatchedItemInHandLayer<>());
 		this.addPatchedLayer(HumanoidArmorLayer.class, new WearableItemLayer<>(Meshes.BIPED, true, context.getModelManager()));
 		this.addPatchedLayer(CustomHeadLayer.class, new EmptyLayer<>());
@@ -183,8 +186,10 @@ public class FirstPersonRenderer extends PatchedLivingEntityRenderer<LocalPlayer
 				rendererClass = rendererClass.getSuperclass();
 			}
 			
-			if (this.patchedLayers.containsKey(rendererClass)) {
-				this.patchedLayers.get(rendererClass).renderLayer(entity, entitypatch, layer, poseStack, buffer, packedLight, poses, bob, f2, f7, partialTicks);
+			PatchedLayer<LocalPlayer, LocalPlayerPatch, PlayerModel<LocalPlayer>, ? extends RenderLayer<LocalPlayer, PlayerModel<LocalPlayer>>> patchedLayer = this.findPatchedLayer(rendererClass);
+			
+			if (patchedLayer != null) {
+				patchedLayer.renderLayer(entity, entitypatch, layer, poseStack, buffer, packedLight, poses, bob, f2, f7, partialTicks);
 			}
 		}
 	}

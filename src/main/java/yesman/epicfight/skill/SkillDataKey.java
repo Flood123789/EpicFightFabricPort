@@ -48,7 +48,7 @@ public class SkillDataKey<T> {
 				} while (Skill.class.isAssignableFrom(skillClass));
 				
 				if (!dataKeySet.isEmpty()) {
-					EpicFightMod.LOGGER.info("Data keys "  + dataKeySet.stream().map(SkillDataKeys.REGISTRY.get()::getKey).toList() + " for " + skill.getRegistryName());
+					EpicFightMod.LOGGER.debug("Data keys "  + dataKeySet.stream().map(SkillDataKeys.REGISTRY.get()::getKey).toList() + " for " + skill.getRegistryName());
 				}
 			});
         }

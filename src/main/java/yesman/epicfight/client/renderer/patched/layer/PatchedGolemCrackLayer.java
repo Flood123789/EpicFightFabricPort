@@ -19,9 +19,9 @@ import yesman.epicfight.world.capabilities.entitypatch.mob.IronGolemPatch;
 
 public class PatchedGolemCrackLayer extends ModelRenderLayer<IronGolem, IronGolemPatch, IronGolemModel<IronGolem>, IronGolemCrackinessLayer, IronGolemMesh> {
 	private static final Map<IronGolem.Crackiness, ResourceLocation> CRACK_MAP = ImmutableMap.of(
-			IronGolem.Crackiness.LOW, ResourceLocation.withDefaultNamespace("textures/entity/iron_golem/iron_golem_crackiness_low.png"),
-			IronGolem.Crackiness.MEDIUM, ResourceLocation.withDefaultNamespace("textures/entity/iron_golem/iron_golem_crackiness_medium.png"),
-			IronGolem.Crackiness.HIGH, ResourceLocation.withDefaultNamespace("textures/entity/iron_golem/iron_golem_crackiness_high.png"));
+			IronGolem.Crackiness.LOW, new ResourceLocation("minecraft", "textures/entity/iron_golem/iron_golem_crackiness_low.png"),
+			IronGolem.Crackiness.MEDIUM, new ResourceLocation("minecraft", "textures/entity/iron_golem/iron_golem_crackiness_medium.png"),
+			IronGolem.Crackiness.HIGH, new ResourceLocation("minecraft", "textures/entity/iron_golem/iron_golem_crackiness_high.png"));
 	
 	public PatchedGolemCrackLayer(AssetAccessor<IronGolemMesh> mesh) {
 		super(mesh);

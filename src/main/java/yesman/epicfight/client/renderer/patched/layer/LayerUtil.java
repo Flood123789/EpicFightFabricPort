@@ -70,7 +70,7 @@ public class LayerUtil {
 					clss = Class.forName(targetLayer);
 				}
 				
-				ResourceLocation rl = ResourceLocation.parse(layerType);
+				ResourceLocation rl = new ResourceLocation(layerType);
 				
 				if (!layersbyid.containsKey(rl)) {
 					throw new NoSuchElementException("No layer type " + layerType);
@@ -86,7 +86,7 @@ public class LayerUtil {
 					
 					for (JsonElement conditionElement : conditionsArray) {
 						JsonObject conditionObj = conditionElement.getAsJsonObject();
-						Supplier<EntityPatchCondition> conditionProvider = EpicFightConditions.getConditionOrThrow(ResourceLocation.parse(GsonHelper.getAsString(conditionObj, "predicate")));
+						Supplier<EntityPatchCondition> conditionProvider = EpicFightConditions.getConditionOrThrow(new ResourceLocation(GsonHelper.getAsString(conditionObj, "predicate")));
 						EntityPatchCondition condition = conditionProvider.get();
 						condition.read(conditionObj);
 						conditions[idx] = condition;
@@ -136,8 +136,8 @@ public class LayerUtil {
 			throw new NoSuchElementException("Layer type epicfight:eyes requires to specify model");
 		}
 		
-		ResourceLocation textureLocation = ResourceLocation.parse(properties.get("texture").getAsString());
-		AssetAccessor<SkinnedMesh> mesh = Meshes.getOrCreate(ResourceLocation.parse(properties.get("model").getAsString()), jsonAssetLoader -> jsonAssetLoader.loadSkinnedMesh(SkinnedMesh::new));
+		ResourceLocation textureLocation = new ResourceLocation(properties.get("texture").getAsString());
+		AssetAccessor<SkinnedMesh> mesh = Meshes.getOrCreate(new ResourceLocation(properties.get("model").getAsString()), jsonAssetLoader -> jsonAssetLoader.loadSkinnedMesh(SkinnedMesh::new));
 		
 		return new PatchedEyesLayer<> (textureLocation, mesh);
 	}

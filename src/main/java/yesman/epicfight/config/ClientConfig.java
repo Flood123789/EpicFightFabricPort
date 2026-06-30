@@ -197,12 +197,7 @@ public class ClientConfig {
 	public static HorizontalBasis chargingBarBaseX;
 	public static VerticalBasis chargingBarBaseY;
 	
-	@SubscribeEvent
-    static void onLoad(final ModConfigEvent event) {
-		if (event.getConfig().getType() != ModConfig.Type.CLIENT) {
-			return;
-		}
-		
+	public static void loadValues() {
 		maxStuckProjectiles = MAX_STUCK_PROJECTILES.get();
 		targetOutlineColor = TARGET_OUTLINE_COLOR.get();
 		packedTargetOutlineColor = ColorSlider.rgbColor(targetOutlineColor);
@@ -231,10 +226,10 @@ public class ClientConfig {
         cameraPerspectiveToggleMode = CAMERA_PERSPECTIVE_TOGGLE_MODE.get();
 		
 		combatPreferredItems = BATTLE_MODE_SWITCHING_ITEMS.get().stream()
-				.map(itemName -> ForgeRegistries.ITEMS.getValue(ResourceLocation.parse(itemName)))
+				.map(itemName -> ForgeRegistries.ITEMS.getValue(new ResourceLocation(itemName)))
 				.collect(Collectors.toSet());
 		miningPreferredItems = MINING_MODE_SWITCHING_ITEMS.get().stream()
-				.map(itemName -> ForgeRegistries.ITEMS.getValue(ResourceLocation.parse(itemName)))
+				.map(itemName -> ForgeRegistries.ITEMS.getValue(new ResourceLocation(itemName)))
 				.collect(Collectors.toSet());
 		
 		if (combatPreferredItems.isEmpty() && miningPreferredItems.isEmpty()) {
@@ -260,6 +255,15 @@ public class ClientConfig {
 		chargingBarY = CHARGING_BAR_Y.get();
 		chargingBarBaseX = CHARGING_BAR_BASE_X.get();
 		chargingBarBaseY = CHARGING_BAR_BASE_Y.get();
+	}
+	
+	@SubscribeEvent
+    static void onLoad(final ModConfigEvent event) {
+		if (event.getConfig().getType() != ModConfig.Type.CLIENT) {
+			return;
+		}
+		
+		loadValues();
 		
 		if (EpicFightServerConnectionHelper.init(event.getConfig().getFullPath().getParent().toString())) {
 			EpicFightMod.LOGGER.info("Epic Fight web server connection helper: supported");
@@ -350,7 +354,7 @@ public class ClientConfig {
 		
 		if (!combatPreferredItems.equals(
 				BATTLE_MODE_SWITCHING_ITEMS.get().stream()
-					.map(itemName -> ForgeRegistries.ITEMS.getValue(ResourceLocation.parse(itemName)))
+					.map(itemName -> ForgeRegistries.ITEMS.getValue(new ResourceLocation(itemName)))
 					.collect(Collectors.toSet())
 			)
 		) {
@@ -360,7 +364,7 @@ public class ClientConfig {
 		if (
 			!miningPreferredItems.equals(
 				MINING_MODE_SWITCHING_ITEMS.get().stream()
-					.map(itemName -> ForgeRegistries.ITEMS.getValue(ResourceLocation.parse(itemName)))
+					.map(itemName -> ForgeRegistries.ITEMS.getValue(new ResourceLocation(itemName)))
 					.collect(Collectors.toSet())
 			)
 		) {
@@ -453,14 +457,14 @@ public class ClientConfig {
         if (cameraPerspectiveToggleMode != CAMERA_PERSPECTIVE_TOGGLE_MODE.get()) { CAMERA_PERSPECTIVE_TOGGLE_MODE.set(cameraPerspectiveToggleMode); CAMERA_PERSPECTIVE_TOGGLE_MODE.save(); }
 		
 		if (!combatPreferredItems.equals(BATTLE_MODE_SWITCHING_ITEMS.get().stream()
-				.map(itemName -> ForgeRegistries.ITEMS.getValue(ResourceLocation.parse(itemName)))
+				.map(itemName -> ForgeRegistries.ITEMS.getValue(new ResourceLocation(itemName)))
 				.collect(Collectors.toSet()))
 		) {
 			BATTLE_MODE_SWITCHING_ITEMS.set(combatPreferredItems.stream().map((item) -> ForgeRegistries.ITEMS.getKey(item).toString()).collect(Collectors.toList()));
 		}
 		if (
 			!miningPreferredItems.equals(MINING_MODE_SWITCHING_ITEMS.get().stream()
-			.map(itemName -> ForgeRegistries.ITEMS.getValue(ResourceLocation.parse(itemName)))
+			.map(itemName -> ForgeRegistries.ITEMS.getValue(new ResourceLocation(itemName)))
 			.collect(Collectors.toSet()))
 		) {
 			MINING_MODE_SWITCHING_ITEMS.set(miningPreferredItems.stream().map((item) -> ForgeRegistries.ITEMS.getKey(item).toString()).collect(Collectors.toList()));

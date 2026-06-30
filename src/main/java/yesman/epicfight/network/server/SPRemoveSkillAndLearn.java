@@ -33,19 +33,7 @@ public record SPRemoveSkillAndLearn(SkillSlot skillSlot, Skill skill) {
 	}
 	
 	public static void handle(SPRemoveSkillAndLearn msg, Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> {
-			Minecraft mc = Minecraft.getInstance();
-			PlayerPatch<?> playerpatch = (PlayerPatch<?>)mc.player.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null);
-			
-			if (playerpatch != null) {
-				playerpatch.getSkillCapability().removeLearnedSkill(msg.skill);
-				SkillContainer skillContainer = playerpatch.getSkill(msg.skillSlot);
-				
-				if (skillContainer.getSkill() == msg.skill) {
-					skillContainer.setSkill(null);
-				}
-			}
-		});
+		ctx.get().enqueueWork(() -> ClientboundPacketBridge.handle(msg));
 		ctx.get().setPacketHandled(true);
 	}
 }

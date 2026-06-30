@@ -18,8 +18,8 @@ import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
 import yesman.epicfight.api.client.input.InputManager;
 import yesman.epicfight.api.client.input.MovementDirection;
 import yesman.epicfight.api.client.input.action.MinecraftInputAction;
+import yesman.epicfight.api.utils.ClientOnlyUtils;
 import yesman.epicfight.api.utils.math.MathUtils;
-import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
@@ -111,7 +111,7 @@ public class PhantomAscentSkill extends Skill {
 						container.getExecutor().getOriginal().setDeltaMovement(newDelta.x, this.jumpPower + container.getExecutor().getOriginal().getJumpBoostPower(), currentDelta.z);
 						event.getPlayerPatch().setModelYRot(EpicFightCameraAPI.getInstance().getForwardYRot() + degree, true);
 						event.getPlayerPatch().playAnimationInClientSide(this.animations.get(vertic < 0 ? 1 : 0), 0.0F);
-						ClientEngine.getInstance().controlEngine.releaseAllServedKeys();
+						ClientOnlyUtils.releaseAllServedKeys();
 					};
 				} else {
 					container.getDataManager().setData(SkillDataKeys.JUMP_COUNT.get(), 1);

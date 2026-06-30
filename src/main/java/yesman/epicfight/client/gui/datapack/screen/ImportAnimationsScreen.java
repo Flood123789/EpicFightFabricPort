@@ -69,8 +69,8 @@ public class ImportAnimationsScreen extends Screen {
 		super(Component.literal("register_animation_screen"));
 		
 		this.parentScreen = parentScreen;
-		this.minecraft = parentScreen.getMinecraft();
-		this.font = parentScreen.getMinecraft().font;
+		this.minecraft = net.minecraft.client.Minecraft.getInstance();
+		this.font = net.minecraft.client.Minecraft.getInstance().font;
 		
 		this.userAnimations = DatapackEditScreen.getCurrentScreen().getUserAniamtions();
 		this.fakeAnimations.addAll(this.userAnimations.values().stream().map(PackEntry::getKey).map(EditorAnimation::deepCopy).toList());
@@ -80,7 +80,7 @@ public class ImportAnimationsScreen extends Screen {
 		ScreenRectangle screenRect = parentScreen.getRectangle();
 		int split = screenRect.width() / 2 - 60;
 		
-		this.animationGrid = Grid.builder(this, parentScreen.getMinecraft())
+		this.animationGrid = Grid.builder(this, net.minecraft.client.Minecraft.getInstance())
 									.xy1(8, screenRect.top() + 14)
 									.xy2(split - 10, screenRect.height() - 21)
 									.rowHeight(26)
@@ -841,7 +841,7 @@ public class ImportAnimationsScreen extends Screen {
 					try {
 						File file = path.toFile();
 						stream = new FileInputStream(file);
-						JsonAssetLoader jsonLoader = new JsonAssetLoader(stream, ResourceLocation.fromNamespaceAndPath(modid, file.getName()));
+						JsonAssetLoader jsonLoader = new JsonAssetLoader(stream, new ResourceLocation(modid, file.getName()));
 						String armatureName = this.modelPreviewer.getArmature().get().toString();
 						armatureName = armatureName.substring(armatureName.indexOf(":") + 1);
 						

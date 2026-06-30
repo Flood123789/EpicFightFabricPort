@@ -24,6 +24,8 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import yesman.epicfight.api.utils.ParseUtil;
+import yesman.epicfight.client.gui.datapack.ConditionParameterEditors;
+import yesman.epicfight.client.gui.datapack.ParameterEditor;
 import yesman.epicfight.client.gui.datapack.widgets.ComboBox;
 import yesman.epicfight.client.gui.datapack.widgets.Grid;
 import yesman.epicfight.client.gui.datapack.widgets.Grid.GridBuilder.RowEditButton;
@@ -33,7 +35,6 @@ import yesman.epicfight.client.gui.datapack.widgets.ResizableEditBox;
 import yesman.epicfight.client.gui.datapack.widgets.Static;
 import yesman.epicfight.data.conditions.Condition;
 import yesman.epicfight.data.conditions.Condition.EntityPatchCondition;
-import yesman.epicfight.data.conditions.Condition.ParameterEditor;
 import yesman.epicfight.data.conditions.EpicFightConditions;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 import yesman.epicfight.world.capabilities.item.CapabilityItem.Styles;
@@ -53,11 +54,11 @@ public class StylesScreen extends Screen {
 		super(Component.translatable("datapack_edit.weapon_type.styles"));
 		
 		this.parentScreen = parentScreen;
-		this.minecraft = parentScreen.getMinecraft();
-		this.font = parentScreen.getMinecraft().font;
+		this.minecraft = net.minecraft.client.Minecraft.getInstance();
+		this.font = net.minecraft.client.Minecraft.getInstance().font;
 		this.rootTag = rootTag;
 		
-		this.stylesGrid = Grid.builder(this, parentScreen.getMinecraft())
+		this.stylesGrid = Grid.builder(this, net.minecraft.client.Minecraft.getInstance())
 								.xy1(12, 60)
 								.xy2(160, 76)
 								.horizontalSizing(HorizontalSizing.LEFT_WIDTH)
@@ -72,7 +73,7 @@ public class StylesScreen extends Screen {
 									for (Tag tag : caseCompound.getList("conditions", Tag.TAG_COMPOUND)) {
 										CompoundTag conditionCompound = (CompoundTag)tag;
 										parameters.newRow();
-										parameters.newValue("condition", EpicFightConditions.getConditionOrNull(ResourceLocation.parse(conditionCompound.getString("predicate"))));
+										parameters.newValue("condition", EpicFightConditions.getConditionOrNull(new ResourceLocation(conditionCompound.getString("predicate"))));
 									}
 									
 									this.conditionGrid._setValue(parameters);
@@ -108,9 +109,9 @@ public class StylesScreen extends Screen {
 		this.defaultStyle = new ComboBox<>(parentScreen, this.font, 55, 116, 15, 53, HorizontalSizing.LEFT_WIDTH, VerticalSizing.HEIGHT_BOTTOM, 8, Component.translatable("datapack_edit.weapon_type.styles.default"),
 											new ArrayList<>(ParseUtil.remove(Style.ENUM_MANAGER.universalValues(), CapabilityItem.Styles.COMMON)), ParseUtil::snakeToSpacedCamel, null);
 		
-		this.font = parentScreen.getMinecraft().font;
+		this.font = net.minecraft.client.Minecraft.getInstance().font;
 		
-		this.conditionGrid = Grid.builder(this, parentScreen.getMinecraft())
+		this.conditionGrid = Grid.builder(this, net.minecraft.client.Minecraft.getInstance())
 									.xy1(187, 60)
 									.xy2(15, 50)
 									.horizontalSizing(HorizontalSizing.LEFT_RIGHT)
@@ -130,7 +131,7 @@ public class StylesScreen extends Screen {
 											CompoundTag conditionCompound = conditionList.getCompound(rowposition);
 											Grid.PackImporter parameters = new Grid.PackImporter();
 											
-											for (ParameterEditor editor : condition.getAcceptingParameters(this)) {
+											for (ParameterEditor editor : ConditionParameterEditors.getAcceptingParameters(condition, this)) {
 												parameters.newRow();
 												parameters.newValue("parameter_key", editor);
 												parameters.newValue("parameter_value", editor.fromTag.apply(conditionCompound.get(editor.editWidget.getMessage().getString())));
@@ -154,7 +155,7 @@ public class StylesScreen extends Screen {
 															Condition<?> condition = event.postValue.get();
 															Grid.PackImporter parameters = new Grid.PackImporter();
 															
-															for (ParameterEditor editor : condition.getAcceptingParameters(this)) {
+															for (ParameterEditor editor : ConditionParameterEditors.getAcceptingParameters(condition, this)) {
 																parameters.newRow();
 																parameters.newValue("parameter_key", editor);
 																parameters.newValue("parameter_value", editor.fromTag.apply(conditionCompound.get(editor.editWidget.getMessage().getString())));
@@ -186,7 +187,7 @@ public class StylesScreen extends Screen {
 									})
 									.build();
 		
-		this.parameterGrid = Grid.builder(this, parentScreen.getMinecraft())
+		this.parameterGrid = Grid.builder(this, net.minecraft.client.Minecraft.getInstance())
 									.xy1(187, 135)
 									.xy2(15, 52)
 									.horizontalSizing(HorizontalSizing.LEFT_RIGHT)
@@ -390,7 +391,7 @@ public class StylesScreen extends Screen {
 			
 			for (Tag conditionTag : tag.getList("conditions", Tag.TAG_COMPOUND)) {
 				CompoundTag conditionCompound = (CompoundTag)conditionTag;
-				Supplier<Condition<?>> condition = EpicFightConditions.getConditionOrThrow(ResourceLocation.parse(conditionCompound.getString("predicate")));
+				Supplier<Condition<?>> condition = EpicFightConditions.getConditionOrThrow(new ResourceLocation(conditionCompound.getString("predicate")));
 				condition.get().read(conditionCompound);
 			}
 			

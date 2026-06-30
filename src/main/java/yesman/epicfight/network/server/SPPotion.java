@@ -11,9 +11,9 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.network.NetworkEvent;
 
 public class SPPotion {
-	private final MobEffectInstance effectInstance;
-	private final Action action;
-	private final int entityId;
+	final MobEffectInstance effectInstance;
+	final Action action;
+	final int entityId;
 
 	public SPPotion() {
 		this.effectInstance = null;
@@ -45,21 +45,7 @@ public class SPPotion {
 	}
 	
 	public static void handle(SPPotion msg, Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(()->{
-			Minecraft mc = Minecraft.getInstance();
-			Entity entity = mc.level.getEntity(msg.entityId);
-			
-			if (entity != null && entity instanceof LivingEntity livEntity) {
-				switch (msg.action) {
-				case ACTIVATE -> {
-					livEntity.addEffect(msg.effectInstance);
-				}
-				case REMOVE -> {
-					livEntity.removeEffect(msg.effectInstance.getEffect());
-				}
-				}
-			}
-		});
+		ctx.get().enqueueWork(() -> ClientboundPacketBridge.handle(msg));
 		
 		ctx.get().setPacketHandled(true);
 	}

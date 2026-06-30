@@ -242,7 +242,7 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 			this.editingWidget = null;
 		} else {
 			if (this.editingColumn.editable) {
-				this.editingWidget = this.editingColumn.createEditWidget(this.owner, this.owner.getMinecraft().font, this.x0 + startX + 2, this.getRowTop(rowposition) + 2, this.itemHeight - 3, rowposition,
+				this.editingWidget = this.editingColumn.createEditWidget(this.owner, net.minecraft.client.Minecraft.getInstance().font, this.x0 + startX + 2, this.getRowTop(rowposition) + 2, this.itemHeight - 3, rowposition,
 																			this.getSelected(), columnName, this.getSelected().getValue(columnName));
 				
 				if (this.editingWidget != null) {
@@ -752,7 +752,7 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 		private RowEditButton rowEditButtons = RowEditButton.NONE;
 		
 		private GridBuilder(Screen owner) {
-			this(owner, owner.getMinecraft());
+			this(owner, net.minecraft.client.Minecraft.getInstance());
 		}
 		
 		private GridBuilder(Screen owner, Minecraft minecraft) {

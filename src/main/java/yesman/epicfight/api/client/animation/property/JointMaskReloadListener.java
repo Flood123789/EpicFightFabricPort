@@ -30,7 +30,7 @@ public class JointMaskReloadListener extends SimpleJsonResourceReloadListener {
 	}
 	
 	public static JointMaskSet getJointMaskEntry(String type) {
-		ResourceLocation rl = ResourceLocation.parse(type);
+		ResourceLocation rl = new ResourceLocation(type);
 		return JOINT_MASKS.getOrDefault(rl, JOINT_MASKS.get(NONE_MASK));
 	}
 	
@@ -73,7 +73,7 @@ public class JointMaskReloadListener extends SimpleJsonResourceReloadListener {
 			}
 			
 			String path = entry.getKey().toString();
-			ResourceLocation key = ResourceLocation.fromNamespaceAndPath(entry.getKey().getNamespace(), path.substring(path.lastIndexOf("/") + 1));
+			ResourceLocation key = new ResourceLocation(entry.getKey().getNamespace(), path.substring(path.lastIndexOf("/") + 1));
 			
 			JOINT_MASKS.put(key, JointMaskSet.of(masks));
 		}

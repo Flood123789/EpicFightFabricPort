@@ -26,7 +26,7 @@ public class DirectStaticAnimation extends StaticAnimation implements AnimationA
 	public DirectStaticAnimation(ResourceLocation baseAnimPath, float transitionTime, boolean repeatPlay, String registryName, AssetAccessor<? extends Armature> armature) {
 		super(baseAnimPath, transitionTime, repeatPlay, registryName, armature);
 		
-		this.registryName = ResourceLocation.parse(registryName);
+		this.registryName = new ResourceLocation(registryName);
 	}
 	
 	@Override

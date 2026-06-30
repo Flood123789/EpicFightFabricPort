@@ -13,9 +13,13 @@ public class RenderEnderDragonEvent extends Event {
 	private final EnderDragon entity;
     private final EnderDragonRenderer renderer;
     private final float partialRenderTick;
-    private final PoseStack poseStack;
+	private final PoseStack poseStack;
     private final MultiBufferSource buffers;
     private final int light;
+    
+	public RenderEnderDragonEvent() {
+		this(null, null, 0.0F, null, null, 0);
+	}
 	
 	public RenderEnderDragonEvent(EnderDragon entity, EnderDragonRenderer renderer, float partialRenderTick, PoseStack poseStack, MultiBufferSource buffers, int light) {
 		this.entity = entity;

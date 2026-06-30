@@ -17,6 +17,10 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public class SPAnimationVariablePacket<T> extends AnimationVariablePacket<T> {
 	protected int entityId;
+
+	public int getEntityId() {
+		return this.entityId;
+	}
 	
 	public SPAnimationVariablePacket(LivingEntityPatch<?> entitypatch, SynchedAnimationVariableKey<T> animationVariableKey, @Nullable AssetAccessor<? extends StaticAnimation> animation, T value, Action action) {
 		super(animationVariableKey, animation, value, action);
@@ -49,9 +53,7 @@ public class SPAnimationVariablePacket<T> extends AnimationVariablePacket<T> {
 	}
 	
 	public static <T> void handle(SPAnimationVariablePacket<T> msg, Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> {
-			EpicFightCapabilities.getUnparameterizedEntityPatch(Minecraft.getInstance().player.level().getEntity(msg.entityId), LivingEntityPatch.class).ifPresent(msg::process);
-		});
+		ctx.get().enqueueWork(() -> ClientboundPacketBridge.handle(msg));
 		ctx.get().setPacketHandled(true);
 	}
 }

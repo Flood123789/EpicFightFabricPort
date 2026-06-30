@@ -11,7 +11,7 @@ import yesman.epicfight.client.world.util.FakeLevel;
 
 @Mixin(value = ClientLevel.class)
 public abstract class MixinClientLevel {
-    @Redirect(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/eventbus/api/IEventBus;post(Lnet/minecraftforge/eventbus/api/Event;)Z"))
+    @Redirect(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/eventbus/api/IEventBus;post(Lnet/minecraftforge/eventbus/api/Event;)Z"), require = 0)
     private boolean epicfight$init(IEventBus instance, Event e) {
         if (((ClientLevel)(Object)this) instanceof FakeLevel) {
             return false;

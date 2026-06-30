@@ -4,7 +4,6 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.List;
 
-import org.joml.Matrix3f;
 import org.joml.Vector3f;
 import org.lwjgl.system.MemoryStack;
 
@@ -151,10 +150,9 @@ public class SodiumFakeBlockRenderer implements FakeBlockRenderer {
 					f5 = afloat[k] * pBlue;
 				}
 
-				int l = vertexConsumer.applyBakedLighting(pCombinedLights[k], bytebuffer);
+				int l = pCombinedLights[k];
 				float f9 = bytebuffer.getFloat(16);
 				float f10 = bytebuffer.getFloat(20);
-				vertexConsumer.applyBakedNormals(vector3f, bytebuffer, new Matrix3f());
 				float vertexAlpha = pMulColor ? alpha * (float) (bytebuffer.get(15) & 255) / 255.0F : alpha;
 				vertexConsumer.vertex(outX, outY, outZ, f3, f4, f5, vertexAlpha, f9, f10, pCombinedOverlay, l, vector3f.x(), vector3f.y(), vector3f.z());
 			}

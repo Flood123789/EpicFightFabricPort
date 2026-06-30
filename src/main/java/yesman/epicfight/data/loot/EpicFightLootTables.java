@@ -1,5 +1,8 @@
 package yesman.epicfight.data.loot;
 
+import java.util.Arrays;
+import java.util.function.Consumer;
+
 import com.mojang.serialization.Codec;
 
 import net.minecraft.core.Registry;
@@ -7,6 +10,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
@@ -32,16 +36,25 @@ public class EpicFightLootTables {
 	public static void registerLootItemFunctionType() {
 		Registry.register(BuiltInRegistries.LOOT_FUNCTION_TYPE, EpicFightMod.identifier("set_skill"), SET_SKILLBOOK_SKILL);
 	}
+
+	private static void addPool(LootTable table, LootPool pool) {
+		table.pools = Arrays.copyOf(table.pools, table.pools.length + 1);
+		table.pools[table.pools.length - 1] = pool;
+	}
 	
 	@SubscribeEvent
 	public static void modifyVanillaLootPools(final LootTableLoadEvent event) {
+		modifyVanillaLootPools(event.getName(), pool -> addPool(event.getTable(), pool));
+    }
+
+	public static void modifyVanillaLootPools(ResourceLocation name, Consumer<LootPool> poolConsumer) {
 		int modifier = CommonConfig.skillBookChestLootModifier;
 		int dropChance = 100 + modifier;
 		int antiDropChance = 100 - modifier;
 		float dropChanceModifier = dropChance / (float)(antiDropChance + dropChance);
 		
-    	if (event.getName().equals(BuiltInLootTables.DESERT_PYRAMID)) {
-    		event.getTable().addPool(LootPool.lootPool().setRolls(UniformGenerator.between(1.0F, 2.0F))
+    	if (name.equals(BuiltInLootTables.DESERT_PYRAMID)) {
+    		poolConsumer.accept(LootPool.lootPool().setRolls(UniformGenerator.between(1.0F, 2.0F))
     			.add(LootItem.lootTableItem(EpicFightItems.SKILLBOOK.get()).apply(SetSkillFunction.builder(
     				"epicfight:berserker",
     				"epicfight:stamina_pillager",
@@ -54,13 +67,13 @@ public class EpicFightLootTables {
     			)).when(LootItemRandomChanceCondition.randomChance(dropChanceModifier)))
     		.build());
     		
-    		event.getTable().addPool(LootPool.lootPool().when(LootItemRandomChanceCondition.randomChance(0.25F))
+    		poolConsumer.accept(LootPool.lootPool().when(LootItemRandomChanceCondition.randomChance(0.25F))
     			.add(LootItem.lootTableItem(EpicFightItems.UCHIGATANA.get()))
     		.build());
     	}
     	
-    	if (event.getName().equals(BuiltInLootTables.JUNGLE_TEMPLE)) {
-    		event.getTable().addPool(LootPool.lootPool().setRolls(UniformGenerator.between(1.0F, 2.0F))
+    	if (name.equals(BuiltInLootTables.JUNGLE_TEMPLE)) {
+    		poolConsumer.accept(LootPool.lootPool().setRolls(UniformGenerator.between(1.0F, 2.0F))
         		.add(LootItem.lootTableItem(EpicFightItems.SKILLBOOK.get()).apply(SetSkillFunction.builder(
     				"epicfight:berserker",
     				"epicfight:stamina_pillager",
@@ -73,13 +86,13 @@ public class EpicFightLootTables {
         		))).when(LootItemRandomChanceCondition.randomChance(dropChanceModifier))
         	.build());
     		
-    		event.getTable().addPool(LootPool.lootPool().when(LootItemRandomChanceCondition.randomChance(0.25F))
+    		poolConsumer.accept(LootPool.lootPool().when(LootItemRandomChanceCondition.randomChance(0.25F))
     			.add(LootItem.lootTableItem(EpicFightItems.UCHIGATANA.get()))
     		.build());
     	}
     	
-    	if (event.getName().equals(BuiltInLootTables.SIMPLE_DUNGEON)) {
-    		event.getTable().addPool(LootPool.lootPool().setRolls(UniformGenerator.between(1.0F, 3.0F))
+    	if (name.equals(BuiltInLootTables.SIMPLE_DUNGEON)) {
+    		poolConsumer.accept(LootPool.lootPool().setRolls(UniformGenerator.between(1.0F, 3.0F))
         		.add(LootItem.lootTableItem(EpicFightItems.SKILLBOOK.get()).apply(SetSkillFunction.builder(
     				"epicfight:berserker",
     				"epicfight:stamina_pillager",
@@ -92,8 +105,8 @@ public class EpicFightLootTables {
         	.build());
     	}
     	
-    	if (event.getName().equals(BuiltInLootTables.ABANDONED_MINESHAFT)) {
-    		event.getTable().addPool(LootPool.lootPool().setRolls(UniformGenerator.between(1.0F, 3.0F))
+    	if (name.equals(BuiltInLootTables.ABANDONED_MINESHAFT)) {
+    		poolConsumer.accept(LootPool.lootPool().setRolls(UniformGenerator.between(1.0F, 3.0F))
         		.add(LootItem.lootTableItem(EpicFightItems.SKILLBOOK.get()).apply(SetSkillFunction.builder(
     				"epicfight:berserker",
     				"epicfight:stamina_pillager",
@@ -106,8 +119,8 @@ public class EpicFightLootTables {
         	.build());
     	}
     	
-    	if (event.getName().equals(BuiltInLootTables.PILLAGER_OUTPOST)) {
-    		event.getTable().addPool(LootPool.lootPool().setRolls(UniformGenerator.between(1.0F, 3.0F))
+    	if (name.equals(BuiltInLootTables.PILLAGER_OUTPOST)) {
+    		poolConsumer.accept(LootPool.lootPool().setRolls(UniformGenerator.between(1.0F, 3.0F))
         		.add(LootItem.lootTableItem(EpicFightItems.SKILLBOOK.get()).apply(SetSkillFunction.builder(
     				"epicfight:berserker",
     				"epicfight:stamina_pillager",
@@ -120,8 +133,8 @@ public class EpicFightLootTables {
         	.build());
     	}
     	
-    	if (event.getName().equals(BuiltInLootTables.UNDERWATER_RUIN_BIG)) {
-    		event.getTable().addPool(LootPool.lootPool().setRolls(UniformGenerator.between(1.0F, 3.0F))
+    	if (name.equals(BuiltInLootTables.UNDERWATER_RUIN_BIG)) {
+    		poolConsumer.accept(LootPool.lootPool().setRolls(UniformGenerator.between(1.0F, 3.0F))
         		.add(LootItem.lootTableItem(EpicFightItems.SKILLBOOK.get()).apply(SetSkillFunction.builder(
     				"epicfight:berserker",
     				"epicfight:stamina_pillager",
@@ -135,8 +148,8 @@ public class EpicFightLootTables {
         	.build());
     	}
     	
-    	if (event.getName().equals(BuiltInLootTables.SHIPWRECK_MAP)) {
-    		event.getTable().addPool(LootPool.lootPool().setRolls(UniformGenerator.between(1.0F, 2.0F))
+    	if (name.equals(BuiltInLootTables.SHIPWRECK_MAP)) {
+    		poolConsumer.accept(LootPool.lootPool().setRolls(UniformGenerator.between(1.0F, 2.0F))
         		.add(LootItem.lootTableItem(EpicFightItems.SKILLBOOK.get()).apply(SetSkillFunction.builder(
     				"epicfight:berserker",
     				"epicfight:stamina_pillager",
@@ -149,8 +162,8 @@ public class EpicFightLootTables {
         	.build());
     	}
     	
-    	if (event.getName().equals(BuiltInLootTables.STRONGHOLD_LIBRARY)) {
-    		event.getTable().addPool(LootPool.lootPool().setRolls(UniformGenerator.between(1.0F, 5.0F))
+    	if (name.equals(BuiltInLootTables.STRONGHOLD_LIBRARY)) {
+    		poolConsumer.accept(LootPool.lootPool().setRolls(UniformGenerator.between(1.0F, 5.0F))
     			.add(LootItem.lootTableItem(EpicFightItems.SKILLBOOK.get()).apply(SetSkillFunction.builder(
     				"epicfight:berserker",
     				"epicfight:stamina_pillager",
@@ -166,8 +179,8 @@ public class EpicFightLootTables {
     		.build());
     	}
     	
-    	if (event.getName().equals(BuiltInLootTables.WOODLAND_MANSION)) {
-    		event.getTable().addPool(LootPool.lootPool().setRolls(UniformGenerator.between(1.0F, 5.0F))
+    	if (name.equals(BuiltInLootTables.WOODLAND_MANSION)) {
+    		poolConsumer.accept(LootPool.lootPool().setRolls(UniformGenerator.between(1.0F, 5.0F))
     			.add(LootItem.lootTableItem(EpicFightItems.SKILLBOOK.get()).apply(SetSkillFunction.builder(
     				"epicfight:berserker",
     				"epicfight:stamina_pillager",
@@ -183,8 +196,8 @@ public class EpicFightLootTables {
     		.build());
     	}
     	
-    	if (event.getName().equals(BuiltInLootTables.BASTION_OTHER)) {
-    		event.getTable().addPool(LootPool.lootPool().setRolls(UniformGenerator.between(1.0F, 4.0F))
+    	if (name.equals(BuiltInLootTables.BASTION_OTHER)) {
+    		poolConsumer.accept(LootPool.lootPool().setRolls(UniformGenerator.between(1.0F, 4.0F))
     			.add(LootItem.lootTableItem(EpicFightItems.SKILLBOOK.get()).apply(SetSkillFunction.builder(
     				"epicfight:berserker",
     				"epicfight:stamina_pillager",

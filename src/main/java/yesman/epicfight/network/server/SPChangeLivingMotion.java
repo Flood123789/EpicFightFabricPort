@@ -22,11 +22,11 @@ import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
 public class SPChangeLivingMotion {
-	private final int entityId;
-	private int count;
-	private final boolean setChangesAsDefault;
-	private List<LivingMotion> motionList = Lists.newArrayList();
-	private List<AssetAccessor<? extends StaticAnimation>> animationList = Lists.newArrayList();
+	final int entityId;
+	int count;
+	final boolean setChangesAsDefault;
+	List<LivingMotion> motionList = Lists.newArrayList();
+	List<AssetAccessor<? extends StaticAnimation>> animationList = Lists.newArrayList();
 	
 	public SPChangeLivingMotion() {
 		this(-1);
@@ -105,28 +105,7 @@ public class SPChangeLivingMotion {
 	}
 	
 	public static void handle(SPChangeLivingMotion msg, Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> {
-			Minecraft mc = Minecraft.getInstance();
-			Entity entity = mc.player.level().getEntity(msg.entityId);
-			
-			if (entity != null) {
-				if (entity.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null) instanceof LivingEntityPatch<?> entitypatch) {
-					ClientAnimator animator = entitypatch.getClientAnimator();
-					animator.resetLivingAnimations();
-					animator.offAllLayers();
-					animator.resetMotion(false);
-					animator.resetCompositeMotion();
-					
-					for (int i = 0; i < msg.count; i++) {
-						entitypatch.getClientAnimator().addLivingAnimation(msg.motionList.get(i), msg.animationList.get(i));
-					}
-					
-					if (msg.setChangesAsDefault) {
-						animator.setCurrentMotionsAsDefault();
-					}
-				}
-			}
-		});
+		ctx.get().enqueueWork(() -> ClientboundPacketBridge.handle(msg));
 		
 		ctx.get().setPacketHandled(true);
 	}

@@ -47,7 +47,7 @@ public class EditorAnimation extends StaticAnimation implements AnimationAccesso
 	private JsonObject properties = new JsonObject();
 	
 	public EditorAnimation(String path, AssetAccessor<? extends Armature> armature, AnimationClip clip, JsonArray rawAnimation) {
-		super(ResourceLocation.withDefaultNamespace(""), 0.0F, false, "", armature);
+		super(new ResourceLocation("minecraft", "empty"), 0.0F, false, "", armature);
 		
 		this.animationClip = clip;
 		this.rawAnimation = rawAnimation;
@@ -105,7 +105,7 @@ public class EditorAnimation extends StaticAnimation implements AnimationAccesso
 	
 	@Override
 	public ResourceLocation getRegistryName() {
-		return ResourceLocation.parse((String)this.constructorParams.get("path"));
+		return new ResourceLocation((String)this.constructorParams.get("path"));
 	}
 	
 	@Override
