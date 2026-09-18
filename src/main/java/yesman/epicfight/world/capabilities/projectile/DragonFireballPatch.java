@@ -3,8 +3,8 @@ package yesman.epicfight.world.capabilities.projectile;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.DragonFireball;
 import net.minecraft.world.phys.EntityHitResult;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.ProjectileImpactEvent;
+import yesman.epicfight.forgecompat.event.entity.EntityJoinLevelEvent;
+import yesman.epicfight.forgecompat.event.entity.ProjectileImpactEvent;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 
 public class DragonFireballPatch extends ProjectilePatch<DragonFireball> {

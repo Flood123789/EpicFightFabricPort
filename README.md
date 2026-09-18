@@ -7,6 +7,130 @@ Epic Fight will spice up your gameplay to a whole new level and bring great new 
 You'll face a new take on **Minecraft's combat**,  
 where all entities have new and challenging fighting mechanics.
 
+## Developer outline: how the mod fits together
+
+This section is a map for reading and changing the code. Start with the two Fabric entry points, then follow the
+runtime flow or the subsystem table below. Paths are relative to `src/main` unless stated otherwise.
+
+### The short version
+
+```text
+fabric.mod.json
+  |-- common entry point -> EpicFightFabricInitializer
+  |     |-- registries, commands, server callbacks, data reloaders
+  |     `-- packet registration and server packet listener
+  |
+  `-- client entry point -> EpicFightFabricClientInitializer
+        |-- controls, HUD, renderers, particles, shaders
+        `-- client callbacks, resource reloaders, client packet listener
+
+Minecraft Entity / ItemStack
+  `-- capability provider attaches an Epic Fight wrapper (called a "patch")
+        |-- EntityPatch / LivingEntityPatch / PlayerPatch / MobPatch
+        |-- CapabilityItem / WeaponCapability
+        |-- Animator + animation state
+        `-- SkillContainer + equipped Skill instances
+```
+
+A **patch** does not replace a Minecraft object. It wraps that object with Epic Fight state and behavior. For example,
+a `ServerPlayer` receives a `ServerPlayerPatch`, which owns combat mode, stamina, skills, animator state, and the
+player-specific event listener. Most combat code works with the patch and calls `getOriginal()` only when it needs the
+underlying Minecraft entity.
+
+### Startup and registration
+
+| Start here | Points to | What it does |
+| --- | --- | --- |
+| `resources/fabric.mod.json` | `main/EpicFightFabricInitializer.java` | Declares the common/server entry point, mod dependencies, mixins, and access widener. |
+| `main/EpicFightFabricInitializer.java` | registries, reload listeners, callbacks, commands, packets | Builds all gameplay-side systems. Its method order is the common startup order. |
+| `main/EpicFightFabricClientInitializer.java` | input, HUD, renderers, particles, shaders, client reloaders | Builds client-only systems and binds them to the local player. Dedicated servers must never load these classes. |
+| `main/EpicFightFabricEventBridge.java` | `events/*` through `forgecompat` events | Converts Fabric callbacks into the event shapes used by the shared Epic Fight code. |
+| `main/EpicFightFabricRegistryBridge.java` | `gameasset/*`, `world/item/*`, `world/entity/*`, and other registries | Moves deferred registrations into Minecraft/Fabric registries. |
+| `main/EpicFightMod.java` | shared constants and legacy setup helpers | The original shared/Forge-facing mod class. On Fabric, use the two Fabric initializers above as the actual entry points. |
+
+### Runtime flow: a player attack
+
+1. `client/input/*` and `client/events/engine/ControlEngine.java` interpret a key, mouse, or controller action.
+2. The appropriate `SkillContainer` checks its equipped `Skill`, stamina/cooldown, player mode, and current animation
+   state.
+3. A `network/client/CP*.java` packet sends the request to the server. `CP` means **client to server**.
+4. The server handler finds the player's `ServerPlayerPatch`, validates the action, and starts the skill/animation.
+5. `api/animation/types/AttackAnimation.java` uses animation phases and `api/collider/*` to find hit entities.
+6. Damage and stun are applied through `LivingEntityPatch` plus the events in `world/entity/eventlistener/*`.
+7. `network/server/SP*.java` packets mirror the accepted state to clients. `SP` means **server to client**.
+8. `client/renderer/*` reads the patched entity's animator and pose to render the model, weapon, trails, particles,
+   HUD, and camera effects.
+
+The server is authoritative: client code requests actions and predicts/presents them, but gameplay-changing decisions
+belong in the server handler or shared code running on the logical server.
+
+### Java subsystem map
+
+| Package | Responsibility | Useful starting points |
+| --- | --- | --- |
+| `main` | Fabric entry points and platform bridges | `EpicFightFabricInitializer`, `EpicFightFabricClientInitializer`, `EpicFightFabricEventBridge` |
+| `api/animation` | Skeleton poses, animation playback, state windows, root motion, and animation loading | `AnimationManager`, `Animator`, `DynamicAnimation`, `StaticAnimation`, `AttackAnimation` |
+| `api/collider` | Line, plane, and oriented-box hit detection used by attack phases | `Collider`, `OBBCollider`, `MultiCollider` |
+| `api/model` and `model/armature` | Mesh/armature data and named skeleton joints | `Armature`, `Joint`, `HumanoidArmature` |
+| `world/capabilities` | Attaches Epic Fight data/behavior to vanilla entities, items, projectiles, and players | `EpicFightCapabilities`, `EntityPatchProvider`, `ItemCapabilityProvider` |
+| `world/capabilities/entitypatch` | Combat-aware wrappers around Minecraft entities | `EntityPatch`, `LivingEntityPatch`, `PlayerPatch`, `MobPatch` |
+| `world/capabilities/item` | Weapon categories, styles, combos, colliders, and item attributes | `CapabilityItem`, `WeaponCapability`, `WeaponTypeReloadListener` |
+| `skill` | Skill definitions, slots, activation, resource use, cooldowns, and synchronized skill data | `Skill`, `SkillContainer`, `SkillDataManager`; implementations live in the subpackages |
+| `network` | Packet registration and distribution | `EpicFightNetworkManager`; `client/CP*` travels to the server, `server/SP*` travels to clients |
+| `client/events/engine` | High-level client control and rendering coordination | `ControlEngine`, `RenderEngine` |
+| `client/renderer` | Patched entity/item rendering, animation layers, trails, and shaders | `client/events/engine/RenderEngine`, `PatchedEntityRenderer`, `RenderingTool` |
+| `events` | Global gameplay event subscribers | `CapabilityEvents`, `EntityEvents`, `PlayerEvents`, `WorldEvents` |
+| `world/entity/eventlistener` | Fine-grained events owned by each patched player | `PlayerEventListener`, `EventTrigger`, and event classes such as `DealDamageEvent` |
+| `api/data/reloader` | Reads datapack definitions and rebuilds runtime data | `SkillManager`, `ItemCapabilityReloadListener`, `MobPatchReloadListener` |
+| `gameasset` | Java registrations for built-in animations, armatures, skills, sounds, and colliders | `Animations`, `Armatures`, `EpicFightSkills`, `EpicFightSounds` |
+| `mixin` | Hooks at points where Fabric events cannot expose the required Minecraft behavior | `mixins.epicfight.json` is the complete mixin list |
+| `forgecompat` | Small Forge-shaped compatibility layer used to keep shared/upstream code portable on Fabric | Treat this as platform plumbing, not gameplay code |
+| `compat` | Optional integrations, isolated by mod | Each `*Compat` class should guard access to classes from its optional dependency |
+| `config` | Common, server, and client configuration values | `CommonConfig`, `ServerConfig`, `ClientConfig` |
+| `world/item`, `world/entity`, `world/effect`, `world/level` | Concrete registered game content | The `EpicFight*` registry class in each package points to its implementations |
+| `server/commands` | `/epicfight`-related commands and arguments | `AnimatorCommand`, `PlayerModeCommand`, `PlayerSkillCommand`, `PlayerStaminaCommand` |
+
+### Resource and datapack map
+
+| Resource path | Consumed by | What changing it affects |
+| --- | --- | --- |
+| `resources/assets/epicfight/animmodels` | `AnimationManager`, mesh/armature loaders | Animation clips, armatures, and animated model geometry |
+| `resources/assets/epicfight/item_skins` | `ItemSkinsReloadListener` | How held/equipped items are rendered on animated models |
+| `resources/assets/epicfight/models`, `textures`, `shaders`, `particles`, `sounds` | client render/audio registrations | Visual and audio presentation |
+| `resources/assets/epicfight/lang` and `tips` | Minecraft localization and Epic Fight tip UI | Player-facing text; add matching translation keys when adding content |
+| `resources/data/epicfight/capabilities` | item and mob capability reloaders | Epic Fight behavior assigned to items and entities |
+| `resources/data/minecraft/capabilities` | the same capability reloaders | Epic Fight behavior assigned to vanilla Minecraft items/entities |
+| `resources/data/epicfight/skill_parameters` | `SkillManager` | Tunable values for registered skills without changing Java code |
+| `resources/data/epicfight/recipes`, `loot_modifiers`, `damage_type`, `tags` | Minecraft data loaders and Epic Fight reloaders | Recipes, skill-book loot, damage semantics, and grouping tags |
+| `resources/packs/epicfight_legacy` | built-in resource-pack registration | Optional legacy visuals |
+
+### Where should a change go?
+
+| Goal | Usually change |
+| --- | --- |
+| Add or tune a skill | A class under `skill/*`, its registration in `gameasset/EpicFightSkills.java`, and usually a `skill_parameters` JSON |
+| Add a weapon type or combo | `world/capabilities/item/*` plus capability JSON; animation registrations may also be needed |
+| Change when an attack can hit | `AttackAnimation`, its phase/state properties, or a collider class/preset |
+| Change player combat behavior | `PlayerPatch`/`ServerPlayerPatch`; client input presentation belongs in `LocalPlayerPatch` or `ControlEngine` |
+| Change a mob's combat AI | Its class under `world/capabilities/entitypatch/mob` and, when data-driven, the mob capability JSON |
+| Add a packet | Add the `CP*` or `SP*` type and register it in the exact same order on both sides in `EpicFightNetworkManager` |
+| Add a visual effect | A client renderer/particle/shader plus its registry call in `EpicFightFabricClientInitializer` |
+| Hook an uncovered vanilla action | Prefer a Fabric callback; otherwise add the smallest possible mixin and list it in `mixins.epicfight.json` |
+| Add optional mod support | A guarded module under `compat`; never reference optional-mod classes from an unconditional common entry point |
+
+### Naming clues
+
+- `*Patch`: Epic Fight state/behavior attached to a vanilla object.
+- `CP*` / `SP*`: client-to-server request / server-to-client synchronization packet.
+- `*ReloadListener`: rebuilds runtime objects when datapacks or resource packs reload.
+- `EpicFight*`: usually the central registry for one kind of content.
+- `Mixin*`: a narrow injection into Minecraft or an optional mod.
+- `forgecompat`: a local adapter that imitates the part of a Forge API used by shared code.
+
+When debugging, first decide which **logical side** owns the bad state, then locate the patch that owns it. From there,
+follow either its `SkillContainer`, `Animator`, or packet handler. That route is usually much shorter than starting from
+the renderer or a mixin.
+
 <img src="https://i.imgur.com/CWsUfxt.jpg" alt="Bold Breakline" width="1344" height="48" />
 
 ## **Controls**

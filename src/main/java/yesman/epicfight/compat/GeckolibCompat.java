@@ -2,10 +2,10 @@ package yesman.epicfight.compat;
 
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import yesman.epicfight.forgecompat.api.distmarker.Dist;
+import yesman.epicfight.forgecompat.api.distmarker.OnlyIn;
+import yesman.epicfight.forgecompat.eventbus.api.IEventBus;
+import yesman.epicfight.forgecompat.fml.event.lifecycle.FMLClientSetupEvent;
 import software.bernie.geckolib.event.GeoRenderEvent;
 import yesman.epicfight.api.client.model.transformer.GeoModelTransformer;
 import yesman.epicfight.api.client.model.transformer.HumanoidModelBaker;

@@ -3,8 +3,8 @@ package yesman.epicfight.compat;
 import java.util.UUID;
 
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
+import yesman.epicfight.forgecompat.event.entity.EntityJoinLevelEvent;
+import yesman.epicfight.forgecompat.eventbus.api.IEventBus;
 import team.creative.playerrevive.server.PlayerReviveServer;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;

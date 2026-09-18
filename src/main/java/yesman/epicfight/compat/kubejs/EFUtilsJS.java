@@ -1,8 +1,8 @@
 package yesman.epicfight.compat.kubejs;
 
 import dev.latvian.mods.kubejs.typings.Info;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import yesman.epicfight.forgecompat.api.distmarker.Dist;
+import yesman.epicfight.forgecompat.api.distmarker.OnlyIn;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.world.entity.eventlistener.SkillCastEvent;

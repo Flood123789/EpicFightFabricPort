@@ -7,11 +7,11 @@ import javax.annotation.Nullable;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 
 import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RegisterShadersEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import yesman.epicfight.forgecompat.api.distmarker.Dist;
+import yesman.epicfight.forgecompat.client.event.RegisterShadersEvent;
+import yesman.epicfight.forgecompat.eventbus.api.SubscribeEvent;
+import yesman.epicfight.forgecompat.fml.common.Mod;
+import yesman.epicfight.forgecompat.fml.common.Mod.EventBusSubscriber;
 import yesman.epicfight.main.EpicFightMod;
 
 @Mod.EventBusSubscriber(modid = EpicFightMod.MODID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)

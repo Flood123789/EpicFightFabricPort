@@ -10,8 +10,8 @@ import com.google.common.collect.Sets;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import yesman.epicfight.forgecompat.api.distmarker.Dist;
+import yesman.epicfight.forgecompat.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.animation.property.TrailInfo;
 import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.skill.SkillBuilder;

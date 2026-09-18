@@ -3,9 +3,9 @@ package yesman.epicfight.network;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import yesman.epicfight.forgecompat.registries.DeferredRegister;
+import yesman.epicfight.forgecompat.registries.ForgeRegistries;
+import yesman.epicfight.forgecompat.registries.RegistryObject;
 import yesman.epicfight.main.EpicFightMod;
 
 public class EpicFightDataSerializers {

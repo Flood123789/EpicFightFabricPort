@@ -6,13 +6,21 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import net.minecraft.core.Registry;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistry;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.RegistryBuilder;
-import net.minecraftforge.registries.RegistryManager;
-import net.minecraftforge.registries.RegistryObject;
+import yesman.epicfight.forgecompat.registries.DeferredRegister;
+import yesman.epicfight.forgecompat.registries.ForgeRegistry;
+import yesman.epicfight.forgecompat.registries.IForgeRegistry;
+import yesman.epicfight.forgecompat.registries.RegistryBuilder;
+import yesman.epicfight.forgecompat.registries.RegistryManager;
+import yesman.epicfight.forgecompat.registries.RegistryObject;
 
+/**
+ * Materializes Forge-style deferred registrations during Fabric startup.
+ *
+ * <p>The compatibility registry classes intentionally keep their internal
+ * collections private, so this one boundary uses reflection to read pending
+ * entries and reconnect each {@link RegistryObject} after registration. Keeping
+ * that reflection here prevents it from leaking into gameplay registries.</p>
+ */
 final class EpicFightFabricRegistryBridge {
 	private static final Field ENTRIES_FIELD;
 	private static final Field REGISTRY_FACTORY_FIELD;
@@ -41,6 +49,8 @@ final class EpicFightFabricRegistryBridge {
 	}
 	
 	static <T> void register(DeferredRegister<T> deferredRegister, IForgeRegistry<? super T> registry) {
+		// Custom Epic Fight/Forge-shaped registries are created on demand. Vanilla
+		// registries use the separate registerVanilla overload below.
 		if (registry == null) {
 			registry = createRegistry(deferredRegister);
 			
@@ -55,9 +65,16 @@ final class EpicFightFabricRegistryBridge {
 			if (!targetRegistry.containsKey(registryObject.getId())) {
 				targetRegistry.register(registryObject.getId(), supplier.get());
 			}
-			
+
 			updateReference(registryObject, targetRegistry);
 		});
+
+		// Forge bakes a registry once its contents are final, which is what builds the
+		// slave maps the id-based network codecs read. Nothing on the Fabric side fired
+		// that, so those maps stayed empty and every getId() answered -1.
+		if (targetRegistry instanceof ForgeRegistry<?> forgeRegistry) {
+			forgeRegistry.fireBake();
+		}
 	}
 	
 	static <T> void register(DeferredRegister<T> deferredRegister, Supplier<? extends IForgeRegistry<? super T>> registrySupplier) {
@@ -66,6 +83,8 @@ final class EpicFightFabricRegistryBridge {
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	static <T> void registerVanilla(DeferredRegister<T> deferredRegister, Registry<? super T> registry) {
+		// RegistryObject.get() cannot work until its reference is updated, even
+		// when the value has already been inserted by another compatibility layer.
 		entries(deferredRegister).forEach((registryObject, supplier) -> {
 			if (!registry.containsKey(registryObject.getId())) {
 				Registry.register((Registry)registry, registryObject.getId(), supplier.get());

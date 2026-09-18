@@ -1,6 +1,6 @@
 package yesman.epicfight.api.forgeevent;
 
-import net.minecraftforge.eventbus.api.Event;
+import yesman.epicfight.forgecompat.eventbus.api.Event;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 

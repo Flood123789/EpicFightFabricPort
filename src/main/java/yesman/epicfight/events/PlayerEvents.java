@@ -8,14 +8,14 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
-import net.minecraftforge.event.entity.player.ArrowLooseEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickItem;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.common.Mod;
+import yesman.epicfight.forgecompat.common.util.FakePlayer;
+import yesman.epicfight.forgecompat.event.entity.living.LivingEntityUseItemEvent;
+import yesman.epicfight.forgecompat.event.entity.player.ArrowLooseEvent;
+import yesman.epicfight.forgecompat.event.entity.player.PlayerEvent;
+import yesman.epicfight.forgecompat.event.entity.player.PlayerInteractEvent.RightClickItem;
+import yesman.epicfight.forgecompat.eventbus.api.SubscribeEvent;
+import yesman.epicfight.forgecompat.fml.LogicalSide;
+import yesman.epicfight.forgecompat.fml.common.Mod;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.common.AnimatorControlPacket;
@@ -80,8 +80,11 @@ public class PlayerEvents {
 	
 	@SubscribeEvent
 	public static void cloneEvent(PlayerEvent.Clone event) {
-		event.getOriginal().reviveCaps();
-		
+		ServerPlayerPatch existingOldCap = EpicFightCapabilities.getEntityPatch(event.getOriginal(), ServerPlayerPatch.class);
+		if (existingOldCap == null) {
+			yesman.epicfight.forgecompat.common.capabilities.ICapabilityProvider.reviveCaps(event.getOriginal());
+		}
+
 		EpicFightCapabilities.getUnparameterizedEntityPatch(event.getOriginal(), ServerPlayerPatch.class).ifPresent(oldCap -> {
 			EpicFightCapabilities.getPlayerPatchAsOptional(event.getEntity()).ifPresent(newCap -> {
 				if ((!event.isWasDeath() || EpicFightGameRules.KEEP_SKILLS.getRuleValue(event.getOriginal().level()))) {
@@ -92,7 +95,7 @@ public class PlayerEvents {
 			});
 		});
 		
-		event.getOriginal().invalidateCaps();
+		yesman.epicfight.forgecompat.common.capabilities.ICapabilityProvider.invalidateCaps(event.getOriginal());
 	}
 	
 	@SubscribeEvent

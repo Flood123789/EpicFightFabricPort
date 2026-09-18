@@ -26,3 +26,14 @@ ServerCommunicationHelper
 
 # Files from Forge MDK
 forge*changelog.txt
+
+# Local tool caches and scratch (added 2026-09-18; never commit)
+.codex-tmp/
+diagnostics/
+.vscode/
+cfr.jar
+# Punchy is All Rights Reserved; local reference only
+punchy/
+punchy.jar
+punchy_*.txt
+punchy_versions.json

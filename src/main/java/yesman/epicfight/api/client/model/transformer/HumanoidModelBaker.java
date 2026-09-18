@@ -26,7 +26,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.registries.ForgeRegistries;
+import yesman.epicfight.forgecompat.registries.ForgeRegistries;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.client.mesh.HumanoidMesh;
 import yesman.epicfight.main.EpicFightMod;

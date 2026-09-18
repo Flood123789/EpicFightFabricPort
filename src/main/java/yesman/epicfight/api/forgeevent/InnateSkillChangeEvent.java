@@ -2,8 +2,8 @@ package yesman.epicfight.api.forgeevent;
 
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
-import net.minecraftforge.eventbus.api.Event;
+import yesman.epicfight.forgecompat.event.entity.living.LivingEquipmentChangeEvent;
+import yesman.epicfight.forgecompat.eventbus.api.Event;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 

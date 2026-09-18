@@ -1,5 +1,9 @@
 package yesman.epicfight.network.server;
 
+import java.util.ArrayDeque;
+import java.util.Iterator;
+import java.util.Queue;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -16,6 +20,7 @@ import yesman.epicfight.api.exception.DatapackException;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.AbstractClientPlayerPatch;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
+import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.SkillDataManager;
 import yesman.epicfight.skill.modules.HoldableSkill;
@@ -25,8 +30,19 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.item.ItemKeywordReloadListener;
 import yesman.epicfight.world.capabilities.item.WeaponTypeReloadListener;
+import yesman.epicfight.world.capabilities.skill.CapabilitySkill;
+import yesman.epicfight.forgecompat.common.capabilities.ICapabilityProvider;
 
 public final class ClientboundPacketHandlers {
+	private static final int SKILL_PACKET_RETRY_TICKS = 100;
+	private static final int MAX_DEFERRED_CHANGE_SKILLS = 64;
+	private static final int MAX_DEFERRED_MODIFY_SKILL_DATA = 128;
+	private static final int MAX_DEFERRED_SKILL_CONTAINER_VALUES = 128;
+	private static final Queue<DeferredInitSkills> DEFERRED_INIT_SKILLS = new ArrayDeque<>();
+	private static final Queue<DeferredChangeSkill> DEFERRED_CHANGE_SKILLS = new ArrayDeque<>();
+	private static final Queue<DeferredModifySkillData> DEFERRED_MODIFY_SKILL_DATA = new ArrayDeque<>();
+	private static final Queue<DeferredSkillContainerValue> DEFERRED_SKILL_CONTAINER_VALUES = new ArrayDeque<>();
+
 	private ClientboundPacketHandlers() {
 	}
 
@@ -45,7 +61,7 @@ public final class ClientboundPacketHandlers {
 			return;
 		}
 
-		PlayerPatch<?> playerpatch = (PlayerPatch<?>)minecraft.player.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null);
+		PlayerPatch<?> playerpatch = (PlayerPatch<?>)ICapabilityProvider.getCapability(minecraft.player, EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null);
 
 		if (playerpatch == null) {
 			return;
@@ -83,7 +99,7 @@ public final class ClientboundPacketHandlers {
 			return;
 		}
 
-		if (entity.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null) instanceof LivingEntityPatch<?> entitypatch) {
+		if (ICapabilityProvider.getCapability(entity, EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null) instanceof LivingEntityPatch<?> entitypatch) {
 			ClientAnimator animator = entitypatch.getClientAnimator();
 			animator.resetLivingAnimations();
 			animator.offAllLayers();
@@ -104,7 +120,7 @@ public final class ClientboundPacketHandlers {
 		Entity entity = getEntity(msg.entityId);
 
 		if (entity != null) {
-			PlayerPatch<?> playerpatch = (PlayerPatch<?>)entity.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null);
+			PlayerPatch<?> playerpatch = (PlayerPatch<?>)ICapabilityProvider.getCapability(entity, EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null);
 
 			if (playerpatch != null) {
 				playerpatch.toMode(msg.mode, false);
@@ -113,15 +129,9 @@ public final class ClientboundPacketHandlers {
 	}
 
 	public static void handle(SPChangeSkill msg) {
-		EpicFightCapabilities.getUnparameterizedEntityPatch(getEntity(msg.entityId()), PlayerPatch.class).ifPresent(playerpatch -> {
-			playerpatch.getSkill(msg.skillSlot()).setSkill(msg.skill());
-
-			if (msg.skill() != null && msg.skillSlot().category().learnable()) {
-				playerpatch.getSkillCapability().addLearnedSkill(msg.skill());
-			}
-
-			playerpatch.getSkill(msg.skillSlot()).setDisabled(false);
-		});
+		if (!applyChangeSkill(msg)) {
+			deferChangeSkill(msg);
+		}
 	}
 
 	public static void handle(SPClearSkills msg) {
@@ -150,7 +160,7 @@ public final class ClientboundPacketHandlers {
 		Entity entity = getEntity(msg.entityId);
 
 		if (entity != null) {
-			EntityPatch<?> entitypatch = entity.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null);
+			EntityPatch<?> entitypatch = ICapabilityProvider.getCapability(entity, EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null);
 
 			if (entitypatch != null) {
 				entitypatch.fireEntityPairingEvent(msg);
@@ -163,17 +173,20 @@ public final class ClientboundPacketHandlers {
 	}
 
 	public static void handle(SPInitSkills msg) {
-		LocalPlayerPatch playerpatch = ClientEngine.getInstance().getPlayerPatch();
-
-		if (playerpatch != null) {
-			playerpatch.getSkillCapability().deserialize(msg.serializedSkill());
+		if (!applyInitSkills(msg)) {
+			deferInitSkills(msg);
 		}
 	}
 
 	public static void handle(SPModifyPlayerData msg) {
 		Entity entity = getEntity(msg.entityId);
+		EpicFightMod.LOGGER.debug(
+			"[EF-DIAG] received player-data packet type={} entityId={} entityPresent={}",
+			msg.packetType, msg.entityId, entity != null
+		);
 
-		if (entity != null && entity.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null) instanceof PlayerPatch<?> playerpatch) {
+		if (entity != null && ICapabilityProvider.getCapability(entity, EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null) instanceof PlayerPatch<?> playerpatch) {
+			PlayerPatch.PlayerMode beforeMode = playerpatch.getPlayerMode();
 			switch (msg.packetType) {
 			case SET_MODEL_YROT:
 				playerpatch.setModelYRot((float)msg.data.get("yaw"), false);
@@ -197,16 +210,23 @@ public final class ClientboundPacketHandlers {
 
 				break;
 			}
+			EpicFightMod.LOGGER.debug(
+				"[EF-DIAG] applied player-data packet type={} entityId={} patch={} mode={}->{} stamina={}/{}",
+				msg.packetType, msg.entityId, Integer.toHexString(System.identityHashCode(playerpatch)),
+				beforeMode, playerpatch.getPlayerMode(), playerpatch.getStamina(), playerpatch.getMaxStamina()
+			);
+		} else {
+			EpicFightMod.LOGGER.error(
+				"[EF-DIAG] could not apply player-data packet type={} entityId={} because entity/PlayerPatch was unavailable",
+				msg.packetType, msg.entityId
+			);
 		}
 	}
 
 	@SuppressWarnings("deprecation")
 	public static void handle(SPModifySkillData msg) {
-		Entity entity = getEntity(msg.entityId());
-
-		if (entity != null && entity.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null) instanceof PlayerPatch<?> playerpatch) {
-			SkillDataManager dataManager = playerpatch.getSkill(msg.slot()).getDataManager();
-			dataManager.setDataRawtype(msg.dataKey(), msg.value());
+		if (!applyModifySkillData(msg)) {
+			deferModifySkillData(msg);
 		}
 	}
 
@@ -253,7 +273,7 @@ public final class ClientboundPacketHandlers {
 			return;
 		}
 
-		PlayerPatch<?> playerpatch = (PlayerPatch<?>)minecraft.player.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null);
+		PlayerPatch<?> playerpatch = (PlayerPatch<?>)ICapabilityProvider.getCapability(minecraft.player, EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null);
 
 		if (playerpatch != null) {
 			playerpatch.getSkillCapability().removeLearnedSkill(msg.skill());
@@ -287,20 +307,9 @@ public final class ClientboundPacketHandlers {
 	}
 
 	public static void handle(SPSetSkillContainerValue msg) {
-		EpicFightCapabilities.getUnparameterizedEntityPatch(getEntity(msg.entityId()), PlayerPatch.class).ifPresent(playerpatch -> {
-			SkillContainer container = playerpatch.getSkill(msg.skillSlot());
-
-			switch (msg.target()) {
-			case ENABLE -> container.setDisabled(msg.boolVal());
-			case ACTIVATE -> { if (msg.boolVal()) container.activate(); else container.deactivate(); }
-			case RESOURCE -> container.setResource(msg.floatVal());
-			case DURATION -> container.setDuration((int)msg.floatVal());
-			case MAX_DURATION -> container.setMaxDuration((int)msg.floatVal());
-			case STACKS -> container.setStack((int)msg.floatVal());
-			case MAX_RESOURCE -> container.setMaxResource(msg.floatVal());
-			case REPLACE_COOLDOWN -> container.setReplaceCooldown((int)msg.floatVal());
-			}
-		});
+		if (!applySkillContainerValue(msg)) {
+			deferSkillContainerValue(msg);
+		}
 	}
 
 	public static void handle(SPSkillExecutionFeedback msg) {
@@ -343,7 +352,7 @@ public final class ClientboundPacketHandlers {
 		Entity entity = getEntity(msg.entityId);
 
 		if (entity != null) {
-			entity.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).ifPresent(entitypatch -> {
+			ICapabilityProvider.getCapability(entity, EpicFightCapabilities.CAPABILITY_ENTITY).ifPresent(entitypatch -> {
 				if (entitypatch instanceof PlayerPatch<?> playerpatch) {
 					playerpatch.dx = msg.strafe;
 					playerpatch.dz = msg.forward;
@@ -375,5 +384,236 @@ public final class ClientboundPacketHandlers {
 	private static Entity getEntity(int entityId) {
 		Minecraft minecraft = Minecraft.getInstance();
 		return minecraft.level == null ? null : minecraft.level.getEntity(entityId);
+	}
+
+	public static void flushDeferredSkillPackets() {
+		Minecraft minecraft = Minecraft.getInstance();
+
+		if (minecraft.level == null) {
+			DEFERRED_INIT_SKILLS.clear();
+			DEFERRED_CHANGE_SKILLS.clear();
+			DEFERRED_MODIFY_SKILL_DATA.clear();
+			DEFERRED_SKILL_CONTAINER_VALUES.clear();
+			return;
+		}
+
+		flushDeferredInitSkills();
+		flushDeferredChangeSkills();
+		flushDeferredModifySkillData();
+		flushDeferredSkillContainerValues();
+	}
+
+	private static void flushDeferredInitSkills() {
+		Iterator<DeferredInitSkills> iterator = DEFERRED_INIT_SKILLS.iterator();
+
+		while (iterator.hasNext()) {
+			DeferredInitSkills deferred = iterator.next();
+
+			if (applyInitSkills(deferred.packet) || deferred.tickExpired()) {
+				iterator.remove();
+			}
+		}
+	}
+
+	private static void flushDeferredSkillContainerValues() {
+		Iterator<DeferredSkillContainerValue> iterator = DEFERRED_SKILL_CONTAINER_VALUES.iterator();
+
+		while (iterator.hasNext()) {
+			DeferredSkillContainerValue deferred = iterator.next();
+
+			if (applySkillContainerValue(deferred.packet) || deferred.tickExpired()) {
+				iterator.remove();
+			}
+		}
+	}
+
+	private static void flushDeferredChangeSkills() {
+		Iterator<DeferredChangeSkill> iterator = DEFERRED_CHANGE_SKILLS.iterator();
+
+		while (iterator.hasNext()) {
+			DeferredChangeSkill deferred = iterator.next();
+
+			if (applyChangeSkill(deferred.packet) || deferred.tickExpired()) {
+				iterator.remove();
+			}
+		}
+	}
+
+	private static void flushDeferredModifySkillData() {
+		Iterator<DeferredModifySkillData> iterator = DEFERRED_MODIFY_SKILL_DATA.iterator();
+
+		while (iterator.hasNext()) {
+			DeferredModifySkillData deferred = iterator.next();
+
+			if (applyModifySkillData(deferred.packet) || deferred.tickExpired()) {
+				iterator.remove();
+			}
+		}
+	}
+
+	private static boolean applyInitSkills(SPInitSkills msg) {
+		LocalPlayerPatch playerpatch = ClientEngine.getInstance().getPlayerPatch();
+
+		if (playerpatch == null || playerpatch.getSkillCapability() == CapabilitySkill.EMPTY) {
+			return false;
+		}
+
+		playerpatch.getSkillCapability().deserialize(msg.serializedSkill());
+		return true;
+	}
+
+	private static boolean applyChangeSkill(SPChangeSkill msg) {
+		PlayerPatch<?> playerpatch = EpicFightCapabilities.getEntityPatch(getEntity(msg.entityId()), PlayerPatch.class);
+
+		if (playerpatch == null || playerpatch.getSkillCapability() == CapabilitySkill.EMPTY) {
+			return false;
+		}
+
+		SkillContainer container = playerpatch.getSkill(msg.skillSlot());
+
+		if (container == null) {
+			return false;
+		}
+
+		container.setSkill(msg.skill());
+
+		if (msg.skill() != null && msg.skillSlot().category().learnable()) {
+			playerpatch.getSkillCapability().addLearnedSkill(msg.skill());
+		}
+
+		container.setDisabled(false);
+		return true;
+	}
+
+	@SuppressWarnings("deprecation")
+	private static boolean applyModifySkillData(SPModifySkillData msg) {
+		PlayerPatch<?> playerpatch = EpicFightCapabilities.getEntityPatch(getEntity(msg.entityId()), PlayerPatch.class);
+
+		if (playerpatch == null || playerpatch.getSkillCapability() == CapabilitySkill.EMPTY) {
+			return false;
+		}
+
+		SkillContainer container = playerpatch.getSkill(msg.slot());
+
+		if (container == null) {
+			return false;
+		}
+
+		SkillDataManager dataManager = container.getDataManager();
+
+		if (!dataManager.hasData(msg.dataKey())) {
+			return false;
+		}
+
+		dataManager.setDataRawtype(msg.dataKey(), msg.value());
+		return true;
+	}
+
+	private static boolean applySkillContainerValue(SPSetSkillContainerValue msg) {
+		PlayerPatch<?> playerpatch = EpicFightCapabilities.getEntityPatch(getEntity(msg.entityId()), PlayerPatch.class);
+
+		if (playerpatch == null || playerpatch.getSkillCapability() == CapabilitySkill.EMPTY) {
+			return false;
+		}
+
+		SkillContainer container = playerpatch.getSkill(msg.skillSlot());
+
+		if (container == null) {
+			return false;
+		}
+
+		switch (msg.target()) {
+		case ENABLE -> container.setDisabled(msg.boolVal());
+		case ACTIVATE -> { if (msg.boolVal()) container.activate(); else container.deactivate(); }
+		case RESOURCE -> container.setResource(msg.floatVal());
+		case DURATION -> container.setDuration((int)msg.floatVal());
+		case MAX_DURATION -> container.setMaxDuration((int)msg.floatVal());
+		case STACKS -> container.setStack((int)msg.floatVal());
+		case MAX_RESOURCE -> container.setMaxResource(msg.floatVal());
+		case REPLACE_COOLDOWN -> container.setReplaceCooldown((int)msg.floatVal());
+		}
+
+		return true;
+	}
+
+	private static void deferInitSkills(SPInitSkills packet) {
+		DEFERRED_INIT_SKILLS.clear();
+		DEFERRED_INIT_SKILLS.add(new DeferredInitSkills(packet));
+	}
+
+	private static void deferChangeSkill(SPChangeSkill packet) {
+		if (DEFERRED_CHANGE_SKILLS.size() >= MAX_DEFERRED_CHANGE_SKILLS) {
+			DEFERRED_CHANGE_SKILLS.poll();
+		}
+
+		DEFERRED_CHANGE_SKILLS.add(new DeferredChangeSkill(packet));
+	}
+
+	private static void deferModifySkillData(SPModifySkillData packet) {
+		if (DEFERRED_MODIFY_SKILL_DATA.size() >= MAX_DEFERRED_MODIFY_SKILL_DATA) {
+			DEFERRED_MODIFY_SKILL_DATA.poll();
+		}
+
+		DEFERRED_MODIFY_SKILL_DATA.add(new DeferredModifySkillData(packet));
+	}
+
+	private static void deferSkillContainerValue(SPSetSkillContainerValue packet) {
+		if (DEFERRED_SKILL_CONTAINER_VALUES.size() >= MAX_DEFERRED_SKILL_CONTAINER_VALUES) {
+			DEFERRED_SKILL_CONTAINER_VALUES.poll();
+		}
+
+		DEFERRED_SKILL_CONTAINER_VALUES.add(new DeferredSkillContainerValue(packet));
+	}
+
+	private static final class DeferredInitSkills {
+		private final SPInitSkills packet;
+		private int remainingTicks = SKILL_PACKET_RETRY_TICKS;
+
+		private DeferredInitSkills(SPInitSkills packet) {
+			this.packet = packet;
+		}
+
+		private boolean tickExpired() {
+			return --this.remainingTicks <= 0;
+		}
+	}
+
+	private static final class DeferredChangeSkill {
+		private final SPChangeSkill packet;
+		private int remainingTicks = SKILL_PACKET_RETRY_TICKS;
+
+		private DeferredChangeSkill(SPChangeSkill packet) {
+			this.packet = packet;
+		}
+
+		private boolean tickExpired() {
+			return --this.remainingTicks <= 0;
+		}
+	}
+
+	private static final class DeferredModifySkillData {
+		private final SPModifySkillData packet;
+		private int remainingTicks = SKILL_PACKET_RETRY_TICKS;
+
+		private DeferredModifySkillData(SPModifySkillData packet) {
+			this.packet = packet;
+		}
+
+		private boolean tickExpired() {
+			return --this.remainingTicks <= 0;
+		}
+	}
+
+	private static final class DeferredSkillContainerValue {
+		private final SPSetSkillContainerValue packet;
+		private int remainingTicks = SKILL_PACKET_RETRY_TICKS;
+
+		private DeferredSkillContainerValue(SPSetSkillContainerValue packet) {
+			this.packet = packet;
+		}
+
+		private boolean tickExpired() {
+			return --this.remainingTicks <= 0;
+		}
 	}
 }

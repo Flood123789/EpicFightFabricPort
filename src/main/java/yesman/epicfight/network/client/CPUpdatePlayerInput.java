@@ -4,7 +4,7 @@ import java.util.function.Supplier;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkEvent;
+import yesman.epicfight.forgecompat.network.NetworkEvent;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.server.SPUpdatePlayerInput;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
@@ -38,7 +38,7 @@ public class CPUpdatePlayerInput {
 		ctx.get().enqueueWork(() -> {
 			ServerPlayer player = ctx.get().getSender();
 			
-			player.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).ifPresent((entitypatch) -> {
+			yesman.epicfight.forgecompat.common.capabilities.ICapabilityProvider.getCapability(player, EpicFightCapabilities.CAPABILITY_ENTITY).ifPresent((entitypatch) -> {
 				if (entitypatch instanceof PlayerPatch<?> plyaerpatch) {
 					plyaerpatch.dx = msg.strafe;
 					plyaerpatch.dz = msg.forward;

@@ -14,10 +14,10 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
-import net.minecraftforge.entity.PartEntity;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
+import yesman.epicfight.forgecompat.client.event.ClientPlayerNetworkEvent;
+import yesman.epicfight.forgecompat.entity.PartEntity;
+import yesman.epicfight.forgecompat.event.entity.EntityJoinLevelEvent;
+import yesman.epicfight.forgecompat.event.entity.living.LivingEvent;
 import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.animation.Keyframe;
 import yesman.epicfight.api.animation.Pose;
@@ -39,6 +39,7 @@ import yesman.epicfight.api.client.input.action.MinecraftInputAction;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.events.engine.RenderEngine;
+import yesman.epicfight.compat.bettercombat.BetterCombatClientCompat;
 import yesman.epicfight.client.gui.screen.SkillBookScreen;
 import yesman.epicfight.config.ClientConfig;
 import yesman.epicfight.gameasset.Animations;
@@ -171,6 +172,7 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 		}
 		
 		super.toVanillaMode(synchronize);
+		BetterCombatClientCompat.onLocalPlayerModeChanged(this.isEpicFightMode());
 	}
 	
 	@Override
@@ -188,6 +190,7 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 		}
 		
 		super.toEpicFightMode(synchronize);
+		BetterCombatClientCompat.onLocalPlayerModeChanged(this.isEpicFightMode());
 	}
 	
 	@Override
@@ -445,7 +448,7 @@ public class LocalPlayerPatch extends AbstractClientPlayerPatch<LocalPlayer> {
 		EpicFightCameraAPI cameraApi = EpicFightCameraAPI.getInstance();
 		
 		HitResult hitResult = 
-			(EpicFightCameraAPI.getInstance().isTPSMode() && cameraApi.getCrosshairHitResult() != null && cameraApi.getCrosshairHitResult().getLocation().distanceToSqr(this.original.getEyePosition()) < this.original.getBlockReach() * this.original.getBlockReach())
+			(EpicFightCameraAPI.getInstance().isTPSMode() && cameraApi.getCrosshairHitResult() != null && cameraApi.getCrosshairHitResult().getLocation().distanceToSqr(this.original.getEyePosition()) < this.minecraft.gameMode.getPickRange() * this.minecraft.gameMode.getPickRange())
 				? cameraApi.getCrosshairHitResult() : this.minecraft.hitResult;
 		
 		if (hitResult == null) {

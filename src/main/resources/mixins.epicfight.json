@@ -21,6 +21,7 @@
 		"client.MixinLevelRenderer",
 		"client.MixinLightTexture",
 		"client.MixinLivingEntityRenderer",
+		"client.MixinLivingEntityRendererEvents",
 		"client.MixinLocalPlayer",
         "client.MixinOptions",
 		"client.MixinMinecraft",
@@ -28,24 +29,33 @@
 		"client.MixinPlayerRenderer",
 		"client.MixinParticleEngine",
 		"client.MixinThrownTridentRenderer",
+		"client.MixinItemInHandRenderer",
 		"client.MixinInventory",
+		"azurelib.MixinAutoGlowingTexture",
 		"skinlayers.MixinCustomModelPart",
-		"skinlayers.MixinCustomizableCubeWrapper$SkinLayer3DMixinCustomModelCube"
+		"skinlayers.MixinCustomizableCubeWrapper$SkinLayer3DMixinCustomModelCube",
+		"punchy.MixinPunchyConfig"
 	],
 	"mixins": [
+		"common.MixinBowItem",
 		"common.MixinCrossbowAttack",
 		"common.MixinDamageSources",
+		"common.MixinEnderMan",
 		"common.MixinEntity",
+		"common.MixinItemStack",
+		"common.MixinLevelChunk",
 		"common.MixinLivingEntity",
 		"common.MixinMob",
 		"common.MixinPlayer",
 		"common.MixinProjectile",
+		"common.MixinProjectileImpact",
 		"common.MixinRangedAttackGoal",
 		"common.MixinRangedBowAttackGoal",
 		"common.MixinRangedCrossbowAttackGoal",
 		"common.MixinServerGamePacketListenerImpl",
 		"common.MixinThrownTrident",
-		"common.MixinWitherBoss"
+		"common.MixinWitherBoss",
+		"bettercombat.MixinPlayerAttackHelper"
 	],
 	"injectors": {
 		"defaultRequire": 1

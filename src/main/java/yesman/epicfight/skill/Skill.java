@@ -21,9 +21,9 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.registries.ForgeRegistries;
+import yesman.epicfight.forgecompat.api.distmarker.Dist;
+import yesman.epicfight.forgecompat.api.distmarker.OnlyIn;
+import yesman.epicfight.forgecompat.registries.ForgeRegistries;
 import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.gui.BattleModeGui;
@@ -44,6 +44,14 @@ import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType
 import yesman.epicfight.world.entity.eventlistener.SkillCancelEvent;
 import yesman.epicfight.world.entity.eventlistener.SkillCastEvent;
 
+/**
+ * Shared definition of a combat ability.
+ *
+ * <p>A skill declares its category, activation style, resource type, lifecycle
+ * hooks, and execution rules. Mutable values for one player do not belong here;
+ * they live in that player's {@link SkillContainer}. Datapack parameters are
+ * applied by {@code SkillManager} after registration.</p>
+ */
 public abstract class Skill {
 	public static SkillBuilder<Skill> createBuilder() {
 		return new SkillBuilder<> ();

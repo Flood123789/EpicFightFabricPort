@@ -14,7 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
-import net.minecraftforge.fml.ModList;
+import yesman.epicfight.forgecompat.fml.ModList;
 import yesman.epicfight.api.data.reloader.SkillManager;
 import yesman.epicfight.data.loot.EpicFightLootTables;
 import yesman.epicfight.skill.Skill;

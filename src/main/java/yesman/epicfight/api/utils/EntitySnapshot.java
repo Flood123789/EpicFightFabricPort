@@ -33,8 +33,8 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import yesman.epicfight.forgecompat.api.distmarker.Dist;
+import yesman.epicfight.forgecompat.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.Pose;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.model.Mesh;
@@ -114,7 +114,7 @@ public class EntitySnapshot<T extends LivingEntityPatch<?>> {
 				return;
 			}
 			
-			EquipmentSlot armorSlot = itemstack.getEquipmentSlot();
+			EquipmentSlot armorSlot = net.minecraft.world.entity.Mob.getEquipmentSlotForItem(itemstack);
 			SkinnedMesh armor = WearableItemLayer.getCachedModel(itemstack.getItem());
 			ResourceLocation texture = WearableItemLayer.getArmorResource(entitypatch.getOriginal(), itemstack, armorSlot, null);
 			
@@ -180,10 +180,10 @@ public class EntitySnapshot<T extends LivingEntityPatch<?>> {
 				
 				if (!bakedmodel.isCustomRenderer()) {
 					MathUtils.mulStack(poseStack, ClientEngine.getInstance().renderEngine.getItemRenderer(itemstack).getCorrectionMatrix(this.entitypatch, items.getFirst(), this.poseMatrices));
-					bakedmodel = net.minecraftforge.client.ForgeHooksClient.handleCameraTransforms(poseStack, bakedmodel, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, false);
+					bakedmodel = yesman.epicfight.forgecompat.client.ForgeHooksClient.handleCameraTransforms(poseStack, bakedmodel, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, false);
 					poseStack.translate(-0.5F, -0.5F, -0.5F);
 					
-					for (var model : bakedmodel.getRenderPasses(itemstack, true)) {
+					for (var model : yesman.epicfight.forgecompat.client.ForgeHooksClient.getRenderPasses(bakedmodel, itemstack, true)) {
 						renderModelLists(model, itemstack, packedLight, OverlayTexture.NO_OVERLAY, alpha, poseStack, buffers.getBuffer(rendertype), drawingFunction);
 					}
 				}
@@ -236,7 +236,7 @@ public class EntitySnapshot<T extends LivingEntityPatch<?>> {
 			int i = -1;
 			
 			if (flag && bakedquad.isTinted()) {
-				i = Minecraft.getInstance().getItemColors().getColor(pItemStack, bakedquad.getTintIndex());
+				i = Minecraft.getInstance().itemColors.getColor(pItemStack, bakedquad.getTintIndex());
 			}
 			
 			float f = (float) (i >> 16 & 255) / 255.0F;

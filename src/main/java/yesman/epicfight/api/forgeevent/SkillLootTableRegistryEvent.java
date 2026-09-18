@@ -5,8 +5,8 @@ import java.util.Map;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.fml.event.IModBusEvent;
+import yesman.epicfight.forgecompat.eventbus.api.Event;
+import yesman.epicfight.forgecompat.fml.event.IModBusEvent;
 
 public class SkillLootTableRegistryEvent extends Event implements IModBusEvent {
 	private final Map<EntityType<?>, LootTable.Builder> builders;

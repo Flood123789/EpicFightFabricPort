@@ -19,9 +19,9 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
+import yesman.epicfight.forgecompat.common.MinecraftForge;
+import yesman.epicfight.forgecompat.event.entity.EntityJoinLevelEvent;
+import yesman.epicfight.forgecompat.event.entity.living.LivingEvent;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.animation.LivingMotion;
@@ -208,7 +208,6 @@ public class AbstractClientPlayerPatch<T extends AbstractClientPlayer> extends P
 			}
 		}
 		
-		/** {@link LivingDeathEvent} never fired for client players **/
 		if (this.original.deathTime == 1) {
 			this.getClientAnimator().playDeathAnimation();
 		}
@@ -303,7 +302,7 @@ public class AbstractClientPlayerPatch<T extends AbstractClientPlayer> extends P
 		MinecraftForge.EVENT_BUS.post(renderepicfightplayerevent);
 		return renderepicfightplayerevent.getShouldRender();
 	}
-	
+
 	@Override
 	public boolean shouldMoveOnCurrentSide(ActionAnimation actionAnimation) {
 		return false;
@@ -356,12 +355,11 @@ public class AbstractClientPlayerPatch<T extends AbstractClientPlayer> extends P
             }
 			
 			return mat;
-			
 		} else if (this.original.isSleeping()) {
 			BlockState blockstate = this.original.getFeetBlockState();
 			float yRot = 0.0F;
 			
-			if (blockstate.isBed(this.original.level(), this.original.getSleepingPos().orElse(null), this.original)) {
+			if (blockstate.is(net.minecraft.tags.BlockTags.BEDS) || blockstate.getBlock() instanceof net.minecraft.world.level.block.BedBlock) {
 				if (blockstate.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
             		switch(blockstate.getValue(BlockStateProperties.HORIZONTAL_FACING)) {
             		case EAST:
@@ -422,7 +420,7 @@ public class AbstractClientPlayerPatch<T extends AbstractClientPlayer> extends P
 	public EntitySnapshot<?> captureEntitySnapshot() {
 		return EntitySnapshot.capturePlayer(this);
 	}
-	
+
 	private final ClothSimulator clothSimulator = new ClothSimulator();
 	public float modelYRotO2;
 	public double xPosO2;
@@ -431,7 +429,7 @@ public class AbstractClientPlayerPatch<T extends AbstractClientPlayer> extends P
 	public double xCloakO2;
 	public double yCloakO2;
 	public double zCloakO2;
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public <SIM extends PhysicsSimulator<?, ?, ?, ?, ?>> Optional<SIM> getSimulator(SimulationTypes<?, ?, ?, ?, ?, SIM> simulationType) {
@@ -441,12 +439,12 @@ public class AbstractClientPlayerPatch<T extends AbstractClientPlayer> extends P
 		
 		return Optional.empty();
 	}
-	
+
 	@Override
 	public ClothSimulator getClothSimulator() {
 		return this.clothSimulator;
 	}
-	
+
 	@Override
 	public Vec3 getAccurateCloakLocation(float partialFrame) {
 		if (partialFrame < 0.0F) {

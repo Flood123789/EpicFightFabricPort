@@ -18,8 +18,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import yesman.epicfight.forgecompat.api.distmarker.Dist;
+import yesman.epicfight.forgecompat.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.AnimationClip;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
@@ -66,6 +66,11 @@ import yesman.epicfight.world.entity.eventlistener.AnimationBeginEvent;
 import yesman.epicfight.world.entity.eventlistener.AnimationEndEvent;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
 
+/**
+ * A registered, resource-backed animation with stable properties and state
+ * windows. "Static" describes its definition, not its playback: the clip still
+ * produces a different pose over time and may apply root motion or events.
+ */
 public class StaticAnimation extends DynamicAnimation implements InverseKinematicsProvider {
 	public static final IndependentAnimationVariableKey<Boolean> HAD_NO_PHYSICS = AnimationVariables.independent((animator) -> false, true);
 	

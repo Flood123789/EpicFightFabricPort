@@ -2,11 +2,11 @@ package yesman.epicfight.world.capabilities.provider;
 
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.common.capabilities.ICapabilitySerializable;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.common.util.NonNullSupplier;
+import yesman.epicfight.forgecompat.common.capabilities.Capability;
+import yesman.epicfight.forgecompat.common.capabilities.ICapabilityProvider;
+import yesman.epicfight.forgecompat.common.capabilities.ICapabilitySerializable;
+import yesman.epicfight.forgecompat.common.util.LazyOptional;
+import yesman.epicfight.forgecompat.common.util.NonNullSupplier;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.skill.CapabilitySkill;

@@ -5,8 +5,8 @@ import java.util.function.Function;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.fml.event.IModBusEvent;
+import yesman.epicfight.forgecompat.eventbus.api.Event;
+import yesman.epicfight.forgecompat.fml.event.IModBusEvent;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
 
 public class WeaponCapabilityPresetRegistryEvent extends Event implements IModBusEvent {

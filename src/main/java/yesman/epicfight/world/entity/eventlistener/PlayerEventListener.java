@@ -8,7 +8,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.TreeMultimap;
 
-import net.minecraftforge.fml.LogicalSide;
+import yesman.epicfight.forgecompat.fml.LogicalSide;
 import yesman.epicfight.api.client.forgeevent.UpdatePlayerMotionEvent;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;

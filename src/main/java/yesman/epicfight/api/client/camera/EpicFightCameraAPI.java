@@ -39,8 +39,8 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.event.ViewportEvent.ComputeCameraAngles;
-import net.minecraftforge.entity.PartEntity;
+import yesman.epicfight.forgecompat.client.event.ViewportEvent.ComputeCameraAngles;
+import yesman.epicfight.forgecompat.entity.PartEntity;
 import yesman.epicfight.api.client.animation.AnimationSubFileReader.PovSettings;
 import yesman.epicfight.api.client.event.EpicFightClientHooks;
 import yesman.epicfight.api.client.event.types.ActivateTPSCamera;
@@ -397,6 +397,28 @@ public final class EpicFightCameraAPI {
 			.map(entity -> Pair.of((LivingEntity)entity, MathUtils.worldToScreenCoord(compactProjection, this.minecraft.gameRenderer.getMainCamera(), entity.getBoundingBox().getCenter()).x))
 			.filter(pair -> pair.getSecond() >= -1.0F && pair.getSecond() <= 1.0F && (direction == 0 || MathUtils.getSign(pair.getSecond()) == MathUtils.getSign(direction)))
 			.min((p1, p2) -> Float.compare(Math.abs(p1.getSecond()), Math.abs(p2.getSecond())));
+
+		// Shoulder-camera and portal renderers can temporarily expose a frustum or
+		// projection matrix that does not describe the player's main view. Keep the
+		// precise screen-space search above for target cycling, but make initial lock-on
+		// resilient by falling back to the most centered visible target in front of the
+		// actual camera.
+		if (next.isEmpty() && direction == 0) {
+			Vec3 cameraForward = new Vec3(this.minecraft.gameRenderer.getMainCamera().getLookVector()).normalize();
+			next = entitiesInLevel.stream()
+				.filter(this::predicateFocusableEntity)
+				.map(entity -> (LivingEntity)entity)
+				.filter(entity -> entity.distanceToSqr(this.minecraft.player) < lockOnRange * lockOnRange)
+				.filter(entity -> MathUtils.canBeSeen(entity, this.minecraft.player, lockOnRange))
+				.map(entity -> {
+					Vec3 toTarget = entity.getBoundingBox().getCenter().subtract(cameraLocation);
+					float alignment = (float)cameraForward.dot(toTarget.normalize());
+					float distancePenalty = (float)(Math.sqrt(entity.distanceToSqr(this.minecraft.player)) / lockOnRange) * 0.05F;
+					return Pair.of(entity, alignment - distancePenalty);
+				})
+				.filter(pair -> pair.getSecond() > 0.0F)
+				.max((p1, p2) -> Float.compare(p1.getSecond(), p2.getSecond()));
+		}
 		
 		next.ifPresent(pair -> {
 			this.setFocusingEntity(pair.getFirst());

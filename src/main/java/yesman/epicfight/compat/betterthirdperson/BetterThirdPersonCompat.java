@@ -1,6 +1,6 @@
 package yesman.epicfight.compat.betterthirdperson;
 
-import net.minecraftforge.eventbus.api.IEventBus;
+import yesman.epicfight.forgecompat.eventbus.api.IEventBus;
 import yesman.epicfight.client.camera.EpicFightTpsCameraDisableState;
 import yesman.epicfight.client.camera.EpicFightTpsCameraDisabledReason;
 import yesman.epicfight.compat.ICompatModule;

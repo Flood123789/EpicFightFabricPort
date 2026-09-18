@@ -1,6 +1,6 @@
 package yesman.epicfight.world.entity.eventlistener;
 
-import net.minecraftforge.event.entity.living.LivingFallEvent;
+import yesman.epicfight.forgecompat.event.entity.living.LivingFallEvent;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 
 public class FallEvent extends AbstractPlayerEvent<PlayerPatch<?>> {

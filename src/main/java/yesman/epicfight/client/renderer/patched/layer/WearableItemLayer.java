@@ -31,9 +31,9 @@ import net.minecraft.world.item.DyeableLeatherItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.armortrim.ArmorTrim;
-import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.registries.ForgeRegistries;
+import yesman.epicfight.forgecompat.client.ForgeHooksClient;
+import yesman.epicfight.forgecompat.common.MinecraftForge;
+import yesman.epicfight.forgecompat.registries.ForgeRegistries;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.asset.JsonAssetLoader;
 import yesman.epicfight.api.client.forgeevent.AnimatedArmorTextureEvent;
@@ -143,7 +143,7 @@ public class WearableItemLayer<E extends LivingEntity, T extends LivingEntityPat
 				}
 				
 				if (armorModel instanceof HumanoidModel humanoidModel) {
-					boolean shouldSit = entityliving.isPassenger() && (entityliving.getVehicle() != null && entityliving.getVehicle().shouldRiderSit());
+					boolean shouldSit = entityliving.isPassenger() && yesman.epicfight.forgecompat.client.ForgeHooksClient.shouldRiderSit(entityliving.getVehicle());
 					float f8 = 0.0F;
 					float f5 = 0.0F;
 					
@@ -358,7 +358,7 @@ public class WearableItemLayer<E extends LivingEntity, T extends LivingEntityPat
 		
 		String s1 = String.format(java.util.Locale.ROOT, "%s:textures/models/armor/%s_layer_%d%s.png", domain, texture, (innerModel(slot) ? 2 : 1), type == null ? "" : String.format(java.util.Locale.ROOT, "_%s", type));
 
-		s1 = net.minecraftforge.client.ForgeHooksClient.getArmorTexture(entity, stack, s1, slot, type);
+		s1 = yesman.epicfight.forgecompat.client.ForgeHooksClient.getArmorTexture(entity, stack, s1, slot, type);
 		ResourceLocation resourcelocation = HumanoidArmorLayer.ARMOR_LOCATION_CACHE.get(s1);
 
 		if (resourcelocation == null) {

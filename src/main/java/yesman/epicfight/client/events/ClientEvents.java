@@ -9,13 +9,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.UseAnim;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
-import net.minecraftforge.client.event.ScreenEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.common.Mod;
+import yesman.epicfight.forgecompat.api.distmarker.Dist;
+import yesman.epicfight.forgecompat.client.event.ClientPlayerNetworkEvent;
+import yesman.epicfight.forgecompat.client.event.ScreenEvent;
+import yesman.epicfight.forgecompat.event.entity.player.PlayerInteractEvent;
+import yesman.epicfight.forgecompat.eventbus.api.SubscribeEvent;
+import yesman.epicfight.forgecompat.fml.LogicalSide;
+import yesman.epicfight.forgecompat.fml.common.Mod;
 import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
 import yesman.epicfight.api.data.reloader.ItemCapabilityReloadListener;
 import yesman.epicfight.client.ClientEngine;
@@ -78,7 +78,7 @@ public class ClientEvents {
         // TODO: (INPUT_SYSTEM_REFACTOR) This only disables putting the item to offhand inventory slot for key inputs (defaults to F).
         //  Explore a universal solution that also supports controllers and other input systems.
         //  https://github.com/Epic-Fight/epicfight/issues/2135
-		if (event.getKeyCode() == MINECRAFT.options.keySwapOffhand.getKey().getValue()) {
+		if (event.getKeyCode() == MINECRAFT.options.keySwapOffhand.key.getValue()) {
 			if (event.getScreen() instanceof AbstractContainerScreen) {
 				Slot slot = ((AbstractContainerScreen<?>)event.getScreen()).hoveredSlot;
 				
@@ -135,7 +135,14 @@ public class ClientEvents {
 	
 	@SubscribeEvent
 	public static void clientLoggingInEvent(ClientPlayerNetworkEvent.LoggingIn event) {
-		EpicFightCapabilities.getUnparameterizedEntityPatch(event.getPlayer(), LocalPlayerPatch.class).ifPresent(ClientEngine.getInstance().controlEngine::setPlayerPatch);
+		EpicFightCapabilities.getUnparameterizedEntityPatch(event.getPlayer(), LocalPlayerPatch.class).ifPresentOrElse(playerPatch -> {
+			ClientEngine.getInstance().controlEngine.setPlayerPatch(playerPatch);
+			EpicFightMod.LOGGER.debug(
+				"[EF-DIAG] login bound control patch={} initialized={} mode={} stamina={}/{}",
+				Integer.toHexString(System.identityHashCode(playerPatch)), playerPatch.isInitialized(),
+				playerPatch.getPlayerMode(), playerPatch.getStamina(), playerPatch.getMaxStamina()
+			);
+		}, () -> EpicFightMod.LOGGER.error("[EF-DIAG] login could not find LocalPlayerPatch"));
 		ClientEngine.getInstance().renderEngine.initHUD();
 	}
 	

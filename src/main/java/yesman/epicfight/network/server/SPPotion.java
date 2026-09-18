@@ -8,7 +8,7 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.network.NetworkEvent;
+import yesman.epicfight.forgecompat.network.NetworkEvent;
 
 public class SPPotion {
 	final MobEffectInstance effectInstance;

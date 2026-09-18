@@ -4,7 +4,7 @@ import java.util.function.Supplier;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.NetworkEvent;
+import yesman.epicfight.forgecompat.network.NetworkEvent;
 import yesman.epicfight.api.utils.LevelUtil;
 
 public record SPFracture(Vec3 location, double radius, boolean noSound, boolean noParticle) {

@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraftforge.event.entity.ProjectileImpactEvent;
+import yesman.epicfight.forgecompat.event.entity.ProjectileImpactEvent;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.datastruct.TypeFlexibleHashMap;
 

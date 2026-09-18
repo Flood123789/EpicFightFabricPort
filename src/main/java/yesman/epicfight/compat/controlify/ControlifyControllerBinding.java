@@ -16,6 +16,12 @@ public record ControlifyControllerBinding(@NotNull InputBinding inputBinding) im
     }
 
     @Override
+    public boolean isBound() {
+        // Controlify models "unbound" as an input that reports no physical controls.
+        return !inputBinding.boundInput().getRelevantInputs().isEmpty();
+    }
+
+    @Override
     public boolean isDigitalActiveNow() {
         return inputBinding.digitalNow();
     }

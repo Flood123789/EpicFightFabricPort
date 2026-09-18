@@ -1,6 +1,6 @@
 package yesman.epicfight.world.entity.eventlistener;
 
-import net.minecraftforge.event.entity.ProjectileImpactEvent;
+import yesman.epicfight.forgecompat.event.entity.ProjectileImpactEvent;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
 public class ProjectileHitEvent extends AbstractPlayerEvent<ServerPlayerPatch> {

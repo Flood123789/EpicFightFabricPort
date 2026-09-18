@@ -30,6 +30,18 @@ public interface ControllerBinding {
     @NotNull
     ResourceLocation id();
 
+    /// Returns whether a physical control is actually assigned to this binding.
+    ///
+    /// An unassigned binding can never report activity, so Epic Fight treats it as if the controller
+    /// mod had no binding for the action at all and reads the [net.minecraft.client.KeyMapping]
+    /// instead. Without that, every action left unbound on the controller would be dead while a
+    /// controller is in use, even though its key is still on the keyboard.
+    ///
+    /// @return `true` if the binding has a button, axis, or hat assigned.
+    default boolean isBound() {
+        return true;
+    }
+
     /// Returns whether the digital state is currently active in this tick.
     ///
     /// @return the current digital state, this tick.

@@ -33,8 +33,17 @@ public class CombatKeyMapping extends KeyMapping {
     }
 
     @Override
+    public boolean matches(int keysym, int scancode) {
+        return this.isCombatActive() && super.matches(keysym, scancode);
+    }
+
+    @Override
+    public boolean matchesMouse(int button) {
+        return this.isCombatActive() && super.matchesMouse(button);
+    }
+
     public boolean isActiveAndMatches(@NotNull InputConstants.Key keyCode) {
-        return this.isCombatActive() && super.isActiveAndMatches(keyCode);
+        return this.isCombatActive() && keyCode.equals(this.key);
     }
 
     @Override

@@ -2,8 +2,8 @@ package yesman.epicfight.main;
 
 import java.util.function.Function;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.loading.FMLEnvironment;
+import yesman.epicfight.forgecompat.api.distmarker.Dist;
+import yesman.epicfight.forgecompat.fml.loading.FMLEnvironment;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.ServerAnimator;
 import yesman.epicfight.api.client.animation.ClientAnimator;

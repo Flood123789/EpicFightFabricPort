@@ -1,0 +1,8 @@
+package yesman.epicfight.forgecompat.client.gui.overlay;
+
+import net.minecraft.client.gui.GuiGraphics;
+
+@FunctionalInterface
+public interface IGuiOverlay {
+	void render(ForgeGui gui, GuiGraphics guiGraphics, float partialTick, int screenWidth, int screenHeight);
+}

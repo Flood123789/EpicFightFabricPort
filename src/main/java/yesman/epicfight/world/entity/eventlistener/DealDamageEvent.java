@@ -1,10 +1,10 @@
 package yesman.epicfight.world.entity.eventlistener;
 
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
-import net.minecraftforge.event.entity.living.LivingDamageEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import yesman.epicfight.forgecompat.event.entity.living.LivingAttackEvent;
+import yesman.epicfight.forgecompat.event.entity.living.LivingDamageEvent;
+import yesman.epicfight.forgecompat.event.entity.living.LivingEvent;
+import yesman.epicfight.forgecompat.event.entity.living.LivingHurtEvent;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 

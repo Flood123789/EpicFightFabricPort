@@ -8,7 +8,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.monster.hoglin.Hoglin;
-import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
+import yesman.epicfight.forgecompat.event.entity.EntityAttributeModificationEvent;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;

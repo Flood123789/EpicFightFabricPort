@@ -36,15 +36,15 @@ import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.AbstractSkullBlock;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.common.capabilities.CapabilityToken;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
+import yesman.epicfight.forgecompat.api.distmarker.Dist;
+import yesman.epicfight.forgecompat.api.distmarker.OnlyIn;
+import yesman.epicfight.forgecompat.common.capabilities.Capability;
+import yesman.epicfight.forgecompat.common.capabilities.CapabilityManager;
+import yesman.epicfight.forgecompat.common.capabilities.CapabilityToken;
+import yesman.epicfight.forgecompat.common.capabilities.ICapabilityProvider;
+import yesman.epicfight.forgecompat.common.util.LazyOptional;
+import yesman.epicfight.forgecompat.event.AttachCapabilitiesEvent;
+import yesman.epicfight.forgecompat.eventbus.api.IEventBus;
 import yesman.epicfight.api.client.forgeevent.PatchedRenderersEvent;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.client.model.transformer.SkinLayer3DTransformer;
@@ -100,7 +100,7 @@ public class SkinLayer3DCompat implements ICompatModule {
             });
 			
 			event.addListener(() -> {
-				event.getObject().getCapability(SKIN_LAYER_3D_CAPABILITY).ifPresent((skinlayers3dMeshes) -> {
+				ICapabilityProvider.getCapability(event.getObject(), SKIN_LAYER_3D_CAPABILITY).ifPresent((skinlayers3dMeshes) -> {
 					skinlayers3dMeshes.partMeshes.forEach((k, v) -> v.destroy());
 					skinlayers3dMeshes.partMeshes.clear();
 				});
@@ -153,7 +153,7 @@ public class SkinLayer3DCompat implements ICompatModule {
 	            return;
 			}
 			
-			SkinLayer3DMeshes skin3dlayerMeshes = player.getCapability(SkinLayer3DCompat.SKIN_LAYER_3D_CAPABILITY, null).orElse(null);
+			SkinLayer3DMeshes skin3dlayerMeshes = ICapabilityProvider.getCapability(player, SkinLayer3DCompat.SKIN_LAYER_3D_CAPABILITY, null).orElse(null);
 			
 			if (skin3dlayerMeshes == null) {
 				return;

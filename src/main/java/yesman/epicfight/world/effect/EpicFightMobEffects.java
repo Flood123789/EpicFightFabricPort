@@ -5,9 +5,9 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import yesman.epicfight.forgecompat.registries.DeferredRegister;
+import yesman.epicfight.forgecompat.registries.ForgeRegistries;
+import yesman.epicfight.forgecompat.registries.RegistryObject;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 

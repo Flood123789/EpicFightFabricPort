@@ -9,8 +9,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import yesman.epicfight.forgecompat.api.distmarker.Dist;
+import yesman.epicfight.forgecompat.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.AnimationClip;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.AnimationPlayer;
@@ -25,6 +25,13 @@ import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.main.EpicFightSharedConstants;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
+/**
+ * Base contract for anything an {@code AnimationPlayer} can currently play.
+ *
+ * <p>It exposes a pose, timing, entity-state windows, lifecycle hooks, and root
+ * motion. Some implementations are registered resource-backed animations;
+ * others are temporary link/layer animations assembled during transitions.</p>
+ */
 public abstract class DynamicAnimation {
 	protected final boolean isRepeat;
 	protected final float transitionTime;

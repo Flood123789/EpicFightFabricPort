@@ -4,16 +4,24 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import yesman.epicfight.forgecompat.api.distmarker.Dist;
+import yesman.epicfight.forgecompat.api.distmarker.OnlyIn;
+import yesman.epicfight.forgecompat.common.MinecraftForge;
+import yesman.epicfight.forgecompat.event.entity.EntityJoinLevelEvent;
+import yesman.epicfight.forgecompat.event.entity.living.LivingDeathEvent;
 import yesman.epicfight.api.client.forgeevent.ProcessEntityPairingPacketEvent;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.network.server.SPEntityPairingPacket;
 
+/**
+ * Base wrapper that adds Epic Fight behavior to a vanilla {@link Entity}.
+ *
+ * <p>The wrapped object is stored in {@link #original}; the patch is attached by
+ * a capability provider and follows the entity's lifecycle. Subclasses add
+ * combat, animation, AI, player, or projectile state without replacing the
+ * Minecraft entity itself.</p>
+ */
 public abstract class EntityPatch<T extends Entity> {
 	protected T original;
 	protected boolean initialized = false;

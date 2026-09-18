@@ -32,8 +32,8 @@ loom {
 }
 
 sourceSets {
-    forgeApiStubs {
-        java.srcDir 'src/compileOnlyStubs/java'
+    main {
+        java.srcDirs = ['src/main/java']
     }
 }
 
@@ -104,19 +104,7 @@ repositories {
 
 def privatePackModsDir = file('C:/Users/brand/AppData/Roaming/ModrinthApp/profiles/Worlds Lost (Beta)v2 1.0.0/mods')
 def packMod = { String name -> new File(privatePackModsDir, name) }
-def kiltNestedJarsDir = file('.gradle/kiltNestedJars')
 def compatJarsDir = file('.gradle/compatJars')
-def extractKiltNestedJars = tasks.register('extractKiltNestedJars', Copy) {
-    onlyIf { packMod('Kilt-20.1.14.jar').isFile() }
-    from(zipTree(packMod('Kilt-20.1.14.jar'))) {
-        include 'META-INF/jars/*.jar'
-        eachFile { details ->
-            details.path = details.name
-        }
-        includeEmptyDirs = false
-    }
-    into kiltNestedJarsDir
-}
 def prepareCompatJars = tasks.register('prepareCompatJars') {
     outputs.dir compatJarsDir
     doLast {
@@ -140,18 +128,7 @@ def prepareCompatJars = tasks.register('prepareCompatJars') {
     }
 }
 
-if (packMod('Kilt-20.1.14.jar').isFile()) {
-    copy {
-        from(zipTree(packMod('Kilt-20.1.14.jar'))) {
-            include 'META-INF/jars/*.jar'
-            eachFile { details ->
-                details.path = details.name
-            }
-            includeEmptyDirs = false
-        }
-        into kiltNestedJarsDir
-    }
-}
+
 if (packMod('controlify-2.1.1+1.20.1-fabric.jar.disabled').isFile()) {
     copy {
         from packMod('controlify-2.1.1+1.20.1-fabric.jar.disabled')
@@ -199,71 +176,24 @@ dependencies {
 
     modImplementation "net.fabricmc:fabric-loader:${fabricLoaderVersion}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabricApiVersion}"
-    forgeApiStubsCompileOnly files(new File(kiltNestedJarsDir, 'mergetool-api-1.0.jar'))
-    compileOnly sourceSets.forgeApiStubs.output
+
     compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
     compileOnly 'org.checkerframework:checker-qual:3.42.0'
     modCompileOnly 'maven.modrinth:3dskinlayers:1.9.2'
+    modCompileOnly 'maven.modrinth:better-combat:1.9.0+1.20.1-fabric'
     modCompileOnly fileTree(dir: compatJarsDir, include: ['controlify-*.jar', 'firstperson-*.jar'])
 
     implementation files('libs/TRender-1.0.7.jar')
     implementation files('libs/TRansition-1.0.5.jar')
 
     // Private server compatibility baseline. These jars are already in the user's Modrinth profile.
-    addPackMod('modCompileOnly', 'Kilt-20.1.14.jar')
-    addPackMod('modLocalRuntime', 'Kilt-20.1.14.jar')
     addPackMod('modLocalRuntime', 'fabric-language-kotlin-1.13.11+kotlin.2.3.21.jar')
-    modLocalRuntime files(new File(kiltNestedJarsDir, 'Fabric-ASM-v2.3.jar'))
-    runtimeOnly fileTree(dir: kiltNestedJarsDir, include: ['*.jar'])
     addPackMod('modCompileOnly', 'ForgeConfigAPIPort-v8.0.2-1.20.1-Fabric.jar')
     addPackMod('modLocalRuntime', 'ForgeConfigAPIPort-v8.0.2-1.20.1-Fabric.jar')
     runtimeOnly 'org.jetbrains.kotlin:kotlin-stdlib:2.3.21'
     runtimeOnly 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.3.21'
 
-    modCompileOnly fileTree(dir: kiltNestedJarsDir, include: [
-        'accessors-*.jar',
-        'asm-*.jar',
-        'attributes-*.jar',
-        'base-*.jar',
-        'blocks-*.jar',
-        'brewing-*.jar',
-        'chunk_loading-*.jar',
-        'client_events-*.jar',
-        'common-*.jar',
-        'core-*.jar',
-        'data-*.jar',
-        'entity-*.jar',
-        'extensions-*.jar',
-        'fluids-*.jar',
-        'gametest-*.jar',
-        'gui_utils-*.jar',
-        'items-*.jar',
-        'lazy_registration-*.jar',
-        'level_events-*.jar',
-        'loot-*.jar',
-        'mixin_extensions-*.jar',
-        'model_builders-*.jar',
-        'model_generators-*.jar',
-        'model_loader-*.jar',
-        'model_materials-*.jar',
-        'models-*.jar',
-        'networking-*.jar',
-        'obj_loader-*.jar',
-        'recipe_book_categories-*.jar',
-        'registries-*.jar',
-        'tags-*.jar',
-        'tool_actions-*.jar',
-        'transfer-*.jar',
-        'utility-*.jar'
-    ])
-    compileOnly fileTree(dir: kiltNestedJarsDir, include: [
-        'eventbus-*.jar',
-        'forgespi-*.jar',
-        'mergetool-api-*.jar',
-        'srgutils-*.jar',
-        'unsafe-*.jar',
-        'typetools-*.jar'
-    ])
+
 }
 
 packCompileMods.each { name ->
@@ -303,17 +233,8 @@ tasks.withType(JavaCompile).configureEach {
     options.release = 17
 }
 
-tasks.named('compileForgeApiStubsJava', JavaCompile).configure {
-    dependsOn extractKiltNestedJars
-}
-
 tasks.named('compileJava', JavaCompile).configure {
-    dependsOn tasks.named('compileForgeApiStubsJava'), extractKiltNestedJars, prepareCompatJars
-    classpath = sourceSets.forgeApiStubs.output + classpath
-}
-
-tasks.matching { it.name == 'generateRemapClasspath' }.configureEach {
-    dependsOn extractKiltNestedJars
+    dependsOn prepareCompatJars
 }
 
 tasks.named('jar', Jar).configure {

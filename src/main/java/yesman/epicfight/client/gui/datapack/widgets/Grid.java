@@ -28,7 +28,7 @@ import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
-import net.minecraftforge.registries.IForgeRegistry;
+import yesman.epicfight.forgecompat.registries.IForgeRegistry;
 import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.client.gui.datapack.widgets.PopupBox.PopupBoxProvider;
 import yesman.epicfight.client.gui.datapack.widgets.PopupBox.RegistryPopupBox;
@@ -978,7 +978,11 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 			editWidget.setX(x);
 			editWidget.setY(y);
 			editWidget.setWidth(this.width - 3);
-			editWidget.setHeight(height);
+			if (((Object)editWidget) instanceof ResizableComponent rc) {
+				rc._setHeight(height);
+			} else {
+				editWidget.height = height;
+			}
 			editWidget._setValue(value);
 			editWidget._setResponder((val) -> row.setValue(colName, val));
 			
@@ -1344,11 +1348,11 @@ public class Grid extends ObjectSelectionList<Grid.Row> implements DataBindingCo
 	
 	@Override
 	public int _getWidth() {
-		return this.getWidth();
+		return this.width;
 	}
 
 	@Override
 	public int _getHeight() {
-		return this.getHeight();
+		return this.height;
 	}
 }

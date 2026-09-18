@@ -7,7 +7,7 @@ import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.EntityDimensions;
-import net.minecraftforge.event.entity.ProjectileImpactEvent;
+import yesman.epicfight.forgecompat.event.entity.ProjectileImpactEvent;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationEvent.SimpleEvent;

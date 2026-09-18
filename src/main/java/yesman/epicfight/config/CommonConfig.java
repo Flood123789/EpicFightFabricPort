@@ -1,10 +1,10 @@
 package yesman.epicfight.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
+import yesman.epicfight.forgecompat.common.ForgeConfigSpec;
+import yesman.epicfight.forgecompat.eventbus.api.SubscribeEvent;
+import yesman.epicfight.forgecompat.fml.common.Mod;
+import yesman.epicfight.forgecompat.fml.config.ModConfig;
+import yesman.epicfight.forgecompat.fml.event.config.ModConfigEvent;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.world.gamerule.EpicFightGameRules;
 

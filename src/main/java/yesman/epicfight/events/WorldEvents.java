@@ -6,12 +6,12 @@ import java.lang.reflect.Method;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.event.LootTableLoadEvent;
-import net.minecraftforge.event.OnDatapackSyncEvent;
-import net.minecraftforge.event.level.LevelEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import yesman.epicfight.forgecompat.api.distmarker.Dist;
+import yesman.epicfight.forgecompat.event.LootTableLoadEvent;
+import yesman.epicfight.forgecompat.event.OnDatapackSyncEvent;
+import yesman.epicfight.forgecompat.event.level.LevelEvent;
+import yesman.epicfight.forgecompat.eventbus.api.SubscribeEvent;
+import yesman.epicfight.forgecompat.fml.common.Mod;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.data.reloader.ItemCapabilityReloadListener;
 import yesman.epicfight.api.data.reloader.MobPatchReloadListener;

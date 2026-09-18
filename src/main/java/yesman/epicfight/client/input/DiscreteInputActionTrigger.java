@@ -57,8 +57,10 @@ public final class DiscreteInputActionTrigger {
             return;
         }
 
+        // An action with no control assigned on the controller keeps its keyboard behaviour, so
+        // plugging in a controller cannot disable the keys that have no controller default.
         switch (controllerMod.getInputMode()) {
-            case MIXED -> action.controllerBinding()
+            case MIXED -> InputManager.assignedControllerBinding(action)
                     .ifPresentOrElse(
                             controllerBinding -> {
                                 final boolean handled = handleController(controllerBinding, handler);
@@ -68,7 +70,7 @@ public final class DiscreteInputActionTrigger {
                             },
                             () -> handleKeyboardAndMouse(action, keyMapping, handler)
                     );
-            case CONTROLLER -> action.controllerBinding()
+            case CONTROLLER -> InputManager.assignedControllerBinding(action)
                     .ifPresentOrElse(
                             controllerBinding -> handleController(controllerBinding, handler),
                             () -> handleKeyboardAndMouse(action, keyMapping, handler)
@@ -84,7 +86,10 @@ public final class DiscreteInputActionTrigger {
             handler.onAction(createContext(false));
         }
 
-        final boolean active = InputManager.isActionActive(action);
+        // KeyMapping#isDown is not updated reliably when several mods bind the same
+        // physical key. Use the physical state for discrete actions so mode switching,
+        // lock-on, and menus still receive a clean rising-edge event under conflicts.
+        final boolean active = InputManager.isActionPhysicallyActive(action);
         final boolean previous = PREVIOUS_ACTIVE.getOrDefault(action, false);
         if (!handled && active && !previous) {
             handler.onAction(createContext(false));

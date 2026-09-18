@@ -54,7 +54,7 @@ public abstract class MixinGameRenderer {
 				
 				if (this.minecraft.hitResult != null) {
 					double d0 = (double) this.minecraft.gameMode.getPickRange();
-					double entityReach = this.minecraft.player.getEntityReach();
+					double entityReach = this.minecraft.gameMode.hasFarPickRange() ? 6.0D : 3.0D;
 					double distanceLimit = Math.max(d0, entityReach) + ClientConfig.cameraZoom * 0.5D;
 					Vec3 hitPos = this.minecraft.hitResult.getLocation();
 					

@@ -62,7 +62,9 @@ public enum EpicFightInputAction implements InputAction {
             case LOCK_ON_SHIFT_FREELY -> EpicFightKeyMappings.LOCK_ON_SHIFT_FREELY;
             case SWITCH_MODE -> EpicFightKeyMappings.SWITCH_MODE;
             case WEAPON_INNATE_SKILL -> fallbackToVanilla(EpicFightKeyMappings.WEAPON_INNATE_SKILL, MinecraftInputAction.ATTACK_DESTROY);
-            case WEAPON_INNATE_SKILL_TOOLTIP -> EpicFightKeyMappings.WEAPON_INNATE_SKILL_TOOLTIP;
+            // This is a modifier gesture, not a separately registered key. A second
+            // KeyMapping on Left Shift replaces vanilla crouch in Fabric's key table.
+            case WEAPON_INNATE_SKILL_TOOLTIP -> MinecraftInputAction.SNEAK.keyMapping();
             case OPEN_SKILL_SCREEN -> EpicFightKeyMappings.SKILL_EDIT;
             case OPEN_CONFIG_SCREEN -> EpicFightKeyMappings.OPEN_CONFIG_SCREEN;
             case SWITCH_VANILLA_MODEL_DEBUGGING -> EpicFightKeyMappings.SWITCH_VANILLA_MODEL_DEBUGGING;
@@ -71,7 +73,7 @@ public enum EpicFightInputAction implements InputAction {
 
     private static KeyMapping fallbackToVanilla(KeyMapping combatKey, MinecraftInputAction vanillaAction) {
         KeyMapping vanillaKey = vanillaAction.keyMapping();
-        return combatKey.getKey().getValue() == InputConstants.UNKNOWN.getValue() || combatKey.getKey().equals(vanillaKey.getKey()) ? vanillaKey : combatKey;
+        return combatKey.key.getValue() == InputConstants.UNKNOWN.getValue() || combatKey.key.equals(vanillaKey.key) ? vanillaKey : combatKey;
     }
 
     @Override
@@ -79,6 +81,6 @@ public enum EpicFightInputAction implements InputAction {
         if (EpicFightControllerModProvider.get() == null) {
             throw new IllegalStateException("controllerBinding() must not be called when the controller mod is not installed");
         }
-        return Optional.of(EpicFightControlifyControllerMod.getBinding(this));
+        return Optional.ofNullable(EpicFightControlifyControllerMod.getBindingOrNull(this));
     }
 }

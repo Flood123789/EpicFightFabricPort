@@ -6,11 +6,12 @@ import java.util.Set;
 
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.ForgeMod;
+import yesman.epicfight.forgecompat.api.distmarker.Dist;
+import yesman.epicfight.forgecompat.api.distmarker.OnlyIn;
+import yesman.epicfight.forgecompat.common.ForgeMod;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.AnimationVariables;
@@ -373,7 +374,8 @@ public class ActionAnimation extends MainFrameAnimation {
 			}
 		}, () -> {
 			if (moveVertical && move.y > 0.0F && !hasNoGravity) {
-				double gravity = livingentity.getAttribute(ForgeMod.ENTITY_GRAVITY.get()).getValue();
+				AttributeInstance gravityAttribute = livingentity.getAttribute(ForgeMod.ENTITY_GRAVITY.get());
+				double gravity = gravityAttribute == null ? 0.08D : gravityAttribute.getValue();
 				livingentity.setDeltaMovement(motion.x, motion.y < 0.0D ? motion.y + gravity : 0.0D, motion.z);
 			}
 		});

@@ -72,7 +72,7 @@ public class SelectAnimationScreen extends Screen {
 		this.searchBox.setX(this.width / 2);
 		this.searchBox.setY(12);
 		this.searchBox.setWidth(this.width / 2 - 12);
-		this.searchBox.setHeight(16);
+		this.searchBox.height = 16;
 		
 		this.addRenderableWidget(this.searchBox);
 		this.addRenderableWidget(Button.builder(Component.translatable("datapack_edit.import_animation"), (button) -> {

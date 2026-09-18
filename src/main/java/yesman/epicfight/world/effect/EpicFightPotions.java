@@ -1,8 +1,8 @@
 package yesman.epicfight.world.effect;
 
 import net.minecraft.world.item.alchemy.Potion;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
+import yesman.epicfight.forgecompat.registries.DeferredRegister;
+import yesman.epicfight.forgecompat.registries.ForgeRegistries;
 import yesman.epicfight.main.EpicFightMod;
 
 public class EpicFightPotions {

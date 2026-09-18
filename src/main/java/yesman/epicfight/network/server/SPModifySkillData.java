@@ -5,7 +5,8 @@ import java.util.function.Supplier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.network.NetworkEvent;
+import yesman.epicfight.forgecompat.network.BufUtil;
+import yesman.epicfight.forgecompat.network.NetworkEvent;
 import yesman.epicfight.skill.SkillDataKey;
 import yesman.epicfight.skill.SkillDataKeys;
 import yesman.epicfight.skill.SkillDataManager;
@@ -15,7 +16,7 @@ import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 
 public record SPModifySkillData(SkillDataKey<?> dataKey, SkillSlot slot, Object value, int entityId) {
 	public static SPModifySkillData fromBytes(FriendlyByteBuf buf) {
-		SkillDataKey<?> datakey = buf.readRegistryId();
+		SkillDataKey<?> datakey = BufUtil.readRegistryId(buf);
 		SkillSlot slot = SkillSlot.ENUM_MANAGER.get(buf.readInt());
 		int entityId = buf.readInt();
 		Object value = datakey.readFromBuffer(buf);
@@ -25,7 +26,7 @@ public record SPModifySkillData(SkillDataKey<?> dataKey, SkillSlot slot, Object 
 	
 	@SuppressWarnings("unchecked")
 	public static void toBytes(SPModifySkillData msg, FriendlyByteBuf buf) {
-		buf.writeRegistryId(SkillDataKeys.REGISTRY.get(), msg.dataKey);
+		BufUtil.writeRegistryId(buf, SkillDataKeys.REGISTRY.get(), msg.dataKey);
 		buf.writeInt(msg.slot.universalOrdinal());
 		buf.writeInt(msg.entityId);
 		((SkillDataKey<Object>)msg.dataKey).writeToBuffer(buf, msg.value);

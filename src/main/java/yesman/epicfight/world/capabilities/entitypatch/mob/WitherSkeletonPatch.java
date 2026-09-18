@@ -7,7 +7,7 @@ import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
-import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
+import yesman.epicfight.forgecompat.event.entity.EntityAttributeModificationEvent;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;

@@ -40,7 +40,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.fml.ModLoader;
+import yesman.epicfight.forgecompat.fml.ModLoader;
 import yesman.epicfight.api.client.forgeevent.AttributeIconRegisterEvent;
 import yesman.epicfight.api.client.forgeevent.WeaponCategoryIconRegisterEvent;
 import yesman.epicfight.client.gui.datapack.widgets.Static;
@@ -330,7 +330,7 @@ public class SkillBookScreen extends Screen {
 			window.setGuiScale(this.customScale);
 			
 			//Fix: expand extra far plane distance
-			Matrix4f matrix4f = (new Matrix4f()).setOrtho(0.0F, (float)((double)window.getWidth() / window.getGuiScale()), (float)((double)window.getHeight() / window.getGuiScale()), 0.0F, 1000.0F, net.minecraftforge.client.ForgeHooksClient.getGuiFarPlane());
+			Matrix4f matrix4f = (new Matrix4f()).setOrtho(0.0F, (float)((double)window.getWidth() / window.getGuiScale()), (float)((double)window.getHeight() / window.getGuiScale()), 0.0F, 1000.0F, yesman.epicfight.forgecompat.client.ForgeHooksClient.getGuiFarPlane());
 			RenderSystem.setProjectionMatrix(matrix4f, VertexSorting.ORTHOGRAPHIC_Z);
 		}
 		
@@ -397,7 +397,7 @@ public class SkillBookScreen extends Screen {
 		// Recover the original projection matrix
 		if (originalScale != this.customScale) {
 			window.setGuiScale(originalScale);
-			Matrix4f matrix4f = (new Matrix4f()).setOrtho(0.0F, (float)((double)window.getWidth() / window.getGuiScale()), (float)((double)window.getHeight() / window.getGuiScale()), 0.0F, 1000.0F, net.minecraftforge.client.ForgeHooksClient.getGuiFarPlane());
+			Matrix4f matrix4f = (new Matrix4f()).setOrtho(0.0F, (float)((double)window.getWidth() / window.getGuiScale()), (float)((double)window.getHeight() / window.getGuiScale()), 0.0F, 1000.0F, yesman.epicfight.forgecompat.client.ForgeHooksClient.getGuiFarPlane());
 	        RenderSystem.setProjectionMatrix(matrix4f, VertexSorting.ORTHOGRAPHIC_Z);
 		}
 	}
@@ -677,11 +677,11 @@ public class SkillBookScreen extends Screen {
 			}
 			
 			guiGraphics.pose().pushPose();
-			guiGraphics.blitNineSliced(SKILLBOOK_BACKGROUND, this.getX(), this.getY(), this.getWidth(), this.getHeight(), 20, 4, 45, 15, texX, 193);
+			guiGraphics.blitNineSliced(SKILLBOOK_BACKGROUND, this.getX(), this.getY(), this.width, this.height, 20, 4, 45, 15, texX, 193);
 			guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
 			guiGraphics.pose().popPose();
 			
-			int i = this.getFGColor();
+			int i = this.active ? 0xFFFFFF : 0xA0A0A0;
 			this.renderString(guiGraphics, minecraft.font, i | Mth.ceil(this.alpha * 255.0F) << 24);
 		}
 	}

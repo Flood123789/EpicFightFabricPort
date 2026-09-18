@@ -6,8 +6,9 @@ import javax.annotation.Nullable;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
-import net.minecraftforge.registries.RegistryManager;
+import yesman.epicfight.forgecompat.network.BufUtil;
+import yesman.epicfight.forgecompat.network.NetworkEvent;
+import yesman.epicfight.forgecompat.registries.RegistryManager;
 import yesman.epicfight.api.data.reloader.SkillManager;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillSlot;
@@ -16,7 +17,7 @@ import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 
 public record SPChangeSkill(SkillSlot skillSlot, int entityId, @Nullable Skill skill) {
 	public static SPChangeSkill fromBytes(FriendlyByteBuf buf) {
-		return new SPChangeSkill(SkillSlot.ENUM_MANAGER.getOrThrow(buf.readInt()), buf.readInt(), buf.isReadable() ? buf.readRegistryId() : null);
+		return new SPChangeSkill(SkillSlot.ENUM_MANAGER.getOrThrow(buf.readInt()), buf.readInt(), buf.isReadable() ? BufUtil.readRegistryId(buf) : null);
 	}
 	
 	public static void toBytes(SPChangeSkill msg, FriendlyByteBuf buf) {
@@ -24,7 +25,7 @@ public record SPChangeSkill(SkillSlot skillSlot, int entityId, @Nullable Skill s
 		buf.writeInt(msg.entityId());
 		
 		if (msg.skill() != null) {
-			buf.writeRegistryId(RegistryManager.ACTIVE.getRegistry(SkillManager.SKILL_REGISTRY_KEY), msg.skill());
+			BufUtil.writeRegistryId(buf, RegistryManager.ACTIVE.getRegistry(SkillManager.SKILL_REGISTRY_KEY), msg.skill());
 		}
 	}
 	

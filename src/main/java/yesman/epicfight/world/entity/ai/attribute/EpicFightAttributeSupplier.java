@@ -9,11 +9,14 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.LivingEntity;
+import yesman.epicfight.forgecompat.common.ForgeMod;
 
 public class EpicFightAttributeSupplier extends AttributeSupplier {
 	private static Map<Attribute, AttributeInstance> putEpicFightAttributes(Map<Attribute, AttributeInstance> originalMap) {
 		AttributeSupplier supplier = AttributeSupplier.builder()
 				.add(Attributes.ATTACK_DAMAGE)
+				.add(ForgeMod.ENTITY_GRAVITY.get())
 				.add(EpicFightAttributes.WEIGHT.get())
 				.add(EpicFightAttributes.IMPACT.get())
 				.add(EpicFightAttributes.ARMOR_NEGATION.get())
@@ -36,5 +39,12 @@ public class EpicFightAttributeSupplier extends AttributeSupplier {
 	
 	public EpicFightAttributeSupplier(AttributeSupplier copy) {
 		super(putEpicFightAttributes(copy.instances));
+	}
+
+	public static void ensureEpicFightAttributes(LivingEntity entity) {
+		if (!(entity.getAttributes().supplier instanceof EpicFightAttributeSupplier)
+			|| entity.getAttribute(ForgeMod.ENTITY_GRAVITY.get()) == null) {
+			entity.getAttributes().supplier = new EpicFightAttributeSupplier(entity.getAttributes().supplier);
+		}
 	}
 }

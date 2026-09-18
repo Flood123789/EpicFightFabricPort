@@ -23,7 +23,7 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringUtil;
-import net.minecraftforge.registries.IForgeRegistry;
+import yesman.epicfight.forgecompat.registries.IForgeRegistry;
 import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.main.EpicFightMod;
 

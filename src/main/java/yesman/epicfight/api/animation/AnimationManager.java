@@ -39,10 +39,10 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.fml.event.IModBusEvent;
+import yesman.epicfight.forgecompat.api.distmarker.Dist;
+import yesman.epicfight.forgecompat.api.distmarker.OnlyIn;
+import yesman.epicfight.forgecompat.eventbus.api.Event;
+import yesman.epicfight.forgecompat.fml.event.IModBusEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.StaticAnimation;
@@ -62,6 +62,14 @@ import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.client.CPCheckAnimationRegistryMatches;
 import yesman.epicfight.network.server.SPDatapackSync;
 
+/**
+ * Registry and resource-reload owner for every static animation.
+ *
+ * <p>Animations have both a namespaced identifier (stable for data/addons) and
+ * a numeric ID (compact for packets). Reloading clears resource-pack instances,
+ * reloads armatures and clips, then rebuilds the lookup maps while retaining
+ * Java-registered accessors.</p>
+ */
 @SuppressWarnings("unchecked")
 public class AnimationManager extends SimplePreparableReloadListener<List<ResourceLocation>> {
 	private static final AnimationManager INSTANCE = new AnimationManager();
@@ -145,6 +153,8 @@ public class AnimationManager extends SimplePreparableReloadListener<List<Resour
 	
 	@Override
 	protected List<ResourceLocation> prepare(ResourceManager resourceManager, ProfilerFiller profilerIn) {
+		// prepare may run off-thread: only discover resources and reset manager-owned
+		// collections here. Object construction that touches game state belongs in apply.
 		if (!EpicFightSharedConstants.isPhysicalClient() && serverResourceManager == null) {
 			serverResourceManager = resourceManager;
 		}

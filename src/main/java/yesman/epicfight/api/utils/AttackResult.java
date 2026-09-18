@@ -5,7 +5,9 @@ public class AttackResult {
 	public final float damage;
 	
 	public AttackResult(ResultType resultType, float damage) {
-		this.resultType = resultType;
+		// A successful vanilla hit can arrive without Forge's LivingAttackEvent on
+		// Fabric. Never allow that missing bridge data to create an invalid result.
+		this.resultType = resultType == null ? ResultType.SUCCESS : resultType;
 		this.damage = damage;
 	}
 	

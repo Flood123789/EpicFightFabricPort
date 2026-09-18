@@ -5,9 +5,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.Tiers;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import yesman.epicfight.forgecompat.registries.DeferredRegister;
+import yesman.epicfight.forgecompat.registries.ForgeRegistries;
+import yesman.epicfight.forgecompat.registries.RegistryObject;
 import yesman.epicfight.main.EpicFightMod;
 
 public class EpicFightItems {

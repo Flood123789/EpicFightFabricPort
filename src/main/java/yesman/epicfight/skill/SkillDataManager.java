@@ -9,8 +9,8 @@ import com.google.common.collect.Maps;
 
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import yesman.epicfight.forgecompat.api.distmarker.Dist;
+import yesman.epicfight.forgecompat.api.distmarker.OnlyIn;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.client.CPModifySkillData;
 import yesman.epicfight.network.server.SPModifySkillData;
@@ -52,7 +52,7 @@ public class SkillDataManager {
 			throw new IllegalStateException(key + " is unregistered.");
 		}
 		
-		this.data.put(key, data);
+		this.data.put(key, data != null ? data : key.defaultValue());
 	}
 	
 	public <T> void setData(SkillDataKey<T> key, T data) {
@@ -136,7 +136,15 @@ public class SkillDataManager {
 	
 	@SuppressWarnings("unchecked")
 	public <T> T getDataValue(SkillDataKey<T> key) {
-		return (T)this.data.get(key);
+		T value = (T)this.data.get(key);
+		if (value == null) {
+			// Keep a late-attached Fabric player capability safe even if its container
+			// predates the registry bake or receives an incomplete copied/network value.
+			value = key.defaultValue();
+			this.data.put(key, value);
+		}
+
+		return value;
 	}
 	
 	@SuppressWarnings("unchecked")

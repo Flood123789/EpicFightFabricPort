@@ -3,8 +3,8 @@ package yesman.epicfight.skill.passive;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import yesman.epicfight.forgecompat.api.distmarker.Dist;
+import yesman.epicfight.forgecompat.api.distmarker.OnlyIn;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;

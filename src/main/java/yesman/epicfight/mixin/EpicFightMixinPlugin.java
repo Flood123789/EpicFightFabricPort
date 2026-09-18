@@ -25,6 +25,15 @@ public class EpicFightMixinPlugin implements IMixinConfigPlugin {
 			return FabricLoader.getInstance().isModLoaded("skinlayers3d");
 		}
 
+		if (mixinClassName.startsWith("yesman.epicfight.mixin.azurelib.")) {
+			FabricLoader loader = FabricLoader.getInstance();
+			return loader.isModLoaded("azurelib") && (loader.isModLoaded("vivecraft") || loader.isModLoaded("physicsmod"));
+		}
+
+		if (mixinClassName.startsWith("yesman.epicfight.mixin.bettercombat.")) {
+			return FabricLoader.getInstance().isModLoaded("bettercombat");
+		}
+
 		return true;
 	}
 

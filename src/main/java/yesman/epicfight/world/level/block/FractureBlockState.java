@@ -71,21 +71,24 @@ public class FractureBlockState extends BlockState {
 		return true;
 	}
 	
-	@Override
 	public boolean hidesNeighborFace(BlockGetter level, BlockPos pos, BlockState neighborState, Direction dir) {
 		return false;
 	}
 	
-	@Override
 	public boolean supportsExternalFaceHiding() {
 		return false;
 	}
 	
 	@Override
+	public int getLightEmission() {
+		return super.getLightEmission();
+	}
+
 	public int getLightEmission(BlockGetter level, BlockPos blockPos) {
-		return ORIGINAL_BLOCK_STATE_CACHE.containsKey(blockPos.hashCode()) ? ORIGINAL_BLOCK_STATE_CACHE.get(blockPos.hashCode()).getLightEmission(level, blockPos) : this.owner.getLightEmission(this, level, blockPos);
+		return ORIGINAL_BLOCK_STATE_CACHE.containsKey(blockPos.hashCode()) ? ORIGINAL_BLOCK_STATE_CACHE.get(blockPos.hashCode()).getLightEmission() : super.getLightEmission();
 	}
 	
+
 	@Override
 	public VoxelShape getShape(BlockGetter level, BlockPos blockPos) {
 		return Shapes.empty();

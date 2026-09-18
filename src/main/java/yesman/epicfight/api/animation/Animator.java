@@ -9,7 +9,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;
 
-import net.minecraftforge.common.MinecraftForge;
+import yesman.epicfight.forgecompat.common.MinecraftForge;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.api.animation.types.StaticAnimation;
@@ -19,6 +19,12 @@ import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
+/**
+ * Owns animation playback and pose/state evaluation for one patched living
+ * entity. Server and client implementations share this contract but have
+ * different jobs: the server evaluates authoritative action state, while the
+ * client also blends layers and produces render poses.
+ */
 public abstract class Animator {
 	protected final Map<LivingMotion, AssetAccessor<? extends StaticAnimation>> livingAnimations = Maps.newHashMap();
 	protected final AnimationVariables animationVariables = new AnimationVariables(this);

@@ -13,7 +13,6 @@
   "depends": {
     "fabricloader": ">=${fabric_loader_version}",
     "fabric-api": ">=${fabric_api_version}",
-    "kilt": ">=20.1.14",
     "minecraft": "${minecraft_version}",
     "java": ">=17"
   },
@@ -22,6 +21,8 @@
     "modmenu": "*",
     "azurelib": "*",
     "azurelibarmor": "*",
+    "bettercombat": "*",
+    "controlify": "*",
     "geckolib": "*",
     "firstperson": "*",
     "iris": "*",
@@ -35,6 +36,9 @@
     ],
     "client": [
       "yesman.epicfight.main.EpicFightFabricClientInitializer"
+    ],
+    "controlify": [
+      "yesman.epicfight.compat.controlify.EpicFightControlifyEntrypoint"
     ]
   },
   "mixins": [

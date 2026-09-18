@@ -27,15 +27,15 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.ModLoader;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.IForgeRegistryInternal;
-import net.minecraftforge.registries.NewRegistryEvent;
-import net.minecraftforge.registries.RegisterEvent;
-import net.minecraftforge.registries.RegistryBuilder;
-import net.minecraftforge.registries.RegistryManager;
+import yesman.epicfight.forgecompat.api.distmarker.Dist;
+import yesman.epicfight.forgecompat.api.distmarker.OnlyIn;
+import yesman.epicfight.forgecompat.fml.ModLoader;
+import yesman.epicfight.forgecompat.registries.IForgeRegistry;
+import yesman.epicfight.forgecompat.registries.IForgeRegistryInternal;
+import yesman.epicfight.forgecompat.registries.NewRegistryEvent;
+import yesman.epicfight.forgecompat.registries.RegisterEvent;
+import yesman.epicfight.forgecompat.registries.RegistryBuilder;
+import yesman.epicfight.forgecompat.registries.RegistryManager;
 import yesman.epicfight.api.forgeevent.SkillBuildEvent;
 import yesman.epicfight.api.utils.ClientOnlyUtils;
 import yesman.epicfight.gameasset.EpicFightSkills;
@@ -43,6 +43,13 @@ import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.network.server.SPDatapackSync;
 import yesman.epicfight.skill.Skill;
 
+/**
+ * Owns the skill registry and applies datapack skill parameters.
+ *
+ * <p>Java code constructs and registers each skill type once. JSON files under
+ * {@code data/<namespace>/skill_parameters} then tune those registered objects,
+ * and the server sends the resulting tags to clients during datapack sync.</p>
+ */
 public class SkillManager extends SimpleJsonResourceReloadListener {
 	public static final ResourceKey<Registry<Skill>> SKILL_REGISTRY_KEY = ResourceKey.createRegistryKey(EpicFightMod.identifier("skill"));
 	public static final Codec<Skill> CODEC = ExtraCodecs.lazyInitializedCodec(() -> RegistryManager.ACTIVE.getRegistry(SKILL_REGISTRY_KEY).getCodec());

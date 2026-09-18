@@ -11,6 +11,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
@@ -22,9 +23,9 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.minecraftforge.common.loot.IGlobalLootModifier;
-import net.minecraftforge.common.loot.LootModifier;
-import net.minecraftforge.fml.ModLoader;
+import yesman.epicfight.forgecompat.common.loot.IGlobalLootModifier;
+import yesman.epicfight.forgecompat.common.loot.LootModifier;
+import yesman.epicfight.forgecompat.fml.ModLoader;
 import yesman.epicfight.api.forgeevent.SkillLootTableRegistryEvent;
 import yesman.epicfight.config.CommonConfig;
 import yesman.epicfight.data.loot.function.SetSkillFunction;
@@ -262,14 +263,14 @@ public class SkillBookLootModifier extends LootModifier {
 	 */
 	@SuppressWarnings("deprecation")
 	@Override
-	protected @NotNull ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> generatedLoot, LootContext context) {
+	protected @NotNull ObjectArrayList<ItemStack> doApply(ObjectList<ItemStack> generatedLoot, LootContext context) {
 		Entity entity = context.getParamOrNull(LootContextParams.THIS_ENTITY);
 		
 		if (entity != null && SKILL_LOOT_TABLE.containsKey(entity.getType())) {
 			SKILL_LOOT_TABLE.get(entity.getType()).getRandomItemsRaw(context, generatedLoot::add);
 		}
 		
-		return generatedLoot;
+		return generatedLoot instanceof ObjectArrayList<ItemStack> arrayList ? arrayList : new ObjectArrayList<>(generatedLoot);
 	}
 
 	/**

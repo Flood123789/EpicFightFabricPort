@@ -2,9 +2,9 @@ package yesman.epicfight.compat;
 
 import dev.kosmx.playerAnim.impl.IAnimatedPlayer;
 import dev.kosmx.playerAnim.impl.animation.AnimationApplier;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.eventbus.api.IEventBus;
+import yesman.epicfight.forgecompat.api.distmarker.Dist;
+import yesman.epicfight.forgecompat.api.distmarker.OnlyIn;
+import yesman.epicfight.forgecompat.eventbus.api.IEventBus;
 import yesman.epicfight.api.client.forgeevent.RenderEpicFightPlayerEvent;
 
 public class PlayerAnimatorCompat implements ICompatModule {

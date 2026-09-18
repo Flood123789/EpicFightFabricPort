@@ -3,7 +3,7 @@ package yesman.epicfight.world.capabilities.entitypatch.mob;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.monster.AbstractSkeleton;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import yesman.epicfight.forgecompat.event.entity.EntityJoinLevelEvent;
 import yesman.epicfight.world.item.EpicFightItems;
 
 public class StrayPatch<T extends AbstractSkeleton> extends SkeletonPatch<T> {
