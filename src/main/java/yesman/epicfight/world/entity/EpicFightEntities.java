@@ -6,10 +6,10 @@ import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraftforge.event.entity.SpawnPlacementRegisterEvent;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import yesman.epicfight.forgecompat.event.entity.SpawnPlacementRegisterEvent;
+import yesman.epicfight.forgecompat.registries.DeferredRegister;
+import yesman.epicfight.forgecompat.registries.ForgeRegistries;
+import yesman.epicfight.forgecompat.registries.RegistryObject;
 import yesman.epicfight.main.EpicFightMod;
 
 public class EpicFightEntities {

@@ -4,7 +4,7 @@ import java.util.function.Supplier;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import yesman.epicfight.forgecompat.network.NetworkEvent;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.SkillSlot;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;

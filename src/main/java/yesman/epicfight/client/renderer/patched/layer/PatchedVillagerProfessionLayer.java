@@ -14,7 +14,7 @@ import net.minecraft.world.entity.monster.ZombieVillager;
 import net.minecraft.world.entity.npc.VillagerData;
 import net.minecraft.world.entity.npc.VillagerDataHolder;
 import net.minecraft.world.entity.npc.VillagerProfession;
-import net.minecraftforge.registries.ForgeRegistries;
+import yesman.epicfight.forgecompat.registries.ForgeRegistries;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.client.mesh.VillagerMesh;

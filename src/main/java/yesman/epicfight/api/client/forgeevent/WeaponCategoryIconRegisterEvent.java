@@ -4,8 +4,8 @@ import java.util.Map;
 
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.fml.event.IModBusEvent;
+import yesman.epicfight.forgecompat.eventbus.api.Event;
+import yesman.epicfight.forgecompat.fml.event.IModBusEvent;
 import yesman.epicfight.world.capabilities.item.WeaponCategory;
 
 public class WeaponCategoryIconRegisterEvent extends Event implements IModBusEvent {

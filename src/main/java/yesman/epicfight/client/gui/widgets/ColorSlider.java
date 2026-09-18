@@ -38,6 +38,10 @@ public class ColorSlider extends AbstractSliderButton implements ResizableCompon
 		this.horizontalSizingOption = null;
 		this.verticalSizingOption = null;
 	}
+
+	public int getFGColor() {
+		return this.active ? 16777215 : 10526880;
+	}
 	
 	public ColorSlider(Font font, int x1, int x2, int y1, int y2, HorizontalSizing horizontalSizing, VerticalSizing verticalSizing, Component message, ColorSlider.Style style, double initColor, BiConsumer<Double, Integer> valueChangeCallback) {
 		this(font, x1, x2, y1, y2, horizontalSizing, verticalSizing, message, style, initColor, valueChangeCallback, RGB_COMBINATIONS);
@@ -344,7 +348,7 @@ public class ColorSlider extends AbstractSliderButton implements ResizableCompon
 
 	@Override
 	public void _setHeight(int height) {
-		this.setHeight(height);
+		this.height = height;
 	}
 
 	@Override

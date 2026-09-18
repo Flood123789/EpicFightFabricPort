@@ -4,8 +4,9 @@ import java.util.function.Supplier;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
-import net.minecraftforge.registries.RegistryManager;
+import yesman.epicfight.forgecompat.network.BufUtil;
+import yesman.epicfight.forgecompat.network.NetworkEvent;
+import yesman.epicfight.forgecompat.registries.RegistryManager;
 import yesman.epicfight.api.data.reloader.SkillManager;
 import yesman.epicfight.gameasset.EpicFightSkills;
 import yesman.epicfight.skill.SkillSlots;
@@ -21,14 +22,14 @@ public record SPRemoveSkillAndLearn(SkillSlot skillSlot, Skill skill) {
 	}
 	
 	public static SPRemoveSkillAndLearn fromBytes(FriendlyByteBuf buf) {
-		return new SPRemoveSkillAndLearn(SkillSlot.ENUM_MANAGER.getOrThrow(buf.readInt()), buf.readRegistryId());
+		return new SPRemoveSkillAndLearn(SkillSlot.ENUM_MANAGER.getOrThrow(buf.readInt()), BufUtil.readRegistryId(buf));
 	}
 	
 	public static void toBytes(SPRemoveSkillAndLearn msg, FriendlyByteBuf buf) {
 		buf.writeInt(msg.skillSlot.universalOrdinal());
 		
 		if (msg.skill != null) {
-			buf.writeRegistryId(RegistryManager.ACTIVE.getRegistry(SkillManager.SKILL_REGISTRY_KEY), msg.skill);
+			BufUtil.writeRegistryId(buf, RegistryManager.ACTIVE.getRegistry(SkillManager.SKILL_REGISTRY_KEY), msg.skill);
 		}
 	}
 	

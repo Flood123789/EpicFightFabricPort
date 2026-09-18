@@ -6,7 +6,7 @@ import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.eventbus.api.Event;
+import yesman.epicfight.forgecompat.eventbus.api.Event;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.client.renderer.patched.layer.LayerUtil;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;

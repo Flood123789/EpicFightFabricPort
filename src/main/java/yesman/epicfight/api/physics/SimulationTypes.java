@@ -1,8 +1,8 @@
 package yesman.epicfight.api.physics;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import yesman.epicfight.forgecompat.api.distmarker.Dist;
+import yesman.epicfight.forgecompat.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.client.model.SoftBodyTranslatable;
 import yesman.epicfight.api.client.physics.cloth.ClothSimulatable;

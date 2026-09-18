@@ -32,13 +32,13 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.LivingDropsEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
+import yesman.epicfight.forgecompat.api.distmarker.Dist;
+import yesman.epicfight.forgecompat.api.distmarker.OnlyIn;
+import yesman.epicfight.forgecompat.event.ForgeEventFactory;
+import yesman.epicfight.forgecompat.event.entity.EntityAttributeModificationEvent;
+import yesman.epicfight.forgecompat.event.entity.living.LivingDeathEvent;
+import yesman.epicfight.forgecompat.event.entity.living.LivingDropsEvent;
+import yesman.epicfight.forgecompat.event.entity.living.LivingEvent;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.JointTransform;
@@ -239,7 +239,7 @@ public class WitherPatch extends MobPatch<WitherBoss> implements BossPatch<Withe
 						BlockPos blockpos = new BlockPos(l2, l, i1);
 						BlockState blockstate = this.original.level().getBlockState(blockpos);
 						
-						if (blockstate.canEntityDestroy(this.original.level(), blockpos, this.original) && ForgeEventFactory.onEntityDestroyBlock(this.original, blockpos, blockstate)) {
+						if (net.minecraft.world.entity.boss.wither.WitherBoss.canDestroy(blockstate) && ForgeEventFactory.onEntityDestroyBlock(this.original, blockpos, blockstate)) {
 							flag = this.original.level().destroyBlock(blockpos, true, this.original) || flag;
 						}
 					}

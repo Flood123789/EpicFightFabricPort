@@ -1,9 +1,9 @@
 package yesman.epicfight.compat;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import yesman.epicfight.forgecompat.api.distmarker.Dist;
+import yesman.epicfight.forgecompat.api.distmarker.OnlyIn;
+import yesman.epicfight.forgecompat.eventbus.api.IEventBus;
+import yesman.epicfight.forgecompat.fml.event.lifecycle.FMLClientSetupEvent;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.renderer.SodiumFakeBlockRenderer;
 import yesman.epicfight.client.renderer.shader.compute.loader.ComputeShaderProvider;

@@ -5,8 +5,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.eventbus.api.IEventBus;
+import yesman.epicfight.forgecompat.eventbus.api.Event;
+import yesman.epicfight.forgecompat.eventbus.api.IEventBus;
 import yesman.epicfight.client.world.util.FakeLevel;
 
 @Mixin(value = ClientLevel.class)

@@ -61,7 +61,7 @@ public enum MinecraftInputAction implements InputAction {
         if (EpicFightControllerModProvider.get() == null) {
             throw new IllegalStateException("controllerBinding() must not be called when the controller mod is not installed");
         }
-        return Optional.of(EpicFightControlifyControllerMod.getBinding(this));
+        return Optional.ofNullable(EpicFightControlifyControllerMod.getBindingOrNull(this));
     }
 
     @Override

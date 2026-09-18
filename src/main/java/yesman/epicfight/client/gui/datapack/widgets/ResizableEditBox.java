@@ -130,7 +130,7 @@ public class ResizableEditBox extends EditBox implements DataBindingComponent<St
 
 	@Override
 	public void _setHeight(int height) {
-		this.setHeight(height);
+		this.height = height;
 	}
 
 	@Override

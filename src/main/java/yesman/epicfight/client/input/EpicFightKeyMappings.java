@@ -6,10 +6,10 @@ import net.minecraft.client.Minecraft;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Options;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import yesman.epicfight.forgecompat.api.distmarker.Dist;
+import yesman.epicfight.forgecompat.client.event.RegisterKeyMappingsEvent;
+import yesman.epicfight.forgecompat.eventbus.api.SubscribeEvent;
+import yesman.epicfight.forgecompat.fml.common.Mod;
 import yesman.epicfight.generated.LangKeys;
 import yesman.epicfight.main.EpicFightMod;
 
@@ -22,7 +22,7 @@ public class EpicFightKeyMappings {
             new KeyMapping(
                     LangKeys.KEY_SHOW_TOOLTIP,
                     InputConstants.Type.KEYSYM,
-                    InputConstants.KEY_LSHIFT,
+                    InputConstants.UNKNOWN.getValue(),
                     EpicFightInputCategories.GUI
             );
 
@@ -150,9 +150,11 @@ public class EpicFightKeyMappings {
             return;
         }
 
-        fabricKeysRegistered = true;
-        KeyBindingHelper.registerKeyBinding(WEAPON_INNATE_SKILL_TOOLTIP);
-        KeyBindingHelper.registerKeyBinding(SWITCH_MODE);
+		fabricKeysRegistered = true;
+		// This is a physical Shift modifier, not an independently registered action.
+		// Registering it on Fabric replaces vanilla crouch in KeyMapping's one-entry
+		// key lookup, so the physical key remains down while options.keyShift never is.
+		KeyBindingHelper.registerKeyBinding(SWITCH_MODE);
         KeyBindingHelper.registerKeyBinding(DODGE);
         KeyBindingHelper.registerKeyBinding(GUARD);
         KeyBindingHelper.registerKeyBinding(ATTACK);
@@ -188,7 +190,7 @@ public class EpicFightKeyMappings {
     }
 
     private static boolean clearIfSameAsVanilla(KeyMapping combatKey, KeyMapping vanillaKey) {
-        if (combatKey.getKey().getValue() == InputConstants.UNKNOWN.getValue() || !combatKey.getKey().equals(vanillaKey.getKey())) {
+        if (combatKey.key.getValue() == InputConstants.UNKNOWN.getValue() || !combatKey.key.equals(vanillaKey.key)) {
             return false;
         }
 

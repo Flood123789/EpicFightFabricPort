@@ -6,8 +6,8 @@ import javax.annotation.Nullable;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Mth;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import yesman.epicfight.forgecompat.api.distmarker.Dist;
+import yesman.epicfight.forgecompat.api.distmarker.OnlyIn;
 import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.network.client.CPSkillRequest;
@@ -23,6 +23,13 @@ import yesman.epicfight.world.gamerule.EpicFightGameRules;
 import yesman.epicfight.world.entity.eventlistener.SkillCastEvent;
 import yesman.epicfight.world.entity.eventlistener.SkillConsumeEvent;
 
+/**
+ * Mutable, per-player runtime state for one {@link SkillSlot}.
+ *
+ * <p>The {@link Skill} object is the shared behavior definition; this container
+ * owns the equipped skill and values that differ per player, including resource,
+ * duration, stacks, activation, disable state, and synchronized skill data.</p>
+ */
 public class SkillContainer {
 	protected Skill containingSkill;
 	protected int prevDuration;
@@ -63,9 +70,8 @@ public class SkillContainer {
 	}
 	
 	public boolean setSkill(@Nullable Skill skill, boolean initialize) {
-		/**
-		 * For remote players, call setSkillRemote instead
-		 */
+		// Remote-player state is a server mirror and must use setSkillRemote;
+		// allowing it here would run local/server lifecycle hooks on the wrong side.
 		if (this.executor.isLogicalClient() && !this.executor.getOriginal().isLocalPlayer()) {
 			return false;
 		}
@@ -95,9 +101,9 @@ public class SkillContainer {
 		this.skillDataManager.clearData();
 		
 		if (skill != null) {
-			Set<SkillDataKey<?>> datakeys = SkillDataKey.getSkillDataKeyMap().get(skill.getClass());
+			Set<SkillDataKey<?>> datakeys = SkillDataKey.getSkillDataKeysFor(skill.getClass());
 			
-			if (datakeys != null) {
+			if (!datakeys.isEmpty()) {
 				datakeys.forEach(this.skillDataManager::registerData);
 			}
 			
@@ -124,9 +130,7 @@ public class SkillContainer {
 	
 	@OnlyIn(Dist.CLIENT)
 	public void setSkillRemote(@Nullable Skill skill) {
-		/**
-		 * For server players or a local player, call setSkill instead
-		 */
+		// The inverse of setSkill: only tracking copies of other players belong here.
 		if (!this.executor.isLogicalClient() || this.executor.getOriginal().isLocalPlayer()) {
 			return;
 		}

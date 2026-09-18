@@ -1,9 +1,9 @@
 package yesman.epicfight.main;
 
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.ForgeConfigSpec;
+import yesman.epicfight.forgecompat.api.distmarker.Dist;
+import yesman.epicfight.forgecompat.api.distmarker.OnlyIn;
+import yesman.epicfight.forgecompat.common.ForgeConfigSpec;
 
 @OnlyIn(Dist.CLIENT)
 public interface AuthenticationHelper {

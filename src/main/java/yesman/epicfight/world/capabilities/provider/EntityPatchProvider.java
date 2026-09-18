@@ -25,12 +25,12 @@ import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.monster.ZombieVillager;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.common.util.NonNullSupplier;
-import net.minecraftforge.fml.ModLoader;
-import net.minecraftforge.registries.ForgeRegistries;
+import yesman.epicfight.forgecompat.common.capabilities.Capability;
+import yesman.epicfight.forgecompat.common.capabilities.ICapabilityProvider;
+import yesman.epicfight.forgecompat.common.util.LazyOptional;
+import yesman.epicfight.forgecompat.common.util.NonNullSupplier;
+import yesman.epicfight.forgecompat.fml.ModLoader;
+import yesman.epicfight.forgecompat.registries.ForgeRegistries;
 import yesman.epicfight.api.forgeevent.EntityPatchRegistryEvent;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.AbstractClientPlayerPatch;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
@@ -70,6 +70,14 @@ import yesman.epicfight.world.capabilities.projectile.WitherSkullPatch;
 import yesman.epicfight.world.entity.EpicFightEntities;
 import yesman.epicfight.world.gamerule.EpicFightGameRules;
 
+/**
+ * Chooses and lazily exposes the Epic Fight patch for a vanilla entity.
+ *
+ * <p>{@link #registerEntityPatches()} builds the common/server mapping. The
+ * client registration then replaces the player entry because local, remote,
+ * and server players require different patch implementations. Datapack-defined
+ * mappings in {@code CUSTOM_CAPABILITIES} take priority over built-ins.</p>
+ */
 public class EntityPatchProvider implements ICapabilityProvider, NonNullSupplier<EntityPatch<?>> {
 	private static final Map<EntityType<?>, Function<Entity, Supplier<EntityPatch<?>>>> CAPABILITIES = Maps.newHashMap();
 	private static final Map<EntityType<?>, Function<Entity, Supplier<EntityPatch<?>>>> CUSTOM_CAPABILITIES = Maps.newHashMap();
@@ -127,12 +135,12 @@ public class EntityPatchProvider implements ICapabilityProvider, NonNullSupplier
 	
 	public static void registerEntityPatchesClient() {
 		CAPABILITIES.put(EntityType.PLAYER, (entityIn) -> {
-			if (entityIn instanceof LocalPlayer) {
+			if (entityIn instanceof ServerPlayer) {
+				return ServerPlayerPatch::new;
+			} else if (entityIn instanceof LocalPlayer) {
 				return LocalPlayerPatch::new;
 			} else if (entityIn instanceof RemotePlayer) {
 				return AbstractClientPlayerPatch<RemotePlayer>::new;
-			} else if (entityIn instanceof ServerPlayer) {
-				return ServerPlayerPatch::new;
 			} else {
 				return () -> null;
 			}
@@ -166,6 +174,8 @@ public class EntityPatchProvider implements ICapabilityProvider, NonNullSupplier
 	private final LazyOptional<EntityPatch<?>> optional = LazyOptional.of(this);
 	
 	public EntityPatchProvider(Entity entity) {
+		// Prefer a data/addon override, fall back to the built-in type mapping, and
+		// finally use a generic mob patch when the global-stun gamerule requests it.
 		Function<Entity, Supplier<EntityPatch<?>>> provider = CUSTOM_CAPABILITIES.getOrDefault(entity.getType(), CAPABILITIES.get(entity.getType()));
 		
 		if (provider != null) {
@@ -191,5 +201,10 @@ public class EntityPatchProvider implements ICapabilityProvider, NonNullSupplier
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
 		return cap == EpicFightCapabilities.CAPABILITY_ENTITY ? this.optional.cast() :  LazyOptional.empty();
+	}
+
+	@Override
+	public void invalidateCaps() {
+		this.optional.invalidate();
 	}
 }

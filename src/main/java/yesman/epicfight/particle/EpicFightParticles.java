@@ -2,9 +2,9 @@ package yesman.epicfight.particle;
 
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import yesman.epicfight.forgecompat.registries.DeferredRegister;
+import yesman.epicfight.forgecompat.registries.ForgeRegistries;
+import yesman.epicfight.forgecompat.registries.RegistryObject;
 import yesman.epicfight.main.EpicFightMod;
 
 public class EpicFightParticles {

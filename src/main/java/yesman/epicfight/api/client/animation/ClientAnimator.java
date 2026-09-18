@@ -55,6 +55,7 @@ public class ClientAnimator extends Animator {
 	private LivingMotion currentMotion;
 	private LivingMotion currentCompositeMotion;
 	private boolean hardPaused;
+	private static boolean warnedAboutMissingInitialAnimation;
 	
 	public ClientAnimator(LivingEntityPatch<?> entitypatch) {
 		this(entitypatch, Layer.BaseLayer::new);
@@ -197,7 +198,27 @@ public class ClientAnimator extends Animator {
 		
 		this.setCurrentMotionsAsDefault();
 		
-		AssetAccessor<? extends StaticAnimation> idleMotion = this.livingAnimations.get(this.currentMotion);
+		AssetAccessor<? extends StaticAnimation> idleMotion = this.getLivingMotion(this.currentMotion);
+
+		if (idleMotion == null) {
+			/**
+			 * No living animation was registered, so there is no initial pose to play.
+			 * This happens when a patch is constructed before the animation assets have
+			 * finished loading: Animator#addLivingAnimation rejects every empty accessor
+			 * and logs "Unable to put an empty animation", leaving the map empty. Cosmetic
+			 * mods that build a dummy client player during client initialisation reach this
+			 * state. Leave the base layer at rest instead of dereferencing null; a patch
+			 * constructed after the resource reload receives a fully populated animator.
+			 */
+			if (!warnedAboutMissingInitialAnimation) {
+				warnedAboutMissingInitialAnimation = true;
+				EpicFightMod.LOGGER.warn("No living animation was registered for {}; skipping the initial animation. "
+					+ "This is expected when an entity patch is built before the animation assets finish loading.", this.currentMotion);
+			}
+
+			return;
+		}
+
 		this.baseLayer.playAnimationInstantly(idleMotion, this.entitypatch);
 	}
 	

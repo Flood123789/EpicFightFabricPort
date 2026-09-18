@@ -225,7 +225,7 @@ public class CheckBox extends AbstractWidget implements DataBindingComponent<Boo
 
 	@Override
 	public void _setHeight(int height) {
-		this.setHeight(height);
+		this.height = height;
 	}
 
 	@Override

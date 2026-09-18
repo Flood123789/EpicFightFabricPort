@@ -132,7 +132,7 @@ public abstract class MixinMinecraft {
 				
 				if (this.hitResult != null) {
 					double d0 = (double) this.gameMode.getPickRange();
-					double entityReach = this.player.getEntityReach();
+					double entityReach = this.gameMode.hasFarPickRange() ? 6.0D : 3.0D;
 					double distanceLimit = Math.max(d0, entityReach) + ClientConfig.cameraZoom * 0.5D;
 					Vec3 hitPos = this.hitResult.getLocation();
 					

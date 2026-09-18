@@ -2,7 +2,7 @@ package yesman.epicfight.compat;
 
 import com.github.alexthe666.iceandfire.entity.EntityDragonBase;
 
-import net.minecraftforge.eventbus.api.IEventBus;
+import yesman.epicfight.forgecompat.eventbus.api.IEventBus;
 import yesman.epicfight.api.forgeevent.BattleModeSustainableEvent;
 
 public class IceAndFireCompat implements ICompatModule {

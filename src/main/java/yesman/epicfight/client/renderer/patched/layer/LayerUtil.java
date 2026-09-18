@@ -19,7 +19,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.common.MinecraftForge;
+import yesman.epicfight.forgecompat.common.MinecraftForge;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.forgeevent.RegisterResourceLayersEvent;
 import yesman.epicfight.api.client.model.Meshes;

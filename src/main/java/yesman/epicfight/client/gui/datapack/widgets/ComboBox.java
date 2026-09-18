@@ -243,6 +243,11 @@ public class ComboBox<T> extends AbstractWidget implements DataBindingComponent<
 		public int getRowWidth() {
 			return this.width;
 		}
+
+		public int getLeft() { return this.x0; }
+		public int getTop() { return this.y0; }
+		public int getBottom() { return this.y1; }
+		public int getHeight() { return this.height; }
 		
 		@Override
 		protected int getScrollbarPosition() {
@@ -424,7 +429,7 @@ public class ComboBox<T> extends AbstractWidget implements DataBindingComponent<
 
 	@Override
 	public void _setHeight(int height) {
-		this.setHeight(height);
+		this.height = height;
 	}
 
 	@Override

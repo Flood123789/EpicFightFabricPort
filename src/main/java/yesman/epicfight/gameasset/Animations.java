@@ -44,11 +44,11 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.ForgeConfig;
-import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
+import yesman.epicfight.forgecompat.common.ForgeConfig;
+import yesman.epicfight.forgecompat.event.ForgeEventFactory;
+import yesman.epicfight.forgecompat.eventbus.api.SubscribeEvent;
+import yesman.epicfight.forgecompat.fml.common.Mod;
+import yesman.epicfight.forgecompat.fml.common.Mod.EventBusSubscriber.Bus;
 import yesman.epicfight.api.animation.AnimationClip;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.AnimationManager.AnimationBuilder;
@@ -2396,7 +2396,7 @@ public class Animations {
 	        }
 	        
 			if (ForgeConfig.SERVER.fullBoundingBoxLadders.get()) {
-	            if (bs.isLadder(level, bp, original)) {
+	            if (bs.is(net.minecraft.tags.BlockTags.CLIMBABLE)) {
 	            	if (bs.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
 	            		direction = bs.getValue(BlockStateProperties.HORIZONTAL_FACING);
 	            	} else {
@@ -2424,7 +2424,7 @@ public class Animations {
 						for (int z2 = mZ; z2 < bb.maxZ; z2++) {
 	                        BlockPos tmp = new BlockPos(x2, y2, z2);
 	                        bs = level.getBlockState(tmp);
-							if (bs.isLadder(level, tmp, original)) {
+							if (bs.is(net.minecraft.tags.BlockTags.CLIMBABLE)) {
 								if (bs.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
 									direction = bs.getValue(BlockStateProperties.HORIZONTAL_FACING);
 				            	} else {

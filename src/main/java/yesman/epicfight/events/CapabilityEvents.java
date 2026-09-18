@@ -3,9 +3,10 @@ package yesman.epicfight.events;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import yesman.epicfight.forgecompat.common.capabilities.ICapabilityProvider;
+import yesman.epicfight.forgecompat.event.AttachCapabilitiesEvent;
+import yesman.epicfight.forgecompat.eventbus.api.SubscribeEvent;
+import yesman.epicfight.forgecompat.fml.common.Mod;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
@@ -46,7 +47,7 @@ public class CapabilityEvents {
 				event.addCapability(ENTITY_CAPABILITY_KEY, prov);
 				
 				if (entitypatch instanceof PlayerPatch<?> playerpatch) {
-					if (event.getObject().getCapability(EpicFightCapabilities.CAPABILITY_SKILL).orElse(null) == null) {
+					if (ICapabilityProvider.getCapability(event.getObject(), EpicFightCapabilities.CAPABILITY_SKILL).orElse(null) == null) {
 						
 						if (playerpatch != null) {
 							SkillCapabilityProvider skillProvider = new SkillCapabilityProvider(playerpatch);

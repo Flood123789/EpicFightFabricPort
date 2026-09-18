@@ -3,8 +3,8 @@ package yesman.epicfight.api.client.forgeevent;
 import java.util.Map;
 
 import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.fml.event.IModBusEvent;
+import yesman.epicfight.forgecompat.eventbus.api.Event;
+import yesman.epicfight.forgecompat.fml.event.IModBusEvent;
 import yesman.epicfight.client.gui.screen.SkillBookScreen.TextureInfo;
 
 public class AttributeIconRegisterEvent extends Event implements IModBusEvent {

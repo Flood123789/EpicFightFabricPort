@@ -1,6 +1,6 @@
 package yesman.epicfight.api.client.forgeevent;
 
-import net.minecraftforge.eventbus.api.Event;
+import yesman.epicfight.forgecompat.eventbus.api.Event;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 
 public class RenderEpicFightPlayerEvent extends Event {

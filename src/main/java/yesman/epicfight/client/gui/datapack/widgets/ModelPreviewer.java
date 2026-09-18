@@ -469,7 +469,7 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 					
 					for (CustomTrailParticle trail : this.trailParticles) {
 						ParticleRenderType particleRendertype = trail.getRenderType();
-						particleRendertype.begin(bufferbuilder, Minecraft.getInstance().textureManager);
+						particleRendertype.begin(bufferbuilder, Minecraft.getInstance().getTextureManager());
 						trail.render(bufferbuilder, null, partialTicks);
 						particleRendertype.end(tesselator);
 					}
@@ -528,7 +528,7 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 		}
 		
 		if (this.cloakMesh != null && this.cloakTexture != null) {
-			TextureManager textureManager = Minecraft.getInstance().textureManager;
+			TextureManager textureManager = Minecraft.getInstance().getTextureManager();
 			AbstractTexture texture = textureManager.getTexture(this.cloakTexture);
 			
 			if (texture != MissingTextureAtlasSprite.getTexture()) {
@@ -1435,7 +1435,7 @@ public class ModelPreviewer extends AbstractWidget implements ResizableComponent
 
 	@Override
 	public void _setHeight(int height) {
-		this.setHeight(height);
+		this.height = height;
 	}
 
 	@Override

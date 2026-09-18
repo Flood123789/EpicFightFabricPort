@@ -10,8 +10,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.InteractionHand;
-import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.client.event.InputEvent;
+import yesman.epicfight.forgecompat.client.ForgeHooksClient;
+import yesman.epicfight.forgecompat.client.event.InputEvent;
 import yesman.epicfight.api.client.input.action.EpicFightInputAction;
 
 /// Internal utility for simplified input checks.
@@ -28,7 +28,7 @@ public final class InputUtils {
     public static void runKeyboardMouseEvent(@NotNull EpicFightInputAction action, @NotNull Runnable handler) {
         final KeyMapping keyMapping = action.keyMapping();
 
-        final InputConstants.Key key = keyMapping.getKey();
+        final InputConstants.Key key = keyMapping.key;
         final boolean isMouse = InputConstants.Type.MOUSE == key.getType();
 
         final int mouseButton = isMouse ? key.getValue() : -1;
@@ -36,6 +36,10 @@ public final class InputUtils {
         if (checkInteractionKeyUsable(mouseButton, keyMapping)) {
         	handler.run();
         }
+    }
+
+    public static InputConstants.Key getKey(KeyMapping keyMapping) {
+        return keyMapping.key;
     }
 
     public static void sneakingTick(boolean isSneaking, float sneakingSpeedMultiplier) {

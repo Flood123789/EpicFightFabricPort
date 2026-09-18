@@ -2,8 +2,8 @@ package yesman.epicfight.api.forgeevent;
 
 import javax.annotation.Nullable;
 
-import net.minecraftforge.eventbus.api.Cancelable;
-import net.minecraftforge.eventbus.api.Event;
+import yesman.epicfight.forgecompat.eventbus.api.Cancelable;
+import yesman.epicfight.forgecompat.eventbus.api.Event;
 import yesman.epicfight.world.capabilities.entitypatch.HurtableEntityPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.damagesource.StunType;

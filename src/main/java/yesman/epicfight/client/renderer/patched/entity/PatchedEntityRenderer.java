@@ -6,9 +6,9 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.client.event.RenderNameTagEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.Event.Result;
+import yesman.epicfight.forgecompat.client.event.RenderNameTagEvent;
+import yesman.epicfight.forgecompat.common.MinecraftForge;
+import yesman.epicfight.forgecompat.eventbus.api.Event.Result;
 import yesman.epicfight.api.animation.Pose;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.model.SkinnedMesh;
@@ -26,8 +26,17 @@ public abstract class PatchedEntityRenderer<E extends LivingEntity, T extends Li
 		
 		MixinEntityRenderer entityRendererAccessor = (MixinEntityRenderer)renderer;
 		
-		if ((entityRendererAccessor.invokeShouldShowName(entity) || renderNameplateEvent.getResult() == Result.ALLOW) && renderNameplateEvent.getResult() != Result.DENY) {
+		if (renderNameplateEvent.getResult() != Result.DENY && (renderNameplateEvent.getResult() == Result.ALLOW || this.shouldShowName(entityRendererAccessor, entity))) {
 			entityRendererAccessor.invokeRenderNameTag(entity, renderNameplateEvent.getContent(), poseStack, buffer, packedLight);
+		}
+	}
+
+	private boolean shouldShowName(MixinEntityRenderer entityRendererAccessor, E entity) {
+		try {
+			return entityRendererAccessor.invokeShouldShowName(entity);
+		} catch (NullPointerException exception) {
+			// Vivecraft can enter this path while Physics Mod renders a death model without an active dispatcher camera.
+			return false;
 		}
 	}
 	

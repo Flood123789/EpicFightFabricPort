@@ -8,10 +8,10 @@ import java.util.stream.Collectors;
 import com.google.common.collect.Lists;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.eventbus.api.GenericEvent;
-import net.minecraftforge.fml.ModLoader;
-import net.minecraftforge.fml.event.IModBusEvent;
+import yesman.epicfight.forgecompat.eventbus.api.Event;
+import yesman.epicfight.forgecompat.eventbus.api.GenericEvent;
+import yesman.epicfight.forgecompat.fml.ModLoader;
+import yesman.epicfight.forgecompat.fml.event.IModBusEvent;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
 

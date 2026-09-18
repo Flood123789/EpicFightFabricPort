@@ -11,14 +11,21 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.network.PacketDistributor.PacketTarget;
-import net.minecraftforge.network.simple.SimpleChannel;
+import yesman.epicfight.forgecompat.network.NetworkRegistry;
+import yesman.epicfight.forgecompat.network.PacketDistributor;
+import yesman.epicfight.forgecompat.network.PacketDistributor.PacketTarget;
+import yesman.epicfight.forgecompat.network.simple.SimpleChannel;
 import yesman.epicfight.main.EpicFightMod;
 import yesman.epicfight.network.client.*;
 import yesman.epicfight.network.server.*;
 
+/**
+ * Defines Epic Fight's wire protocol and the common helpers used to send it.
+ *
+ * <p>{@code CP*} messages are client-to-server requests; {@code SP*} messages
+ * are server-to-client state updates. Message IDs are positional, so entries
+ * must only be appended or changed in lockstep on both physical sides.</p>
+ */
 public class EpicFightNetworkManager {
 	private static final String PROTOCOL_VERSION = "1";
 	private static boolean packetsRegistered;
@@ -80,6 +87,8 @@ public class EpicFightNetworkManager {
 		}
 		
 		packetsRegistered = true;
+		// The incrementing ID is part of the protocol. Reordering this list makes
+		// otherwise valid clients and servers decode packets as the wrong class.
 		int id = 0;
 		
 		INSTANCE.registerMessage(id++, CPSkillRequest.class, CPSkillRequest::toBytes, CPSkillRequest::fromBytes, CPSkillRequest::handle);
@@ -123,6 +132,7 @@ public class EpicFightNetworkManager {
 		INSTANCE.registerMessage(id++, SPInitSkills.class, SPInitSkills::toBytes, SPInitSkills::fromBytes, SPInitSkills::handle);
 	}
 	
+	/** Collects related clientbound messages into one vanilla bundle packet. */
 	public static class PayloadBundleBuilder {
 		public static PayloadBundleBuilder create() {
 			return new PayloadBundleBuilder();

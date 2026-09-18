@@ -20,28 +20,28 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.entity.PartEntity;
-import net.minecraftforge.event.ItemAttributeModifierEvent;
-import net.minecraftforge.event.entity.EntityEvent;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.EntityMountEvent;
-import net.minecraftforge.event.entity.EntityTeleportEvent;
-import net.minecraftforge.event.entity.ProjectileImpactEvent;
-import net.minecraftforge.event.entity.ProjectileImpactEvent.ImpactResult;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
-import net.minecraftforge.event.entity.living.LivingDamageEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.LivingDropsEvent;
-import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
-import net.minecraftforge.event.entity.living.LivingHurtEvent;
-import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
-import net.minecraftforge.event.entity.living.MobEffectEvent;
-import net.minecraftforge.event.entity.living.ShieldBlockEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import yesman.epicfight.forgecompat.common.MinecraftForge;
+import yesman.epicfight.forgecompat.entity.PartEntity;
+import yesman.epicfight.forgecompat.event.ItemAttributeModifierEvent;
+import yesman.epicfight.forgecompat.event.entity.EntityEvent;
+import yesman.epicfight.forgecompat.event.entity.EntityJoinLevelEvent;
+import yesman.epicfight.forgecompat.event.entity.EntityMountEvent;
+import yesman.epicfight.forgecompat.event.entity.EntityTeleportEvent;
+import yesman.epicfight.forgecompat.event.entity.ProjectileImpactEvent;
+import yesman.epicfight.forgecompat.event.entity.ProjectileImpactEvent.ImpactResult;
+import yesman.epicfight.forgecompat.event.entity.living.LivingAttackEvent;
+import yesman.epicfight.forgecompat.event.entity.living.LivingDamageEvent;
+import yesman.epicfight.forgecompat.event.entity.living.LivingDeathEvent;
+import yesman.epicfight.forgecompat.event.entity.living.LivingDropsEvent;
+import yesman.epicfight.forgecompat.event.entity.living.LivingEquipmentChangeEvent;
+import yesman.epicfight.forgecompat.event.entity.living.LivingEvent;
+import yesman.epicfight.forgecompat.event.entity.living.LivingEvent.LivingJumpEvent;
+import yesman.epicfight.forgecompat.event.entity.living.LivingHurtEvent;
+import yesman.epicfight.forgecompat.event.entity.living.LivingKnockBackEvent;
+import yesman.epicfight.forgecompat.event.entity.living.MobEffectEvent;
+import yesman.epicfight.forgecompat.event.entity.living.ShieldBlockEvent;
+import yesman.epicfight.forgecompat.eventbus.api.SubscribeEvent;
+import yesman.epicfight.forgecompat.fml.common.Mod;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
@@ -321,12 +321,14 @@ public class EntityEvents {
 		
 		if (event.getSource() instanceof EpicFightDamageSource epicfightDamagesource && event.getSource().getEntity() instanceof ServerPlayer serverplayer) {
 			ServerPlayerPatch playerpatch = EpicFightCapabilities.getEntityPatch(serverplayer, ServerPlayerPatch.class);
-			DealDamageEvent.Attack dealDamageAttack = new DealDamageEvent.Attack(playerpatch, event.getEntity(), epicfightDamagesource, event);
-			playerpatch.getEventListener().triggerEvents(EventType.DEAL_DAMAGE_EVENT_ATTACK, dealDamageAttack);
-			
-			if (dealDamageAttack.isCanceled()) {
-				event.setCanceled(true);
-				return;
+			if (playerpatch != null) {
+				DealDamageEvent.Attack dealDamageAttack = new DealDamageEvent.Attack(playerpatch, event.getEntity(), epicfightDamagesource, event);
+				playerpatch.getEventListener().triggerEvents(EventType.DEAL_DAMAGE_EVENT_ATTACK, dealDamageAttack);
+				
+				if (dealDamageAttack.isCanceled()) {
+					event.setCanceled(true);
+					return;
+				}
 			}
 		}
 		

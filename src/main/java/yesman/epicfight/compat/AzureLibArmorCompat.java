@@ -1,8 +1,8 @@
 package yesman.epicfight.compat;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.eventbus.api.IEventBus;
+import yesman.epicfight.forgecompat.api.distmarker.Dist;
+import yesman.epicfight.forgecompat.api.distmarker.OnlyIn;
+import yesman.epicfight.forgecompat.eventbus.api.IEventBus;
 import yesman.epicfight.api.client.model.transformer.AzureArmorTransformer;
 import yesman.epicfight.api.client.model.transformer.HumanoidModelBaker;
 

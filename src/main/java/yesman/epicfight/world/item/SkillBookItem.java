@@ -60,7 +60,7 @@ public class SkillBookItem extends Item {
 	@Override
 	public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand hand) {
 		ItemStack itemstack = playerIn.getItemInHand(hand);
-		playerIn.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).ifPresent((capability) -> {
+		yesman.epicfight.forgecompat.common.capabilities.ICapabilityProvider.getCapability(playerIn, EpicFightCapabilities.CAPABILITY_ENTITY).ifPresent((capability) -> {
 			if (capability instanceof PlayerPatch<?> playerpatch) {
 				playerpatch.openSkillBook(itemstack, hand);
 			}

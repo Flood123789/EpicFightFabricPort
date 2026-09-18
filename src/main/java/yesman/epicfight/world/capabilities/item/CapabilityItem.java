@@ -24,6 +24,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
@@ -167,7 +168,7 @@ public class CapabilityItem {
 				double value = attribute.get(impact).getAmount() + entitypatch.getOriginal().getAttribute(impact).getBaseValue();
 
 				if (value > 0.0D) {
-					int i = itemstack.getEnchantmentLevel(Enchantments.KNOCKBACK);
+					int i = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.KNOCKBACK, itemstack);
 					value *= (1.0F + i * 0.12F);
 					itemTooltip.add(index++, Component.literal(" ").append(Component.translatable(impact.getDescriptionId() + ".value", ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(value))));
 				}

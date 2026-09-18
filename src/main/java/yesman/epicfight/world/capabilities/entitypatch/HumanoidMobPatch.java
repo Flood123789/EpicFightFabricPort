@@ -167,13 +167,13 @@ public abstract class HumanoidMobPatch<T extends PathfinderMob> extends MobPatch
 			}
 			
 			if (!to.isEmpty()) {
-				to.getAttributeModifiers(EquipmentSlot.MAINHAND).get(Attributes.ATTACK_SPEED).forEach(this.original.getAttribute(EpicFightAttributes.OFFHAND_ATTACK_SPEED.get())::addTransientModifier);
+				to.getAttributeModifiers(EquipmentSlot.MAINHAND).get(Attributes.ATTACK_SPEED).forEach((modifier) -> setTransientModifier(this.original.getAttribute(EpicFightAttributes.OFFHAND_ATTACK_SPEED.get()), modifier));
 			}
 			if (!toCap.isEmpty()) {
-				toCap.getAttributeModifiers(EquipmentSlot.MAINHAND, this).get(Attributes.ATTACK_SPEED).forEach(this.original.getAttribute(EpicFightAttributes.OFFHAND_ARMOR_NEGATION.get())::addTransientModifier);
-				toCap.getAttributeModifiers(EquipmentSlot.MAINHAND, this).get(EpicFightAttributes.ARMOR_NEGATION.get()).forEach(this.original.getAttribute(EpicFightAttributes.OFFHAND_ARMOR_NEGATION.get())::addTransientModifier);
-				toCap.getAttributeModifiers(EquipmentSlot.MAINHAND, this).get(EpicFightAttributes.IMPACT.get()).forEach(this.original.getAttribute(EpicFightAttributes.OFFHAND_IMPACT.get())::addTransientModifier);
-				toCap.getAttributeModifiers(EquipmentSlot.MAINHAND, this).get(EpicFightAttributes.MAX_STRIKES.get()).forEach(this.original.getAttribute(EpicFightAttributes.OFFHAND_MAX_STRIKES.get())::addTransientModifier);
+				toCap.getAttributeModifiers(EquipmentSlot.MAINHAND, this).get(Attributes.ATTACK_SPEED).forEach((modifier) -> setTransientModifier(this.original.getAttribute(EpicFightAttributes.OFFHAND_ARMOR_NEGATION.get()), modifier));
+				toCap.getAttributeModifiers(EquipmentSlot.MAINHAND, this).get(EpicFightAttributes.ARMOR_NEGATION.get()).forEach((modifier) -> setTransientModifier(this.original.getAttribute(EpicFightAttributes.OFFHAND_ARMOR_NEGATION.get()), modifier));
+				toCap.getAttributeModifiers(EquipmentSlot.MAINHAND, this).get(EpicFightAttributes.IMPACT.get()).forEach((modifier) -> setTransientModifier(this.original.getAttribute(EpicFightAttributes.OFFHAND_IMPACT.get()), modifier));
+				toCap.getAttributeModifiers(EquipmentSlot.MAINHAND, this).get(EpicFightAttributes.MAX_STRIKES.get()).forEach((modifier) -> setTransientModifier(this.original.getAttribute(EpicFightAttributes.OFFHAND_MAX_STRIKES.get()), modifier));
 			}
 		}
 		

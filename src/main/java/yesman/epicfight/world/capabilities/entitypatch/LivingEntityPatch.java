@@ -35,17 +35,18 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.LivingDropsEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.event.entity.living.LivingFallEvent;
+import yesman.epicfight.forgecompat.api.distmarker.Dist;
+import yesman.epicfight.forgecompat.api.distmarker.OnlyIn;
+import yesman.epicfight.forgecompat.event.ForgeEventFactory;
+import yesman.epicfight.forgecompat.event.entity.EntityJoinLevelEvent;
+import yesman.epicfight.forgecompat.event.entity.living.LivingDeathEvent;
+import yesman.epicfight.forgecompat.event.entity.living.LivingDropsEvent;
+import yesman.epicfight.forgecompat.event.entity.living.LivingEvent;
+import yesman.epicfight.forgecompat.event.entity.living.LivingFallEvent;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.AnimationPlayer;
 import yesman.epicfight.api.animation.Animator;
@@ -100,6 +101,14 @@ import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
 import yesman.epicfight.world.entity.eventlistener.TargetIndicatorCheckEvent;
 
+/**
+ * Combat and animation layer shared by patched living entities.
+ *
+ * <p>It owns the armature, animator, current animation-derived
+ * {@link EntityState}, hand-to-joint mapping, stun data, and attack bookkeeping.
+ * Player and mob patches specialize policy while this class provides the common
+ * mechanics used by skills, hit detection, networking, and rendering.</p>
+ */
 public abstract class LivingEntityPatch<T extends LivingEntity> extends HurtableEntityPatch<T> {
 	protected static EntityDataAccessor<Float> STUN_SHIELD;
 	protected static EntityDataAccessor<Float> MAX_STUN_SHIELD;
@@ -501,7 +510,7 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 		 */
 		AttributeInstance damageAttributeInstance = this.original.getAttribute(Attributes.ATTACK_DAMAGE);
 		mainhandAttributes.forEach(damageAttributeInstance::removeModifier);
-		offhandAttributes.forEach(damageAttributeInstance::addTransientModifier);
+		offhandAttributes.forEach((modifier) -> setTransientModifier(damageAttributeInstance, modifier));
 	}
 	
 	/**
@@ -517,9 +526,28 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 		
 		AttributeInstance damageAttributeInstance = this.original.getAttribute(Attributes.ATTACK_DAMAGE);
 		offhandAttributes.forEach(damageAttributeInstance::removeModifier);
-		mainhandAttributes.forEach(damageAttributeInstance::addTransientModifier);
+		mainhandAttributes.forEach((modifier) -> setTransientModifier(damageAttributeInstance, modifier));
 	}
-	
+
+	/**
+	 * Applies a transient modifier, replacing any modifier already registered under the same id.
+	 * {@link AttributeInstance#addTransientModifier} throws when the id is taken, and the offhand
+	 * attributes can legitimately be applied twice for a single equip: {@link #updateHeldItem} is driven
+	 * both by the forced refresh when a player joins and by the vanilla equipment change event, and both
+	 * see an empty "from" stack in that tick, so neither one removes before adding. Item modifiers share
+	 * a fixed uuid per slot in vanilla, so the second add always collides.
+	 *
+	 * Mirrors {@code AttributeMap#addTransientAttributeModifiers}, which removes first for the same reason.
+	 */
+	protected static void setTransientModifier(AttributeInstance attributeInstance, AttributeModifier modifier) {
+		if (attributeInstance == null) {
+			return;
+		}
+
+		attributeInstance.removeModifier(modifier);
+		attributeInstance.addTransientModifier(modifier);
+	}
+
 	public void setLastAttackResult(AttackResult attackResult) {
 		this.lastAttackResultType = attackResult.resultType;
 		this.lastDealDamage = attackResult.damage;
@@ -998,11 +1026,11 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 		
 		if (hand == InteractionHand.MAIN_HAND) {
 			impact = (float)this.original.getAttributeValue(EpicFightAttributes.IMPACT.get());
-			i = this.getOriginal().getMainHandItem().getEnchantmentLevel(Enchantments.KNOCKBACK);
+			i = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.KNOCKBACK, this.getOriginal().getMainHandItem());
 		} else {
 			if (this.isOffhandItemValid()) {
 				impact = (float)this.original.getAttributeValue(EpicFightAttributes.OFFHAND_IMPACT.get());
-				i = this.getOriginal().getOffhandItem().getEnchantmentLevel(Enchantments.KNOCKBACK);
+				i = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.KNOCKBACK, this.getOriginal().getOffhandItem());
 			} else {
 				impact = (float)this.original.getAttribute(EpicFightAttributes.IMPACT.get()).getBaseValue();
 			}
@@ -1040,7 +1068,7 @@ public abstract class LivingEntityPatch<T extends LivingEntity> extends Hurtable
 			return true;
 		}
 		
-		if (this.original.getRootVehicle() == target.getRootVehicle() && !target.canRiderInteract()) {
+		if (this.original.getRootVehicle() == target.getRootVehicle() && false) {
 			return true;
 		}
 		

@@ -1,5 +1,6 @@
 package yesman.epicfight.mixin.common;
 
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -7,21 +8,48 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.entity.living.LivingFallEvent;
+import yesman.epicfight.forgecompat.event.entity.living.LivingFallEvent;
+import yesman.epicfight.forgecompat.common.MinecraftForge;
+import yesman.epicfight.forgecompat.event.entity.EntityMountEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty.ActionAnimationProperty;
+import yesman.epicfight.forgecompat.common.capabilities.Capability;
+import yesman.epicfight.forgecompat.common.capabilities.CapabilityContainer;
+import yesman.epicfight.forgecompat.common.capabilities.CapabilityManager;
+import yesman.epicfight.forgecompat.common.capabilities.ICapabilityOwner;
+import yesman.epicfight.forgecompat.common.capabilities.ICapabilityProvider;
+import yesman.epicfight.forgecompat.common.util.LazyOptional;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 
 @Mixin(value = Entity.class)
-public abstract class MixinEntity {
+public abstract class MixinEntity implements ICapabilityProvider, ICapabilityOwner {
 	@Shadow
 	private boolean onGround;
+
+	@Unique
+	private CapabilityContainer epicfight$capabilityContainer;
+
+	@Override
+	public CapabilityContainer epicfight$getCapabilityContainer() {
+		if (this.epicfight$capabilityContainer == null) {
+			this.epicfight$capabilityContainer = new CapabilityContainer();
+		}
+
+		return this.epicfight$capabilityContainer;
+	}
+
+	@Override
+	public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction side) {
+		return CapabilityManager.getCapability(this, cap, side);
+	}
 	
 	/**
 	 * Stores when {@link #onGround} was lastly true
@@ -56,6 +84,38 @@ public abstract class MixinEntity {
 		
 		if (entitypatch != null) {
 			entitypatch.onAddedToWorld();
+		}
+	}
+
+	/**
+	 * Breaks the capability-manager owner/provider cycle when an entity leaves a level.
+	 *
+	 * <p>The Fabric capability bridge stores providers in a weak-key map, but an
+	 * {@link EntityPatch} necessarily points back to its owning entity. Without
+	 * explicit invalidation, the strongly held provider keeps the weak key alive
+	 * forever. Multi-world clients such as Immersive Portals make this especially
+	 * severe because remote chunks and their entities are repeatedly unloaded and
+	 * synchronized.</p>
+	 */
+	@Inject(method = "setRemoved(Lnet/minecraft/world/entity/Entity$RemovalReason;)V", at = @At("TAIL"))
+	private void epicfight$invalidateCapabilitiesOnRemoval(Entity.RemovalReason reason, CallbackInfo callbackInfo) {
+		ICapabilityProvider.invalidateCaps(this);
+	}
+
+	@Inject(method = "startRiding(Lnet/minecraft/world/entity/Entity;Z)Z", at = @At("RETURN"))
+	private void epicfight$mountEvent(Entity vehicle, boolean force, CallbackInfoReturnable<Boolean> info) {
+		if (info.getReturnValue()) {
+			Entity self = (Entity)(Object)this;
+			MinecraftForge.EVENT_BUS.post(new EntityMountEvent(self, vehicle, self.level(), true));
+		}
+	}
+
+	@Inject(method = "stopRiding()V", at = @At("HEAD"))
+	private void epicfight$dismountEvent(CallbackInfo info) {
+		Entity self = (Entity)(Object)this;
+		Entity vehicle = self.getVehicle();
+		if (vehicle != null) {
+			MinecraftForge.EVENT_BUS.post(new EntityMountEvent(self, vehicle, self.level(), false));
 		}
 	}
 	
@@ -114,17 +174,4 @@ public abstract class MixinEntity {
 			}
 		}
 	}
-	
-	/**
-	 * Useful mixin to debug y rotation, especially for action animations
-	@Inject(at = @At(value = "HEAD"), method = "setYRot()V")
-	private void epicfight$setYRot(float pYRot, CallbackInfo callbackInfo) {
-		if (Float.isFinite(pYRot)) {
-			if (!Minecraft.getInstance().isPaused()) {
-				System.out.println("set YRot " + pYRot + ((Entity)(Object)this).level().isClientSide());
-				new Exception().printStackTrace();
-			}
-		}
-	}
-	**/
 }

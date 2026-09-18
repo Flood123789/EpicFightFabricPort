@@ -6,8 +6,8 @@ import java.util.function.Supplier;
 
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.fml.event.IModBusEvent;
+import yesman.epicfight.forgecompat.eventbus.api.Event;
+import yesman.epicfight.forgecompat.fml.event.IModBusEvent;
 import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 
 public class EntityPatchRegistryEvent extends Event implements IModBusEvent {

@@ -3,7 +3,7 @@ package yesman.epicfight.network.client;
 import java.util.function.Supplier;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import yesman.epicfight.forgecompat.network.NetworkEvent;
 import yesman.epicfight.api.animation.AnimationManager;
 
 public class CPCheckAnimationRegistryMatches {

@@ -21,7 +21,7 @@ import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import yesman.epicfight.forgecompat.event.entity.EntityJoinLevelEvent;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.client.animation.Layer;
 import yesman.epicfight.api.utils.AttackResult;

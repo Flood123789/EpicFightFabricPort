@@ -65,7 +65,7 @@ public class SelectModelScreen extends Screen {
 		this.searchBox.setX(this.width / 2);
 		this.searchBox.setY(12);
 		this.searchBox.setWidth(this.width / 2 - 12);
-		this.searchBox.setHeight(16);
+		this.searchBox.height = 16;
 		
 		this.addRenderableWidget(this.searchBox);
 		this.addRenderableWidget(Button.builder(Component.translatable("datapack_edit.import_model"), (button) -> Minecraft.getInstance().setScreen(new ImportModelScreen(this))).pos(10, 10).size(100, 21).build());

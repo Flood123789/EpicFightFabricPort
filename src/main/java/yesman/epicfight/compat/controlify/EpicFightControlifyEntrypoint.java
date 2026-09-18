@@ -47,14 +47,36 @@ public class EpicFightControlifyEntrypoint implements ControlifyEntrypoint {
 
     @Override
     public void onControlifyInit(ControlifyApi controlify) {
-        // It's best to call this method in onControlifyInit,
-        // ensuring that Epic Fight can use Controlify input bindings
-        // only after they have been registered.
+        // Controlify 2.1.x on Fabric never calls onControlifyPreInit, and the early registration
+        // from Epic Fight's client bootstrap bails out when the vanilla key mappings can't be read
+        // yet, so this is the last point where the bindings are guaranteed to be registered. The
+        // bind registry is still open here; Controlify locks it after this callback.
+        registerBindings();
+
+        // Only register the integration once the bindings exist,
+        // as Epic Fight starts reading controller input as soon as it is set.
         registerModIntegration();
     }
 
     @Override
     public void onControlifyPreInit(ControlifyApi controlify) {
+        registerBindings();
+    }
+
+    private static boolean bindingsRegistered;
+
+    /**
+     * Registers everything Epic Fight adds to Controlify. Idempotent, because it is called both from
+     * Epic Fight's client bootstrap (early enough that Controlify does not auto-create duplicate
+     * key-mapping bindings for Epic Fight's keys) and from the Controlify callbacks above.
+     */
+    public static void registerBindings() {
+        if (bindingsRegistered) {
+            return;
+        }
+
+        bindingsRegistered = true;
+
         final ControlifyBindApi registrar = ControlifyBindApi.get();
         registerCustomRadialIcons();
         EpicFightControlifyBindContexts.EpicFight.register(registrar);
@@ -328,7 +350,28 @@ public class EpicFightControlifyEntrypoint implements ControlifyEntrypoint {
     }
 
     public static @NotNull InputBinding getControlifyBinding(@NotNull EpicFightInputAction action) {
-        final InputBindingSupplier bindingSupplier = switch (action) {
+        final InputBindingSupplier bindingSupplier = bindingSupplierFor(action);
+        final @Nullable InputBinding binding = bindingSupplier.onOrNull(requireControllerEntity());
+        return Objects.requireNonNull(binding, "The binding for the action " + action.name() + " is not yet registered.");
+    }
+
+    /// Same lookup as [#getControlifyBinding(EpicFightInputAction)], but yields `null` instead of throwing
+    /// when no controller is currently active or the bindings were not registered yet. Controlify can still
+    /// report a controller input mode right after a controller is unplugged, and input is read every tick,
+    /// so callers on that path must be able to fall back to the keyboard/mouse state.
+    public static @Nullable InputBinding getControlifyBindingOrNull(@NotNull EpicFightInputAction action) {
+        final @Nullable ControllerEntity controller = getApi().getCurrentController().orElse(null);
+
+        if (controller == null) {
+            return null;
+        }
+
+        final @Nullable InputBindingSupplier bindingSupplier = bindingSupplierFor(action);
+        return bindingSupplier == null ? null : bindingSupplier.onOrNull(controller);
+    }
+
+    private static InputBindingSupplier bindingSupplierFor(@NotNull EpicFightInputAction action) {
+        return switch (action) {
             case ATTACK -> attack;
             case MOBILITY -> mobility;
             case GUARD -> guard;
@@ -344,12 +387,22 @@ public class EpicFightControlifyEntrypoint implements ControlifyEntrypoint {
             case OPEN_CONFIG_SCREEN -> openConfigScreen;
             case SWITCH_VANILLA_MODEL_DEBUGGING -> switchVanillaModeDebugging;
         };
+    }
+
+    public static @NotNull InputBinding getControlifyBinding(@NotNull MinecraftInputAction action) {
+        final InputBindingSupplier bindingSupplier = bindingSupplierFor(action);
         final @Nullable InputBinding binding = bindingSupplier.onOrNull(requireControllerEntity());
         return Objects.requireNonNull(binding, "The binding for the action " + action.name() + " is not yet registered.");
     }
 
-    public static @NotNull InputBinding getControlifyBinding(@NotNull MinecraftInputAction action) {
-        final InputBindingSupplier bindingSupplier = switch (action) {
+    /// @see #getControlifyBindingOrNull(EpicFightInputAction)
+    public static @Nullable InputBinding getControlifyBindingOrNull(@NotNull MinecraftInputAction action) {
+        final @Nullable ControllerEntity controller = getApi().getCurrentController().orElse(null);
+        return controller == null ? null : bindingSupplierFor(action).onOrNull(controller);
+    }
+
+    private static InputBindingSupplier bindingSupplierFor(@NotNull MinecraftInputAction action) {
+        return switch (action) {
             case ATTACK_DESTROY -> ControlifyBindings.ATTACK;
             case MOVE_FORWARD -> ControlifyBindings.WALK_FORWARD;
             case MOVE_BACKWARD -> ControlifyBindings.WALK_BACKWARD;
@@ -363,8 +416,6 @@ public class EpicFightControlifyEntrypoint implements ControlifyEntrypoint {
             case TOGGLE_PERSPECTIVE -> ControlifyBindings.CHANGE_PERSPECTIVE;
             case JUMP -> ControlifyBindings.JUMP;
         };
-        final @Nullable InputBinding binding = bindingSupplier.onOrNull(requireControllerEntity());
-        return Objects.requireNonNull(binding, "The binding for the action " + action.name() + " is not yet registered.");
     }
 
     public static @NotNull ControlifyApi getApi() {

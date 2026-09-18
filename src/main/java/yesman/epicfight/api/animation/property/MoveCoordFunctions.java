@@ -83,7 +83,11 @@ public class MoveCoordFunctions {
 		AttributeInstance movementSpeed = livingentity.getAttribute(Attributes.MOVEMENT_SPEED);
 		boolean soulboost = blockState.is(BlockTags.SOUL_SPEED_BLOCKS) && EnchantmentHelper.getEnchantmentLevel(Enchantments.SOUL_SPEED, livingentity) > 0;
 		float speedFactor = (float)(soulboost ? 1.0D : livingentity.level().getBlockState(blockpos).getBlock().getSpeedFactor());
-		float moveMultiplier = (float)(animation.getProperty(ActionAnimationProperty.AFFECT_SPEED).orElse(false) ? (movementSpeed.getValue() / movementSpeed.getBaseValue()) : 1.0F);
+		float moveMultiplier = 1.0F;
+
+		if (animation.getProperty(ActionAnimationProperty.AFFECT_SPEED).orElse(false) && movementSpeed != null && Math.abs(movementSpeed.getBaseValue()) > 1.0E-7D) {
+			moveMultiplier = (float)(movementSpeed.getValue() / movementSpeed.getBaseValue());
+		}
 		
 		return new Vec3f(dx * moveMultiplier * speedFactor, dy, dz * moveMultiplier * speedFactor);
 	};

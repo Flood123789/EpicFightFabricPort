@@ -27,7 +27,7 @@ import net.minecraft.world.entity.monster.RangedAttackMob;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.ForgeEventFactory;
+import yesman.epicfight.forgecompat.event.ForgeEventFactory;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.boss.WitherPatch;
 
@@ -232,7 +232,7 @@ public abstract class MixinWitherBoss extends Monster implements PowerableMob, R
 									BlockPos blockpos = new BlockPos(l2, l, i1);
 									BlockState blockstate = self.level().getBlockState(blockpos);
 
-									if (blockstate.canEntityDestroy(self.level(), blockpos, this) && ForgeEventFactory.onEntityDestroyBlock(this, blockpos, blockstate)) {
+									if (WitherBoss.canDestroy(blockstate) && ForgeEventFactory.onEntityDestroyBlock(this, blockpos, blockstate)) {
 										flag = self.level().destroyBlock(blockpos, true, this) || flag;
 									}
 								}

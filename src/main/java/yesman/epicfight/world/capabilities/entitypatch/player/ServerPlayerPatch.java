@@ -19,9 +19,9 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
+import yesman.epicfight.forgecompat.common.MinecraftForge;
+import yesman.epicfight.forgecompat.event.entity.EntityJoinLevelEvent;
+import yesman.epicfight.forgecompat.event.entity.living.LivingEvent;
 import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
@@ -38,6 +38,7 @@ import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.skill.modules.HoldableSkill;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
+import yesman.epicfight.world.capabilities.provider.PersistedCapabilityData;
 import yesman.epicfight.world.entity.ai.attribute.EpicFightAttributes;
 import yesman.epicfight.world.entity.eventlistener.DodgeSuccessEvent;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener.EventType;
@@ -53,6 +54,9 @@ public class ServerPlayerPatch extends PlayerPatch<ServerPlayer> {
 	@Override
 	public void onJoinWorld(ServerPlayer player, EntityJoinLevelEvent event) {
 		super.onJoinWorld(player, event);
+		// The patch is final only now, so this is the first point where the skills read from the
+		// player file can be restored. It has to happen before they're synchronized below.
+		PersistedCapabilityData.restore(player);
 		EpicFightNetworkManager.sendToPlayer(new SPInitSkills(this.getSkillCapability()), player);
 		this.refreshHeldItemState(player.getMainHandItem(), player.getOffhandItem(), true);
 		
@@ -134,15 +138,15 @@ public class ServerPlayerPatch extends PlayerPatch<ServerPlayer> {
 			
 			if (!to.isEmpty()) {
 				Multimap<Attribute, AttributeModifier> modifiers = to.getAttributeModifiers(EquipmentSlot.MAINHAND);
-				modifiers.get(Attributes.ATTACK_SPEED).forEach(this.original.getAttribute(EpicFightAttributes.OFFHAND_ATTACK_SPEED.get())::addTransientModifier);
+				modifiers.get(Attributes.ATTACK_SPEED).forEach((modifier) -> setTransientModifier(this.original.getAttribute(EpicFightAttributes.OFFHAND_ATTACK_SPEED.get()), modifier));
 			}
-			
+
 			if (!toCap.isEmpty()) {
 				Multimap<Attribute, AttributeModifier> modifiers = toCap.getAttributeModifiers(EquipmentSlot.MAINHAND, this);
-				modifiers.get(EpicFightAttributes.ARMOR_NEGATION.get()).forEach(this.original.getAttribute(EpicFightAttributes.OFFHAND_ARMOR_NEGATION.get())::addTransientModifier);
-				modifiers.get(EpicFightAttributes.IMPACT.get()).forEach(this.original.getAttribute(EpicFightAttributes.OFFHAND_IMPACT.get())::addTransientModifier);
-				modifiers.get(EpicFightAttributes.MAX_STRIKES.get()).forEach(this.original.getAttribute(EpicFightAttributes.OFFHAND_MAX_STRIKES.get())::addTransientModifier);
-				modifiers.get(Attributes.ATTACK_SPEED).forEach(this.original.getAttribute(EpicFightAttributes.OFFHAND_ATTACK_SPEED.get())::addTransientModifier);
+				modifiers.get(EpicFightAttributes.ARMOR_NEGATION.get()).forEach((modifier) -> setTransientModifier(this.original.getAttribute(EpicFightAttributes.OFFHAND_ARMOR_NEGATION.get()), modifier));
+				modifiers.get(EpicFightAttributes.IMPACT.get()).forEach((modifier) -> setTransientModifier(this.original.getAttribute(EpicFightAttributes.OFFHAND_IMPACT.get()), modifier));
+				modifiers.get(EpicFightAttributes.MAX_STRIKES.get()).forEach((modifier) -> setTransientModifier(this.original.getAttribute(EpicFightAttributes.OFFHAND_MAX_STRIKES.get()), modifier));
+				modifiers.get(Attributes.ATTACK_SPEED).forEach((modifier) -> setTransientModifier(this.original.getAttribute(EpicFightAttributes.OFFHAND_ATTACK_SPEED.get()), modifier));
 			}
 		}
 		

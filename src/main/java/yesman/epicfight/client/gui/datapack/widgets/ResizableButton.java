@@ -103,12 +103,12 @@ public class ResizableButton extends Button implements ResizableComponent {
 
 	@Override
 	public int _getWidth() {
-		return this.getWidth();
+		return this.width;
 	}
 
 	@Override
 	public int _getHeight() {
-		return this.getHeight();
+		return this.height;
 	}
 
 	@Override
@@ -128,7 +128,7 @@ public class ResizableButton extends Button implements ResizableComponent {
 
 	@Override
 	public void _setHeight(int height) {
-		this.setHeight(height);
+		this.height = height;
 	}
 
 	@Override

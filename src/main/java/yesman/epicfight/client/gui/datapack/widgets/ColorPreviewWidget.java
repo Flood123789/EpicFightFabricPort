@@ -140,7 +140,7 @@ public class ColorPreviewWidget extends AbstractWidget implements ResizableCompo
 
 	@Override
 	public void _setHeight(int height) {
-		this.setHeight(height);
+		this.height = height;
 	}
 
 	@Override

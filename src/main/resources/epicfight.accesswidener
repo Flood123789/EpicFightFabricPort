@@ -10,6 +10,12 @@ accessible field net/minecraft/world/entity/LivingEntity noJumpDelay I
 accessible field net/minecraft/client/player/LocalPlayer sprintTriggerTime I
 
 accessible field net/minecraft/client/KeyMapping clickCount I
+accessible field net/minecraft/client/KeyMapping key Lcom/mojang/blaze3d/platform/InputConstants$Key;
+accessible field net/minecraft/client/gui/components/AbstractWidget width I
+accessible field net/minecraft/client/gui/components/AbstractWidget height I
+accessible field net/minecraft/core/IdMapper tToId Lit/unimi/dsi/fastutil/objects/Object2IntMap;
+accessible field net/minecraft/core/IdMapper idToT Ljava/util/List;
+accessible field net/minecraft/core/IdMapper nextId I
 
 accessible field net/minecraft/client/Camera eyeHeight F
 accessible field net/minecraft/client/Camera eyeHeightOld F
@@ -22,6 +28,8 @@ accessible method net/minecraft/world/entity/Entity getInputVector (Lnet/minecra
 
 accessible field net/minecraft/world/entity/ai/goal/target/NearestAttackableTargetGoal targetType Ljava/lang/Class;
 accessible field net/minecraft/world/entity/ai/goal/target/NearestAttackableTargetGoal targetConditions Lnet/minecraft/world/entity/ai/targeting/TargetingConditions;
+accessible field net/minecraft/world/entity/Mob targetSelector Lnet/minecraft/world/entity/ai/goal/GoalSelector;
+accessible field net/minecraft/world/entity/Mob goalSelector Lnet/minecraft/world/entity/ai/goal/GoalSelector;
 
 accessible field net/minecraft/client/model/geom/ModelPart cubes Ljava/util/List;
 accessible field net/minecraft/client/model/geom/ModelPart children Ljava/util/Map;
@@ -43,6 +51,7 @@ accessible field net/minecraft/client/renderer/LevelRenderer cullingFrustum Lnet
 accessible field net/minecraft/client/gui/components/BossHealthOverlay GUI_BARS_LOCATION Lnet/minecraft/resources/ResourceLocation;
 
 accessible field net/minecraft/client/renderer/entity/EntityRenderDispatcher playerRenderers Ljava/util/Map;
+accessible field net/minecraft/client/renderer/entity/EntityRenderDispatcher renderers Ljava/util/Map;
 accessible field net/minecraft/client/renderer/entity/LivingEntityRenderer layers Ljava/util/List;
 
 accessible field net/minecraft/client/renderer/block/model/ItemOverrides overrides [Lnet/minecraft/client/renderer/block/model/ItemOverrides$BakedOverride;
@@ -88,6 +97,7 @@ accessible field net/minecraft/client/renderer/RenderType$CompositeRenderType ou
 mutable field net/minecraft/client/renderer/RenderType$CompositeRenderType outline Ljava/util/Optional;
 accessible method net/minecraft/client/renderer/RenderType$CompositeRenderType <init> (Ljava/lang/String;Lcom/mojang/blaze3d/vertex/VertexFormat;Lcom/mojang/blaze3d/vertex/VertexFormat$Mode;IZZLnet/minecraft/client/renderer/RenderType$CompositeState;)V
 accessible class net/minecraft/client/renderer/RenderType$CompositeState
+extendable class net/minecraft/client/renderer/RenderType$CompositeState
 accessible method net/minecraft/client/renderer/RenderType$CompositeState <init> (Lnet/minecraft/client/renderer/RenderStateShard$EmptyTextureStateShard;Lnet/minecraft/client/renderer/RenderStateShard$ShaderStateShard;Lnet/minecraft/client/renderer/RenderStateShard$TransparencyStateShard;Lnet/minecraft/client/renderer/RenderStateShard$DepthTestStateShard;Lnet/minecraft/client/renderer/RenderStateShard$CullStateShard;Lnet/minecraft/client/renderer/RenderStateShard$LightmapStateShard;Lnet/minecraft/client/renderer/RenderStateShard$OverlayStateShard;Lnet/minecraft/client/renderer/RenderStateShard$LayeringStateShard;Lnet/minecraft/client/renderer/RenderStateShard$OutputStateShard;Lnet/minecraft/client/renderer/RenderStateShard$TexturingStateShard;Lnet/minecraft/client/renderer/RenderStateShard$WriteMaskStateShard;Lnet/minecraft/client/renderer/RenderStateShard$LineStateShard;Lnet/minecraft/client/renderer/RenderStateShard$ColorLogicStateShard;Lnet/minecraft/client/renderer/RenderType$OutlineProperty;)V
 accessible field net/minecraft/client/renderer/RenderType$CompositeState textureState Lnet/minecraft/client/renderer/RenderStateShard$EmptyTextureStateShard;
 accessible field net/minecraft/client/renderer/RenderType$CompositeState shaderState Lnet/minecraft/client/renderer/RenderStateShard$ShaderStateShard;
@@ -148,6 +158,11 @@ mutable field net/minecraft/world/entity/ai/attributes/AttributeMap supplier Lne
 accessible field net/minecraft/world/entity/ai/attributes/AttributeSupplier instances Ljava/util/Map;
 
 accessible field net/minecraft/world/damagesource/CombatTracker mob Lnet/minecraft/world/entity/LivingEntity;
+accessible method net/minecraft/world/damagesource/DamageSource <init> (Lnet/minecraft/core/Holder;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/Vec3;)V
+accessible method net/minecraft/world/damagesource/DamageSource <init> (Lnet/minecraft/core/Holder;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/entity/Entity;)V
+accessible method net/minecraft/world/damagesource/DamageSource <init> (Lnet/minecraft/core/Holder;Lnet/minecraft/world/phys/Vec3;)V
+accessible method net/minecraft/world/damagesource/DamageSource <init> (Lnet/minecraft/core/Holder;Lnet/minecraft/world/entity/Entity;)V
+accessible method net/minecraft/world/damagesource/DamageSource <init> (Lnet/minecraft/core/Holder;)V
 
 accessible field net/minecraft/world/level/storage/loot/LootTable pools [Lnet/minecraft/world/level/storage/loot/LootPool;
 mutable field net/minecraft/world/level/storage/loot/LootTable pools [Lnet/minecraft/world/level/storage/loot/LootPool;
@@ -169,3 +184,10 @@ accessible field net/minecraft/world/entity/projectile/ThrownTrident dealtDamage
 accessible field net/minecraft/world/entity/projectile/ThrownTrident tridentItem Lnet/minecraft/world/item/ItemStack;
 
 accessible field net/minecraft/world/entity/AreaEffectCloud victims Ljava/util/Map;
+
+accessible field net/minecraft/client/Minecraft itemColors Lnet/minecraft/client/color/item/ItemColors;
+accessible field net/minecraft/client/Minecraft textureManager Lnet/minecraft/client/renderer/texture/TextureManager;
+accessible field net/minecraft/server/network/ServerGamePacketListenerImpl connection Lnet/minecraft/network/Connection;
+accessible field net/minecraft/client/gui/screens/Screen renderables Ljava/util/List;
+accessible field net/minecraft/commands/synchronization/ArgumentTypeInfos BY_CLASS Ljava/util/Map;
+accessible method net/minecraft/core/particles/SimpleParticleType <init> (Z)V

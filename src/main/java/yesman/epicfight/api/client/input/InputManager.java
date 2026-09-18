@@ -109,14 +109,26 @@ public final class InputManager {
 
         return switch (controllerMod.getInputMode()) {
             case KEYBOARD_MOUSE -> keyboardCheck.apply(action.keyMapping());
-            case CONTROLLER -> action.controllerBinding()
+            case CONTROLLER -> assignedControllerBinding(action)
                     .map(ControllerBinding::isDigitalActiveNow)
                     .orElse(keyboardCheck.apply(action.keyMapping()));
             case MIXED -> keyboardCheck.apply(action.keyMapping())
-                    || action.controllerBinding()
+                    || assignedControllerBinding(action)
                     .map(ControllerBinding::isDigitalActiveNow)
                     .orElse(false);
         };
+    }
+
+    /// The action's controller binding, but only while a physical control is assigned to it.
+    ///
+    /// An action the player never bound on the controller has to keep working from the keyboard,
+    /// otherwise plugging in a controller silently disables every Epic Fight key that has no
+    /// controller default, such as the mode switch or the skill screen.
+    ///
+    /// @see ControllerBinding#isBound
+    @ApiStatus.Internal
+    public static Optional<@NotNull ControllerBinding> assignedControllerBinding(@NotNull InputAction action) {
+        return action.controllerBinding().filter(ControllerBinding::isBound);
     }
 
     /// Called on every client tick to potentially trigger the provided callback for a given input action.
@@ -145,8 +157,9 @@ public final class InputManager {
     public static boolean isBoundToSamePhysicalInput(@NotNull InputAction action, @NotNull InputAction action2) {
         final IEpicFightControllerMod controllerMod = getControllerModApi();
         if (controllerMod != null && controllerMod.getInputMode() == InputMode.CONTROLLER) {
-            final Optional<ControllerBinding> optionalControllerBinding = action.controllerBinding();
-            final Optional<ControllerBinding> optionalControllerBinding2 = action2.controllerBinding();
+            // Unassigned bindings share "no physical input", which is not the same physical input.
+            final Optional<ControllerBinding> optionalControllerBinding = assignedControllerBinding(action);
+            final Optional<ControllerBinding> optionalControllerBinding2 = assignedControllerBinding(action2);
             if (optionalControllerBinding.isPresent() && optionalControllerBinding2.isPresent()) {
                 return optionalControllerBinding.get().isBoundToSamePhysicalInput(optionalControllerBinding2.get());
             }
@@ -154,12 +167,12 @@ public final class InputManager {
 
         final KeyMapping keyMapping1 = action.keyMapping();
         final KeyMapping keyMapping2 = action2.keyMapping();
-        return keyMapping1.getKey() == keyMapping2.getKey();
+        return keyMapping1.key == keyMapping2.key;
     }
 
     /// Retrieves the current input state for the current player (client-side).
     ///
-    ///  You should use this method instead of depending on the vanilla [Input] directly support controllers.
+    /// You should use this method instead of depending on the vanilla [Input] directly support controllers.
     ///
     /// The [PlayerInputState] is immutable, so properties cannot be updated directly, for that,
     /// use [InputManager#setInputState].
@@ -190,7 +203,6 @@ public final class InputManager {
     }
 
     /// Updates the current input state for the current player (client-side).
-    ///
     /// Consider using this instead of modifying fields in the vanilla [Input] directly
     /// to avoid direct dependency on Minecraft.
     ///
@@ -211,20 +223,7 @@ public final class InputManager {
     /// The exact behavior varied from one Minecraft version to another.
     private static boolean isKeyDown(@NotNull KeyMapping keyMapping) {
         final boolean isDown = keyMapping.isDown();
-        if (!isDown && keyMapping.getKey().getType() == InputConstants.Type.MOUSE) {
-            // TODO: (WORKAROUND) Remove this entire "if" statement when
-            //  porting to Minecraft 1.21.10 or a newer version.
-            //  This exists only due to inconsistent behavior in older Minecraft versions,
-            //  such as 1.21.1 and 1.20.1.
-            //  It fixes an issue where the weapon's innate skill fails to trigger
-            //  even though the left mouse button is actually pressed.
-            //  In vanilla Minecraft, "KeyMapping#isDown" incorrectly reports "false"
-            //  when multiple keybindings share the same physical mouse button.
-            //  (This is not an issue with keyboard inputs.)
-            //  When porting to 1.21.10 or 1.22, test the weapon's innate skill
-            //  without this condition.
-            //  If it works correctly, remove this "if" block.
-            //  For more details, see: https://github.com/Epic-Fight/epicfight/issues/2174
+        if (!isDown && keyMapping.key.getType() == InputConstants.Type.MOUSE) {
             return isPhysicalKeyDown(keyMapping);
         }
         return isDown;
@@ -234,33 +233,9 @@ public final class InputManager {
     ///
     /// This method does not respect any Minecraft behavior and may return `true` even
     /// if a screen is open, for example.
-    ///
-    /// Consumers or addons should **never** rely on this internal method unless absolutely necessary.
-    /// For instance, Epic Fight still uses it internally as a workaround for a specific issue.
-    ///
-    /// This method serves as a workaround for an issue where the weapon's innate skill fails to trigger
-    /// when bound to the left mouse button.
-    ///
-    /// Since other keybindings may share the same physical input,
-    /// Minecraft incorrectly reports the key as `false`, even though it should be `true`.
-    ///
-    /// This issue occurs in versions `1.21.1` and `1.20.1` but is fixed in 1.21.10 and newer.
-    ///
-    /// Once migration to a newer version is complete, this workaround should be removed entirely
-    /// while ensuring the weapon's innate skill continues to function correctly.
-    ///
-    /// For more details, see [Issue #2174](https://github.com/Epic-Fight/epicfight/issues/2174).
-    ///
-    /// Note: At the time of writing, this workaround is confirmed to be unnecessary in 1.21.10,
-    /// but may still (though unlikely) be required in 1.22 or later versions.
-    ///
-    /// This is also useful when a screen is open,
-    /// since [#isKeyDown(KeyMapping)] will return `false`.
-    ///
-    /// See [issue #2170](https://github.com/Epic-Fight/epicfight/issues/2170) for details.
     @ApiStatus.Internal
     private static boolean isPhysicalKeyDown(@NotNull KeyMapping keyMapping) {
-        final InputConstants.Key key = keyMapping.getKey();
+        final InputConstants.Key key = keyMapping.key;
         final int keyValue = key.getValue();
 
         if (keyValue == InputConstants.UNKNOWN.getValue()) {

@@ -28,14 +28,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.event.InputEvent.InteractionKeyMappingTriggered;
-import net.minecraftforge.client.event.MovementInputUpdateEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import yesman.epicfight.forgecompat.api.distmarker.Dist;
+import yesman.epicfight.forgecompat.client.event.InputEvent;
+import yesman.epicfight.forgecompat.client.event.InputEvent.InteractionKeyMappingTriggered;
+import yesman.epicfight.forgecompat.client.event.MovementInputUpdateEvent;
+import yesman.epicfight.forgecompat.event.TickEvent;
+import yesman.epicfight.forgecompat.event.entity.living.LivingEvent.LivingJumpEvent;
+import yesman.epicfight.forgecompat.eventbus.api.SubscribeEvent;
+import yesman.epicfight.forgecompat.fml.common.Mod;
 import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
 import yesman.epicfight.api.client.input.InputManager;
@@ -359,6 +359,12 @@ public class ControlEngine {
     }
 
     private void maybeAttack() {
+		EpicFightMod.LOGGER.debug(
+			"[EF-DIAG] maybeAttack entered mode={} holdingAttack={} stamina={}/{} basicAttackEmpty={} canPlayAttack={}",
+			this.playerPatch.getPlayerMode(), isCurrentHoldingAction(EpicFightInputAction.ATTACK),
+			this.playerPatch.getStamina(), this.playerPatch.getMaxStamina(),
+			this.playerPatch.getSkill(SkillSlots.BASIC_ATTACK).isEmpty(), this.playerPatch.canPlayAttackAnimation()
+		);
         if (!this.playerPatch.isEpicFightMode() || isCurrentHoldingAction(EpicFightInputAction.ATTACK)) {
             return;
         }
@@ -366,7 +372,7 @@ public class ControlEngine {
         final EpicFightInputAction epicFightAttack = EpicFightInputAction.ATTACK;
 
         boolean shouldPlayAttackAnimation = this.playerPatch.canPlayAttackAnimation();
-        if (vanillaAttack.keyMapping().getKey() == epicFightAttack.keyMapping().getKey() &&
+        if (vanillaAttack.keyMapping().key == epicFightAttack.keyMapping().key &&
                 Minecraft.getInstance().hitResult != null && shouldPlayAttackAnimation) {
             // Not needed for controller inputs.
             // This is called for keyboard/mouse inputs to just reset the internal keymapping counter.
@@ -378,6 +384,11 @@ public class ControlEngine {
             if (!InputManager.isBoundToSamePhysicalInput(epicFightAttack, EpicFightInputAction.WEAPON_INNATE_SKILL)) {
                 SkillSlot slot = SkillSlots.BASIC_ATTACK;
                 SkillCastEvent skillCastEvent = this.playerPatch.getSkill(slot).sendCastRequest(this.playerPatch, this);
+				EpicFightMod.LOGGER.debug(
+					"[EF-DIAG] basic attack cast requested executable={} reserve={} sameAsInnate={}",
+					skillCastEvent.isExecutable(), skillCastEvent.shouldReserveKey(),
+					InputManager.isBoundToSamePhysicalInput(epicFightAttack, EpicFightInputAction.WEAPON_INNATE_SKILL)
+				);
 
                 if (skillCastEvent.isExecutable()) {
                     this.player.resetAttackStrengthTicker();
@@ -484,18 +495,47 @@ public class ControlEngine {
         }
     }
 
-    private void switchMode() {
+    public void switchMode() {
         final boolean canSwitch = EpicFightGameRules.CAN_SWITCH_PLAYER_MODE.getRuleValue(this.playerPatch.getOriginal().level());
         if (!canSwitch) {
             this.minecraft.gui.getChat().addMessage(Component.translatable("epicfight.messages.mode_switching_disabled").withStyle(ChatFormatting.RED));
+			EpicFightMod.LOGGER.warn("Epic Fight mode switch was blocked by the canSwitchPlayerMode gamerule");
             return;
         }
+		PlayerPatch.PlayerMode previousMode = this.playerPatch.getPlayerMode();
         this.playerPatch.toggleMode();
+		if (!this.playerPatch.isEpicFightMode()) {
+			this.clearCombatInputState();
+		}
+		EpicFightMod.LOGGER.info("Epic Fight mode input changed local player from {} to {}", previousMode, this.playerPatch.getPlayerMode());
     }
+
+	private void clearCombatInputState() {
+		this.weaponInnatePressCounter = 0;
+		this.sneakPressCounter = 0;
+		this.moverPressCounter = 0;
+		this.weaponInnatePressToggle = false;
+		this.sneakPressToggle = false;
+		this.moverPressToggle = false;
+		this.attackLightPressToggle = false;
+		this.releaseAllServedKeys();
+		this.unlockHotkeys();
+	}
     
-    private void toggleLockOnState() {
-    	EpicFightCameraAPI.getInstance().toggleLockOn();
-    }
+	public void toggleLockOnState() {
+		EpicFightCameraAPI cameraApi = EpicFightCameraAPI.getInstance();
+		boolean wasLocked = cameraApi.isLockingOnTarget();
+		cameraApi.toggleLockOn();
+		EpicFightMod.LOGGER.debug(
+			"[EF-DIAG] lock-on input mode={} key={} physical={} lockedBefore={} lockedAfter={} target={} camera={}",
+			this.playerPatch == null ? "NO_PATCH" : this.playerPatch.getPlayerMode(),
+			EpicFightInputAction.LOCK_ON.keyMapping().key.getName(),
+			InputManager.isActionPhysicallyActive(EpicFightInputAction.LOCK_ON),
+			wasLocked, cameraApi.isLockingOnTarget(),
+			cameraApi.getFocusingEntity() == null ? "none" : cameraApi.getFocusingEntity().getDisplayName().getString(),
+			this.minecraft.options.getCameraType()
+		);
+	}
     
     private void searchNewTargetFromLeft() {
     	EpicFightCameraAPI.getInstance().setNextLockOnTarget(1, true, true);
@@ -506,6 +546,13 @@ public class ControlEngine {
     }
     
 	private void inputTick(Input input) {
+		// Vanilla mode belongs to Minecraft/Better Combat. Epic Fight must not rewrite
+		// movement fields there, even if an animation state from a previous mode has not
+		// finished clearing yet.
+		if (this.playerPatch == null || !this.playerPatch.isEpicFightMode()) {
+			return;
+		}
+
         PlayerInputState inputState = InputManager.getInputState(input);
 		if (this.moverPressToggle) {
 			if (!InputManager.isActionActive(MinecraftInputAction.JUMP)) {
@@ -532,7 +579,10 @@ public class ControlEngine {
 		}
 		
 		if (!this.canPlayerMove(this.playerPatch.getEntityState())) {
-            inputState = inputState.copyWith(0F, 0F, false, false, false, false, false, false);
+			// An action may stop movement, but crouch is still a vanilla stance input. Do
+			// not erase it here: doing so made Shift appear completely broken whenever an
+			// animation state was late clearing on Fabric.
+			inputState = inputState.copyWith(0F, 0F, false, false, false, false, false, null);
             InputManager.setInputState(inputState);
 			this.player.sprintTriggerTime = -1;
 			this.player.setSprinting(false);
@@ -547,10 +597,21 @@ public class ControlEngine {
 
 	public void handleMovementInput(Input input) {
 		if (this.playerPatch == null) {
+			if (input.shiftKeyDown) {
+				EpicFightMod.LOGGER.debug("[EF-DIAG] movement hook saw Shift but control player patch is null");
+			}
 			return;
 		}
 
+		boolean sneakBefore = input.shiftKeyDown;
 		this.inputTick(input);
+		if (sneakBefore || input.shiftKeyDown || this.playerPatch.getEntityState().movementLocked()) {
+			EpicFightMod.LOGGER.debug(
+				"[EF-DIAG] movement hook mode={} sneakBefore={} sneakAfter={} movementLocked={} inaction={}",
+				this.playerPatch.getPlayerMode(), sneakBefore, input.shiftKeyDown,
+				this.playerPatch.getEntityState().movementLocked(), this.playerPatch.getEntityState().inaction()
+			);
+		}
 	}
 
     /**
@@ -618,50 +679,26 @@ public class ControlEngine {
 		this.packets.clear();
 	}
 
-    /**
-     * <b>DEPRECATED:</b> Use {@link InputManager#isActionActive} instead for controller support,
-     * though it only handles Epic Fight supported actions. For checking a custom mod keybind,
-     * use the vanilla {@link KeyMapping#isDown}.
-     * <p>
-     * Please note that there is a difference between vanilla {@link KeyMapping#isDown} and this method,
-     * {@link KeyMapping#isDown} may be <code>false</code> in some cases even if the physical key
-     * is actually down, for example, if a screen is open.
-     * <p>
-     * Even though this is a private method, it is retained in case an Epic Fight addon
-     * accesses it by bypassing Java private access modifier restriction.
-     */
-	@SuppressWarnings({"JavadocReference", "DeprecatedIsStillUsed"})
+    @SuppressWarnings({"JavadocReference", "DeprecatedIsStillUsed"})
     @Deprecated(forRemoval = true)
     public static boolean isKeyDown(KeyMapping key) {
-		if (key.getKey().getType() == InputConstants.Type.KEYSYM) {
-			return key.isDown() || GLFW.glfwGetKey(Minecraft.getInstance().getWindow().getWindow(), key.getKey().getValue()) > 0;
-		} else if(key.getKey().getType() == InputConstants.Type.MOUSE) {
-			return key.isDown() || GLFW.glfwGetMouseButton(Minecraft.getInstance().getWindow().getWindow(), key.getKey().getValue()) > 0;
+		if (key.key.getType() == InputConstants.Type.KEYSYM) {
+			return key.isDown() || GLFW.glfwGetKey(Minecraft.getInstance().getWindow().getWindow(), key.key.getValue()) > 0;
+		} else if(key.key.getType() == InputConstants.Type.MOUSE) {
+			return key.isDown() || GLFW.glfwGetMouseButton(Minecraft.getInstance().getWindow().getWindow(), key.key.getValue()) > 0;
 		} else {
 			return false;
 		}
 	}
 
-    /**
-     * <b>DEPRECATED:</b> Use {@link InputManager#triggerOnPress} instead for controller support,
-     * though it only handles Epic Fight supported actions. For checking a custom mod keybind,
-     * use the vanilla {@link KeyMapping#consumeClick} with a {@code while} statement.
-     * <p>
-     * Even though this is a private method, it is retained in case an Epic Fight addon
-     * accesses it by bypassing Java private access modifier restriction.
-     * @see InputManager#isPhysicalKeyDownInternalWorkaround(KeyMapping)
-     * @see InputManager#isKeyDown(KeyMapping)
-     * @deprecated Consider adapting the Minecraft's {@link KeyMapping#isDown()}, keep in mind that
-     *  this may return false in some cases, such as when a screen or chat is open.
-     */
     @SuppressWarnings({"JavadocReference", "removal"})
     @Deprecated(forRemoval = true)
 	private static boolean isKeyPressed(KeyMapping key, boolean eventCheck) {
 		boolean consumes = key.consumeClick();
 		
 		if (consumes && eventCheck) {
-			int mouseButton = InputConstants.Type.MOUSE == key.getKey().getType() ? key.getKey().getValue() : -1;
-			InputEvent.InteractionKeyMappingTriggered inputEvent = net.minecraftforge.client.ForgeHooksClient.onClickInput(mouseButton, key, InteractionHand.MAIN_HAND);
+			int mouseButton = InputConstants.Type.MOUSE == key.key.getType() ? key.key.getValue() : -1;
+			InputEvent.InteractionKeyMappingTriggered inputEvent = yesman.epicfight.forgecompat.client.ForgeHooksClient.onClickInput(mouseButton, key, InteractionHand.MAIN_HAND);
 			
 	        if (inputEvent.isCanceled()) {
 	        	return false;
@@ -672,8 +709,6 @@ public class ControlEngine {
 	}
 
     /**
-     * <b>DISCOURAGED:</b> Does not support controller mods or other input systems.
-     * <p>
      * This method was previously called before {@link Minecraft#handleKeybinds} to disable some vanilla
      * input actions.
      * <p>
@@ -796,7 +831,7 @@ public class ControlEngine {
         if (playerPatch == null) {
             return false;
         }
-        return playerPatch.getEntityState().inaction() || (!playerPatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).canBePlacedOffhand());
+        return playerPatch.isEpicFightMode() && (playerPatch.getEntityState().inaction() || (!playerPatch.getHoldingItemCapability(InteractionHand.MAIN_HAND).canBePlacedOffhand()));
     }
 
 
@@ -984,7 +1019,7 @@ public class ControlEngine {
     public static boolean isHotbarCyclingDisabled() {
         final Minecraft minecraft = Minecraft.getInstance();
         final LocalPlayerPatch localPlayerPatch = ClientEngine.getInstance().getPlayerPatch();
-        return minecraft.player != null && localPlayerPatch != null && !localPlayerPatch.getEntityState().canSwitchHoldingItem() && minecraft.screen == null;
+        return minecraft.player != null && localPlayerPatch != null && localPlayerPatch.isEpicFightMode() && !localPlayerPatch.getEntityState().canSwitchHoldingItem() && minecraft.screen == null;
     }
 
     /**
@@ -992,9 +1027,9 @@ public class ControlEngine {
      *
      * @return true if switching or dropping is blocked, false otherwise
      */
-    public boolean isSwitchOrDropBlocked() {
-        return !this.playerPatch.getEntityState().canSwitchHoldingItem() || this.hotbarLocked;
-    }
+	public boolean isSwitchOrDropBlocked() {
+		return this.playerPatch != null && this.playerPatch.isEpicFightMode() && (!this.playerPatch.getEntityState().canSwitchHoldingItem() || this.hotbarLocked);
+	}
 
     public boolean moverToggling() {
 		return this.moverPressToggle;

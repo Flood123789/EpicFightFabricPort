@@ -8,8 +8,8 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.client.event.RenderLivingEvent;
-import net.minecraftforge.common.MinecraftForge;
+import yesman.epicfight.forgecompat.client.event.RenderLivingEvent;
+import yesman.epicfight.forgecompat.common.MinecraftForge;
 
 public class NoopLivingEntityRenderer<T extends LivingEntity> extends LivingEntityRenderer<T, EntityModel<T>> {
 	public NoopLivingEntityRenderer(Context context, float shadowRadius) {

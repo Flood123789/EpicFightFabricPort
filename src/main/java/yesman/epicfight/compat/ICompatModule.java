@@ -2,13 +2,13 @@ package yesman.epicfight.compat;
 
 import java.lang.reflect.Constructor;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.ModLoadingException;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import yesman.epicfight.forgecompat.api.distmarker.Dist;
+import yesman.epicfight.forgecompat.api.distmarker.OnlyIn;
+import yesman.epicfight.forgecompat.common.MinecraftForge;
+import yesman.epicfight.forgecompat.eventbus.api.IEventBus;
+import yesman.epicfight.forgecompat.fml.DistExecutor;
+import yesman.epicfight.forgecompat.fml.ModLoadingException;
+import yesman.epicfight.forgecompat.fml.javafmlmod.FMLJavaModLoadingContext;
 import yesman.epicfight.main.EpicFightMod;
 
 public interface ICompatModule {

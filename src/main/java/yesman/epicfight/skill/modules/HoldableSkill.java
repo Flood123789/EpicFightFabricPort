@@ -2,8 +2,8 @@ package yesman.epicfight.skill.modules;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import yesman.epicfight.forgecompat.api.distmarker.Dist;
+import yesman.epicfight.forgecompat.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.input.action.EpicFightInputAction;
 import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.network.server.SPSkillExecutionFeedback;

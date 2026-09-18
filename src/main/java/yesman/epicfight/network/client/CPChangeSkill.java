@@ -5,8 +5,9 @@ import java.util.function.Supplier;
 import javax.annotation.Nullable;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
-import net.minecraftforge.registries.RegistryManager;
+import yesman.epicfight.forgecompat.network.BufUtil;
+import yesman.epicfight.forgecompat.network.NetworkEvent;
+import yesman.epicfight.forgecompat.registries.RegistryManager;
 import yesman.epicfight.api.data.reloader.SkillManager;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.server.SPSetRemotePlayerSkill;
@@ -35,7 +36,7 @@ public class CPChangeSkill {
 	}
 	
 	public static CPChangeSkill fromBytes(FriendlyByteBuf buf) {
-		return new CPChangeSkill(SkillSlot.ENUM_MANAGER.get(buf.readInt()), buf.readInt(), buf.isReadable() ? buf.readRegistryId() : null);
+		return new CPChangeSkill(SkillSlot.ENUM_MANAGER.get(buf.readInt()), buf.readInt(), buf.isReadable() ? BufUtil.readRegistryId(buf) : null);
 	}
 	
 	public static void toBytes(CPChangeSkill msg, FriendlyByteBuf buf) {
@@ -43,7 +44,7 @@ public class CPChangeSkill {
 		buf.writeInt(msg.skillBookSlotIndex);
 		
 		if (msg.skill != null) {
-			buf.writeRegistryId(RegistryManager.ACTIVE.getRegistry(SkillManager.SKILL_REGISTRY_KEY), msg.skill);
+			BufUtil.writeRegistryId(buf, RegistryManager.ACTIVE.getRegistry(SkillManager.SKILL_REGISTRY_KEY), msg.skill);
 		}
 	}
 	

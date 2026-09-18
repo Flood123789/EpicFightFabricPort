@@ -13,7 +13,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.gui.overlay.ForgeGui;
+import yesman.epicfight.forgecompat.client.gui.overlay.ForgeGui;
 import yesman.epicfight.api.utils.math.Vec2i;
 import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.gui.ScreenCalculations.AlignDirection;

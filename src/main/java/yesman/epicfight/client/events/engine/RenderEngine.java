@@ -56,21 +56,21 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.CustomizeGuiOverlayEvent;
-import net.minecraftforge.client.event.RenderGuiEvent;
-import net.minecraftforge.client.event.RenderHandEvent;
-import net.minecraftforge.client.event.RenderHighlightEvent;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.client.event.RenderLivingEvent;
-import net.minecraftforge.client.event.ViewportEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.player.ItemTooltipEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModLoader;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.ForgeRegistries;
+import yesman.epicfight.forgecompat.api.distmarker.Dist;
+import yesman.epicfight.forgecompat.client.event.CustomizeGuiOverlayEvent;
+import yesman.epicfight.forgecompat.client.event.RenderGuiEvent;
+import yesman.epicfight.forgecompat.client.event.RenderHandEvent;
+import yesman.epicfight.forgecompat.client.event.RenderHighlightEvent;
+import yesman.epicfight.forgecompat.client.event.RenderLevelStageEvent;
+import yesman.epicfight.forgecompat.client.event.RenderLivingEvent;
+import yesman.epicfight.forgecompat.client.event.ViewportEvent;
+import yesman.epicfight.forgecompat.event.TickEvent;
+import yesman.epicfight.forgecompat.event.entity.player.ItemTooltipEvent;
+import yesman.epicfight.forgecompat.eventbus.api.EventPriority;
+import yesman.epicfight.forgecompat.eventbus.api.SubscribeEvent;
+import yesman.epicfight.forgecompat.fml.ModLoader;
+import yesman.epicfight.forgecompat.fml.common.Mod;
+import yesman.epicfight.forgecompat.registries.ForgeRegistries;
 import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.client.animation.AnimationSubFileReader.PovSettings.ViewLimit;
 import yesman.epicfight.api.client.camera.EpicFightCameraAPI;
@@ -562,7 +562,7 @@ public class RenderEngine {
 					Skill weaponInnateSkill = cap.getInnateSkill(playerpatch, itemStack);
 
 					if (weaponInnateSkill != null) {
-						tooltip.add(Component.translatable("inventory.epicfight.guide_innate_tooltip", EpicFightKeyMappings.WEAPON_INNATE_SKILL_TOOLTIP.getKey().getDisplayName()).withStyle(ChatFormatting.DARK_GRAY));
+						tooltip.add(Component.translatable("inventory.epicfight.guide_innate_tooltip", EpicFightKeyMappings.WEAPON_INNATE_SKILL_TOOLTIP.key.getDisplayName()).withStyle(ChatFormatting.DARK_GRAY));
 					}
 				}
 			}
@@ -607,6 +607,21 @@ public class RenderEngine {
 		@SubscribeEvent
 		public static void renderLivingEvent(RenderLivingEvent.Pre<? extends LivingEntity, ? extends EntityModel<? extends LivingEntity>> event) {
 			LivingEntity livingentity = event.getEntity();
+
+			// Whackdolls owns the visible corpse once the original mob dies. Cancel
+			// Epic Fight's armature pass here as well as at the entity dispatcher so
+			// recursive/compatibility renders cannot draw a second animated body.
+			if (yesman.epicfight.compat.WhackdollsCompat.shouldSuppressDeadMobRenderer(livingentity)) {
+				event.setCanceled(true);
+				return;
+			}
+
+			// A live Whackdolls body must stay in the normal PlayerRenderer path.
+			// This lets its physics pose flow through vanilla armor plus third-party
+			// 3D armor, Accessories/Trinkets, backpacks, overlays, and cosmetics.
+			if (yesman.epicfight.compat.WhackdollsCompat.shouldUseVanillaRenderer(livingentity)) {
+				return;
+			}
 			
 			if (livingentity.level() == null) {
 				return;

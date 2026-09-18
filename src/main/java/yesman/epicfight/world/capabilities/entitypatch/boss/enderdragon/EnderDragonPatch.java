@@ -36,12 +36,12 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
+import yesman.epicfight.forgecompat.api.distmarker.Dist;
+import yesman.epicfight.forgecompat.api.distmarker.OnlyIn;
+import yesman.epicfight.forgecompat.event.entity.EntityAttributeModificationEvent;
+import yesman.epicfight.forgecompat.event.entity.EntityJoinLevelEvent;
+import yesman.epicfight.forgecompat.event.entity.living.LivingDeathEvent;
+import yesman.epicfight.forgecompat.event.entity.living.LivingEvent;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.JointTransform;
@@ -247,7 +247,7 @@ public class EnderDragonPatch extends MobPatch<EnderDragon> implements InverseKi
 		this.ikSimulator.tick(null);
 		this.setIKHeightAndRootRotation();
 		
-		Entity bodyPart = this.original.getParts()[2];
+		Entity bodyPart = this.original.getSubEntities()[2];
 		AABB bodyBoundingBox = bodyPart.getBoundingBox();
 		List<Entity> list = this.original.level().getEntities(this.original, bodyBoundingBox, EntitySelector.pushableBy(this.original));
 		

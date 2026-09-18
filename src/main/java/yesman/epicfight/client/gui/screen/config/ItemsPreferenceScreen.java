@@ -26,7 +26,7 @@ import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.TridentItem;
-import net.minecraftforge.registries.ForgeRegistries;
+import yesman.epicfight.forgecompat.registries.ForgeRegistries;
 import yesman.epicfight.api.utils.ParseUtil;
 import yesman.epicfight.client.gui.screen.config.ItemsPreferenceScreen.ItemList.ItemEntry;
 import yesman.epicfight.config.ClientConfig;

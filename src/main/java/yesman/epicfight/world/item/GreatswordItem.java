@@ -34,7 +34,7 @@ public class GreatswordItem extends WeaponItem {
 	}
     
 	@Override
-	public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot slot, ItemStack stack) {
+	public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot slot) {
 		if (slot == EquipmentSlot.MAINHAND) {
     		Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
     		builder.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(BASE_ATTACK_DAMAGE_UUID, "Weapon modifier", this.attackDamage, Operation.ADDITION));
@@ -43,6 +43,10 @@ public class GreatswordItem extends WeaponItem {
     	    return builder.build();
         }
         
-        return super.getAttributeModifiers(slot, stack);
+        return super.getDefaultAttributeModifiers(slot);
     }
+
+	public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot slot, ItemStack stack) {
+		return this.getDefaultAttributeModifiers(slot);
+	}
 }

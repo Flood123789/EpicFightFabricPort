@@ -5,6 +5,7 @@ import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.api.client.input.InputMode;
 import yesman.epicfight.api.client.input.PlayerInputState;
 import yesman.epicfight.api.client.input.action.EpicFightInputAction;
@@ -22,11 +23,19 @@ public class EpicFightControlifyControllerMod implements IEpicFightControllerMod
 
     @Override
     public @NotNull InputMode getInputMode() {
-        return switch (EpicFightControlifyEntrypoint.getApi().currentInputMode()) {
+        final InputMode inputMode = switch (EpicFightControlifyEntrypoint.getApi().currentInputMode()) {
             case KEYBOARD_MOUSE -> InputMode.KEYBOARD_MOUSE;
             case CONTROLLER -> InputMode.CONTROLLER;
             case MIXED -> InputMode.MIXED;
         };
+
+        // Controlify keeps reporting a controller input mode for a moment after the controller is gone.
+        // Without a controller there is no binding state to read, so keyboard/mouse is the only truth.
+        if (inputMode != InputMode.KEYBOARD_MOUSE && EpicFightControlifyEntrypoint.getApi().getCurrentController().isEmpty()) {
+            return InputMode.KEYBOARD_MOUSE;
+        }
+
+        return inputMode;
     }
 
     public static @NotNull ControllerBinding getBinding(@NotNull EpicFightInputAction action) {
@@ -35,6 +44,18 @@ public class EpicFightControlifyControllerMod implements IEpicFightControllerMod
 
     public static @NotNull ControllerBinding getBinding(@NotNull MinecraftInputAction action) {
         return new ControlifyControllerBinding(EpicFightControlifyEntrypoint.getControlifyBinding(action));
+    }
+
+    /// Yields `null` when the binding cannot be resolved, letting the caller fall back to the key mapping.
+    public static @Nullable ControllerBinding getBindingOrNull(@NotNull EpicFightInputAction action) {
+        final InputBinding binding = EpicFightControlifyEntrypoint.getControlifyBindingOrNull(action);
+        return binding == null ? null : new ControlifyControllerBinding(binding);
+    }
+
+    /// @see #getBindingOrNull(EpicFightInputAction)
+    public static @Nullable ControllerBinding getBindingOrNull(@NotNull MinecraftInputAction action) {
+        final InputBinding binding = EpicFightControlifyEntrypoint.getControlifyBindingOrNull(action);
+        return binding == null ? null : new ControlifyControllerBinding(binding);
     }
 
     @Override

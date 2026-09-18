@@ -4,10 +4,10 @@ import java.util.function.Supplier;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.RegistryBuilder;
-import net.minecraftforge.registries.RegistryObject;
+import yesman.epicfight.forgecompat.registries.DeferredRegister;
+import yesman.epicfight.forgecompat.registries.IForgeRegistry;
+import yesman.epicfight.forgecompat.registries.RegistryBuilder;
+import yesman.epicfight.forgecompat.registries.RegistryObject;
 import yesman.epicfight.api.animation.SynchedAnimationVariableKey.SynchedIndependentAnimationVariableKey;
 import yesman.epicfight.api.utils.PacketBufferCodec;
 import yesman.epicfight.main.EpicFightMod;

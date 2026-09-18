@@ -25,10 +25,10 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.event.entity.living.LivingFallEvent;
+import yesman.epicfight.forgecompat.common.MinecraftForge;
+import yesman.epicfight.forgecompat.event.entity.EntityJoinLevelEvent;
+import yesman.epicfight.forgecompat.event.entity.living.LivingEvent;
+import yesman.epicfight.forgecompat.event.entity.living.LivingFallEvent;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotions;
@@ -40,6 +40,7 @@ import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.ValueModifier;
+import yesman.epicfight.compat.bettercombat.BetterCombatCompat;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.EpicFightSkills;
 import yesman.epicfight.skill.BasicAttack;
@@ -302,7 +303,7 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 	}
 	
 	public CapabilitySkill getSkillCapability() {
-		return this.original.getCapability(EpicFightCapabilities.CAPABILITY_SKILL).orElse(CapabilitySkill.EMPTY);
+		return yesman.epicfight.forgecompat.common.capabilities.ICapabilityProvider.getCapability(this.original, EpicFightCapabilities.CAPABILITY_SKILL).orElse(CapabilitySkill.EMPTY);
 	}
 	
 	public PlayerEventListener getEventListener() {
@@ -665,6 +666,7 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 		
 		if (!MinecraftForge.EVENT_BUS.post(prepareModelEvent)) {
 			this.playerMode = prepareModelEvent.getPlayerMode();
+			BetterCombatCompat.onPlayerModeChanged(this.original, this.isEpicFightMode());
 		}
 	}
 	
@@ -677,6 +679,7 @@ public abstract class PlayerPatch<T extends Player> extends LivingEntityPatch<T>
 		
 		if (!MinecraftForge.EVENT_BUS.post(prepareModelEvent)) {
 			this.playerMode = prepareModelEvent.getPlayerMode();
+			BetterCombatCompat.onPlayerModeChanged(this.original, this.isEpicFightMode());
 		}
 	}
 	

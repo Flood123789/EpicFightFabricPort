@@ -4,7 +4,8 @@ import java.util.function.Supplier;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkEvent;
+import yesman.epicfight.forgecompat.network.BufUtil;
+import yesman.epicfight.forgecompat.network.NetworkEvent;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.server.SPModifySkillData;
 import yesman.epicfight.skill.SkillDataKey;
@@ -16,7 +17,7 @@ import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
 public record CPModifySkillData(SkillDataKey<?> dataKey, SkillSlot slot, Object value) {
 	public static CPModifySkillData fromBytes(FriendlyByteBuf buf) {
-		SkillDataKey<?> dataKey = buf.readRegistryId();
+		SkillDataKey<?> dataKey = BufUtil.readRegistryId(buf);
 		SkillSlot slot = SkillSlot.ENUM_MANAGER.getOrThrow(buf.readInt());
 		Object value = dataKey.readFromBuffer(buf);
 		
@@ -25,7 +26,7 @@ public record CPModifySkillData(SkillDataKey<?> dataKey, SkillSlot slot, Object 
 	
 	@SuppressWarnings("unchecked")
 	public static void toBytes(CPModifySkillData msg, FriendlyByteBuf buf) {
-		buf.writeRegistryId(SkillDataKeys.REGISTRY.get(), msg.dataKey);
+		BufUtil.writeRegistryId(buf, SkillDataKeys.REGISTRY.get(), msg.dataKey);
 		buf.writeInt(msg.slot.universalOrdinal());
 		((SkillDataKey<Object>)msg.dataKey).writeToBuffer(buf, msg.value);
 	}
@@ -35,7 +36,7 @@ public record CPModifySkillData(SkillDataKey<?> dataKey, SkillSlot slot, Object 
 		ctx.get().enqueueWork(() -> {
 			ServerPlayer player = ctx.get().getSender();
 			
-			if (player.getCapability(EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null) instanceof ServerPlayerPatch playerpatch) {
+			if (yesman.epicfight.forgecompat.common.capabilities.ICapabilityProvider.getCapability(player, EpicFightCapabilities.CAPABILITY_ENTITY).orElse(null) instanceof ServerPlayerPatch playerpatch) {
 				SkillDataManager dataManager = playerpatch.getSkill(msg.slot).getDataManager();
 				dataManager.setDataRawtype(msg.dataKey, msg.value);
 				

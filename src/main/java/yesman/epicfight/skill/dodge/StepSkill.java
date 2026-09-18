@@ -4,8 +4,8 @@ import java.util.UUID;
 
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import yesman.epicfight.forgecompat.api.distmarker.Dist;
+import yesman.epicfight.forgecompat.api.distmarker.OnlyIn;
 import yesman.epicfight.api.client.input.InputManager;
 import yesman.epicfight.api.client.input.PlayerInputState;
 import yesman.epicfight.client.events.engine.ControlEngine;

@@ -31,7 +31,7 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.common.MinecraftForge;
+import yesman.epicfight.forgecompat.common.MinecraftForge;
 import yesman.epicfight.api.client.forgeevent.PatchedRenderersEvent;
 import yesman.epicfight.api.client.forgeevent.PrepareModelEvent;
 import yesman.epicfight.api.client.model.SkinnedMesh;
@@ -181,7 +181,7 @@ public abstract class PatchedLivingEntityRenderer<E extends LivingEntity, T exte
 	}
 	
 	protected void prepareVanillaModel(E entity, M model, LivingEntityRenderer<E, M> renderer, float partialTicks) {
-		boolean shouldSit = entity.isPassenger() && (entity.getVehicle() != null && entity.getVehicle().shouldRiderSit());
+		boolean shouldSit = entity.isPassenger() && yesman.epicfight.forgecompat.client.ForgeHooksClient.shouldRiderSit(entity.getVehicle());
 		model.riding = shouldSit;
 		model.young = entity.isBaby();
 		float f = Mth.rotLerp(partialTicks, entity.yBodyRotO, entity.yBodyRot);

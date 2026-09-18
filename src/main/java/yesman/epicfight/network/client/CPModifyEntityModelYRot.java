@@ -3,7 +3,7 @@ package yesman.epicfight.network.client;
 import java.util.function.Supplier;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import yesman.epicfight.forgecompat.network.NetworkEvent;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.server.SPModifyPlayerData;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;

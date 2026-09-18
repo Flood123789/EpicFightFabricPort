@@ -3,9 +3,9 @@ package yesman.epicfight.gameasset;
 import java.util.Set;
 
 import net.minecraft.tags.DamageTypeTags;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import yesman.epicfight.forgecompat.eventbus.api.SubscribeEvent;
+import yesman.epicfight.forgecompat.fml.common.Mod;
+import yesman.epicfight.forgecompat.fml.common.Mod.EventBusSubscriber;
 import yesman.epicfight.api.animation.property.AnimationProperty.AttackPhaseProperty;
 import yesman.epicfight.api.forgeevent.SkillBuildEvent;
 import yesman.epicfight.api.forgeevent.SkillBuildEvent.ModRegistryWorker;

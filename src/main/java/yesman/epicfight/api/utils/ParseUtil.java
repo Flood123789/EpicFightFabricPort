@@ -36,7 +36,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.registries.IForgeRegistry;
+import yesman.epicfight.forgecompat.registries.IForgeRegistry;
 import yesman.epicfight.api.utils.math.Vec3f;
 
 public class ParseUtil {

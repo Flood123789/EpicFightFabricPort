@@ -29,8 +29,8 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.IForgeRegistry;
+import yesman.epicfight.forgecompat.registries.ForgeRegistries;
+import yesman.epicfight.forgecompat.registries.IForgeRegistry;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.client.animation.property.JointMask.JointMaskSet;
@@ -499,7 +499,7 @@ public abstract class PopupBox<T> extends AbstractWidget implements DataBindingC
 
 	@Override
 	public void _setHeight(int height) {
-		this.setHeight(height);
+		this.height = height;
 	}
 
 	@Override

@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import yesman.epicfight.forgecompat.api.distmarker.Dist;
+import yesman.epicfight.forgecompat.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.AnimationManager.AnimationAccessor;
 import yesman.epicfight.api.animation.AnimationVariables;
 import yesman.epicfight.api.animation.AnimationVariables.IndependentAnimationVariableKey;

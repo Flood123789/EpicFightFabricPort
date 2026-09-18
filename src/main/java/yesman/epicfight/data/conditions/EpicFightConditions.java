@@ -4,10 +4,10 @@ import java.util.NoSuchElementException;
 import java.util.function.Supplier;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.RegistryBuilder;
-import net.minecraftforge.registries.RegistryObject;
+import yesman.epicfight.forgecompat.registries.DeferredRegister;
+import yesman.epicfight.forgecompat.registries.IForgeRegistry;
+import yesman.epicfight.forgecompat.registries.RegistryBuilder;
+import yesman.epicfight.forgecompat.registries.RegistryObject;
 import yesman.epicfight.data.conditions.entity.HealthPoint;
 import yesman.epicfight.data.conditions.entity.OffhandItemCategory;
 import yesman.epicfight.data.conditions.entity.PlayerName;

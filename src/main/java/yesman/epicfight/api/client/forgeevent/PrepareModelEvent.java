@@ -3,7 +3,7 @@ package yesman.epicfight.api.client.forgeevent;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraftforge.eventbus.api.Event;
+import yesman.epicfight.forgecompat.eventbus.api.Event;
 import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.client.renderer.patched.entity.PatchedEntityRenderer;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;

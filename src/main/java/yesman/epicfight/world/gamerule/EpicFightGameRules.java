@@ -11,7 +11,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.ForgeConfigSpec;
+import yesman.epicfight.forgecompat.common.ForgeConfigSpec;
 import yesman.epicfight.api.utils.PacketBufferCodec;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.server.SPChangeGamerule;
@@ -76,7 +76,7 @@ public class EpicFightGameRules {
 	public static final ConfigurableGameRule<Integer, ForgeConfigSpec.IntValue, GameRules.IntegerValue> INITIAL_PLAYER_MODE = create(
 			  "initialMode"
 			, GameRules.Category.PLAYER
-			, configBuilder -> configBuilder.comment("0 = vanilla, 1 = epicfight").defineInRange("default_gamerule.initialMode", 1, 0, 1)
+			, configBuilder -> configBuilder.comment("0 = vanilla/Better Combat, 1 = epicfight").defineInRange("default_gamerule.initialMode", 0, 0, 1)
 			, RuleType.INTEGER
 			, true
 	);

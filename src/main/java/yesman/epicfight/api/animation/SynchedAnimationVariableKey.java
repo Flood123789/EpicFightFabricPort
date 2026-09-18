@@ -1,14 +1,15 @@
 package yesman.epicfight.api.animation;
 
+import java.util.Objects;
 import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
 import net.minecraft.core.IdMapper;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.IForgeRegistryInternal;
-import net.minecraftforge.registries.RegistryManager;
+import yesman.epicfight.forgecompat.registries.IForgeRegistry;
+import yesman.epicfight.forgecompat.registries.IForgeRegistryInternal;
+import yesman.epicfight.forgecompat.registries.RegistryManager;
 import yesman.epicfight.api.animation.AnimationVariables.IndependentAnimationVariableKey;
 import yesman.epicfight.api.animation.AnimationVariables.SharedAnimationVariableKey;
 import yesman.epicfight.api.animation.types.StaticAnimation;
@@ -40,7 +41,13 @@ public interface SynchedAnimationVariableKey<T> {
 		@SuppressWarnings("unchecked")
         public void onBake(IForgeRegistryInternal<SynchedAnimationVariableKey<?>> owner, RegistryManager stage) {
 			final ClearableIdMapper<SynchedAnimationVariableKey<?>> synchedanimationvariablekeybyid = owner.getSlaveMap(BY_ID_REGISTRY, ClearableIdMapper.class);
-			owner.forEach(synchedanimationvariablekeybyid::add);
+
+			// These ids go out in animation variable packets, so both ends have to derive
+			// the same ones. Iterating the registry walks a HashSet, whose order depends on
+			// identity hashes and therefore differs per JVM, so order by name instead.
+			// Rebuilding from empty keeps a repeated bake from assigning a second set of ids.
+			synchedanimationvariablekeybyid.clear();
+			owner.getKeys().stream().sorted().map(owner::getValue).filter(Objects::nonNull).forEach(synchedanimationvariablekeybyid::add);
         }
 		
 		@Override

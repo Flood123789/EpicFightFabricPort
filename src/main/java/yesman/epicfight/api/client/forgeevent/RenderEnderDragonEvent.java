@@ -5,8 +5,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EnderDragonRenderer;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
-import net.minecraftforge.eventbus.api.Cancelable;
-import net.minecraftforge.eventbus.api.Event;
+import yesman.epicfight.forgecompat.eventbus.api.Cancelable;
+import yesman.epicfight.forgecompat.eventbus.api.Event;
 
 @Cancelable
 public class RenderEnderDragonEvent extends Event {

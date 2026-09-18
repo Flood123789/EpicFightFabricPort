@@ -1,7 +1,7 @@
 package yesman.epicfight.api.client.forgeevent;
 
-import net.minecraftforge.eventbus.api.Cancelable;
-import net.minecraftforge.eventbus.api.Event;
+import yesman.epicfight.forgecompat.eventbus.api.Cancelable;
+import yesman.epicfight.forgecompat.eventbus.api.Event;
 import yesman.epicfight.network.server.SPEntityPairingPacket;
 import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 

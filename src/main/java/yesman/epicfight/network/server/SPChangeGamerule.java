@@ -5,8 +5,8 @@ import java.util.function.Supplier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.GameRules;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.network.NetworkEvent;
+import yesman.epicfight.forgecompat.common.ForgeConfigSpec;
+import yesman.epicfight.forgecompat.network.NetworkEvent;
 import yesman.epicfight.world.gamerule.EpicFightGameRules;
 import yesman.epicfight.world.gamerule.EpicFightGameRules.ConfigurableGameRule;
 
